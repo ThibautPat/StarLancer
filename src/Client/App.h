@@ -6,7 +6,12 @@ public:
 	App();
 	virtual ~App();
 
-	static void MoveBall(const char* buffer);
+	void UpdateEntityPosition(cpu_entity* entity, float x, float y, float z);
+
+	void UpdateEntityRotation(cpu_entity* entity, float rx, float ry, float rz);
+
+	void UpdateEntityScale(cpu_entity* entity, float scale);
+
 
 	static App& GetInstance() { return *s_pApp; }
 
@@ -19,11 +24,13 @@ public:
 
 	SOCKET ClientSock;
 	HANDLE thread1;
-
+	std::map<int, cpu_entity*>& GetEntities() { return m_entities; }
 
 private:
-	inline static App* s_pApp = nullptr;
+	cpu_font m_font;
 
+	inline static App* s_pApp = nullptr;
+	std::map<int, cpu_entity*> m_entities;
 	cpu_mesh m_meshSphere;
 	cpu_entity* m_pBall;
 };

@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <sstream>
-
+#include "Utils.h"
 App::App()
 {
 	s_pApp = this;
@@ -17,52 +17,42 @@ App::~App()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void App::MoveBall(const char* buffer)
+void App::UpdateEntityPosition(cpu_entity* entity, float x, float y, float z)
 {
-    float x = 0.f, y = 0.f, z = 0.f;
-
-    std::string msg(buffer);
-
-    if (msg.front() == '{' && msg.back() == '}')
-    {
-        msg = msg.substr(1, msg.size() - 2);
-    }
-    else
-    {
-        return;
-    }
-
-    std::stringstream ss(msg);
-    char separator;
-
-    ss >> x >> separator >> y >> separator >> z;
-
-    if (ss.fail())
-        return;
-    
-    s_pApp->m_pBall->transform.SetPosition(x, y, z);
-    std::cout << "NEW LOCATION";
+    entity->transform.SetPosition(x, y, z);
 }
+void App::UpdateEntityRotation(cpu_entity* entity, float rx, float ry, float rz)
+{
+    entity->transform.SetYPR(rx, ry, rz);
+}
+void App::UpdateEntityScale(cpu_entity* entity, float scale)
+{
+    entity->transform.SetScaling(scale);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 DWORD WINAPI ThreadFonction(LPVOID lpParam)
 {
+    char buffer[1024];
+    SOCKET sock = (SOCKET)lpParam;
     while (true)
     {
         sockaddr_in SenderAddr{};
         int SenderAddrSize = sizeof(SenderAddr);
-        char buffer[1024];
-        SOCKET sock = (SOCKET)lpParam;
 
         int received = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, (sockaddr*)&SenderAddr, &SenderAddrSize);
-
+        if (received == SOCKET_ERROR)
+        {
+            int error = WSAGetLastError();
+            continue;
+        }
         if (received > 0)
         {
             buffer[received] = '\0';
-            App::MoveBall(buffer);
+            Utils::ParseurMessage(&App::GetInstance(), buffer);
         }
     }
     return 0;
@@ -116,14 +106,14 @@ bool BindSocketToPort(SOCKET& sock, int port, PCSTR ip)
 
 void Send(sockaddr_in& ServeurAddr)
 {
-    if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
-        return;
+    //if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
+    //    return;
 
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
 
-    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
-    //    return;
+    if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
+        return;
 
     //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
     //    return;
@@ -148,6 +138,7 @@ void Send(sockaddr_in& ServeurAddr)
 void App::OnStart()
 {
     m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
+    m_font.Create(12);
 
     InitWinSock();
 
@@ -179,6 +170,8 @@ void App::OnStart()
     m_pBall->transform.pos.x = 0.0f;
     m_pBall->transform.pos.y = 0.0f;
     m_pBall->transform.pos.z = 0.0f;
+    m_entities[0]= m_pBall;
+
 }
 
 void App::OnUpdate()
@@ -201,7 +194,37 @@ void App::OnExit()
 
 void App::OnRender(int pass)
 {
-	// YOUR CODE HERE
+
+
+    switch (pass)
+    {
+    case CPU_PASS_PARTICLE_BEGIN:
+    {
+        // Blur particles
+        //cpuEngine.SetRT(m_rts[0]);
+        //cpuEngine.ClearColor();
+        break;
+    }
+    case CPU_PASS_PARTICLE_END:
+    {
+        // Blur particles
+        //cpuEngine.Blur(10);
+        //cpuEngine.SetMainRT();
+        //cpuEngine.AlphaBlend(m_rts[0]);
+        break;
+    }
+    case CPU_PASS_UI_END:
+    {
+        // Debug
+        cpu_stats& stats = *cpuEngine.GetStats();
+        std::string info = "error: " + WSAGetLastError();
+
+
+
+        cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth() * 0.5f), 10, CPU_TEXT_CENTER);
+        break;
+    }
+    }
 }
 
 void App::MyPixelShader(cpu_ps_io& io)
