@@ -1,0 +1,54 @@
+{
+    "projects": {
+        "0EA27693-3B73-02AC-07A6-543C599E4EF8": {
+            "config-debug": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "config-release": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "dependencies": [],
+            "dependents": [],
+            "name": "Server",
+            "property-lib": false,
+            "property-pch": true,
+            "property-vcpkg": false,
+            "property-window": false
+        },
+        "21001E2C-7DBD-50FE-5BCE-5E501BE24A15": {
+            "config-debug": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "config-release": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "dependencies": [],
+            "dependents": [],
+            "name": "Client",
+            "property-lib": false,
+            "property-pch": true,
+            "property-vcpkg": false,
+            "property-window": true
+        }
+    },
+    "projects_name_to_guid": {
+        "Client": "21001E2C-7DBD-50FE-5BCE-5E501BE24A15",
+        "Server": "0EA27693-3B73-02AC-07A6-543C599E4EF8"
+    },
+    "solution_guid": "119B291D-7AF6-223B-6433-0C65492A33BA",
+    "solution_name": "CPUBall",
+    "startup_project": "",
+    "version": "2.0"
+}
