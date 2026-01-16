@@ -159,15 +159,15 @@ void App::OnStart()
     ServeurAddr.sin_port = htons(1888);
 
     // SOCKET
-    CreateSocket(ClientSock);
+    CreateSocket(UserSock);
 
     //THREAD
-    thread1 = CreateThread(NULL, 0, ThreadFonction, (LPVOID)ClientSock, 0, NULL);
+    thread1 = CreateThread(NULL, 0, ThreadFonction, (LPVOID)UserSock, 0, NULL);
     CloseHandle(thread1);
 
     // ENVOIE
     char buffer[100] = "Hello";
-    if (sendto(ClientSock, buffer, sizeof(buffer), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
+    if (sendto(UserSock, buffer, sizeof(buffer), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
     {
         std::cout << "ERREUR D'ENVOIE\n";
     }
