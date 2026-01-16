@@ -40,10 +40,10 @@ DWORD WINAPI ThreadFonction(LPVOID lpParam)
     SOCKET sock = (SOCKET)lpParam;
     while (true)
     {
-        sockaddr_in SenderAddr{};
+        sockaddr_in SenderAddr;
         int SenderAddrSize = sizeof(SenderAddr);
 
-        int received = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, (sockaddr*)&SenderAddr, &SenderAddrSize);
+        int received = recvfrom(sock, buffer, 1024 - 1, 0, (sockaddr*)&SenderAddr, &SenderAddrSize);
         if (received == SOCKET_ERROR)
         {
             int error = WSAGetLastError();
@@ -142,15 +142,24 @@ void App::OnStart()
 
     InitWinSock();
 
-    struct sockaddr_in ServeurAddr;
-
+    sockaddr_in ServeurAddr;
     Send(ServeurAddr);
-
     ServeurAddr.sin_family = AF_INET;
     ServeurAddr.sin_port = htons(1888);
 
     // SOCKET
     CreateSocket(ClientSock);
+
+    // BIND sur port 0 = Windows choisit automatiquement un port libre
+    sockaddr_in ClientAddr = {};
+    ClientAddr.sin_family = AF_INET;
+    ClientAddr.sin_port = 0;  // 0 = automatique
+    ClientAddr.sin_addr.s_addr = INADDR_ANY;
+
+    if (bind(ClientSock, (sockaddr*)&ClientAddr, sizeof(ClientAddr)) == SOCKET_ERROR)
+    {
+        std::cout << "Bind failed: " << WSAGetLastError() << "\n";
+    }
 
     //THREAD
     thread1 = CreateThread(NULL, 0, ThreadFonction, (LPVOID)ClientSock, 0, NULL);
@@ -217,11 +226,9 @@ void App::OnRender(int pass)
     {
         // Debug
         cpu_stats& stats = *cpuEngine.GetStats();
-        std::string info = "error: " + WSAGetLastError();
 
 
 
-        cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth() * 0.5f), 10, CPU_TEXT_CENTER);
         break;
     }
     }

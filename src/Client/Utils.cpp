@@ -4,15 +4,18 @@
 #include <sstream>
 namespace Utils
 {
-    XMFLOAT3 StringToXMFLOAT3(std::string* msg)
+    XMFLOAT3 StringToXMFLOAT3(std::string& msg)
     {
         XMFLOAT3 float3;
-        int pos = msg->find(';');
-        float3.x = std::stof(msg->substr(0, pos));
-        pos = msg->find(';');
-        float3.y = std::stof(msg->substr(0, pos));
-        pos = msg->find(';');
-        float3.z = std::stof(msg->substr(0, pos));
+        int pos = msg.find(';');
+        float3.x = std::stof(msg.substr(0, pos));
+        msg = msg.substr(pos + 1);
+        pos = msg.find(';');
+        float3.y = std::stof(msg.substr(0, pos));
+        msg = msg.substr(pos + 1);
+        pos = msg.find(';');
+        float3.z = std::stof(msg.substr(0, pos));
+        msg = msg.substr(pos + 1);
 		return float3;
     }
 
@@ -32,52 +35,60 @@ namespace Utils
         std::string resultat;
         if (pos != std::string::npos) {
             resultat = msg.substr(0, pos);
+            msg = msg.substr(pos + 1);  
+
         }
         if (resultat == "UPDATE")
         {
             size_t pos = msg.find(';');
-            int ID = std::stof(msg.substr(0, pos));
+            int ID = std::stoi(msg.substr(0, pos));
+            msg = msg.substr(pos + 1);
             cpu_entity* entity = s_pApp->GetEntities()[ID];
 
-            XMFLOAT3 position = StringToXMFLOAT3(&msg);
+            XMFLOAT3 position = StringToXMFLOAT3(msg);
             s_pApp->UpdateEntityPosition(entity, position.x, position.y, position.z);
 
 
-            XMFLOAT3 Rotation = StringToXMFLOAT3(&msg);
+            XMFLOAT3 Rotation = StringToXMFLOAT3(msg);
             s_pApp->UpdateEntityRotation(entity, Rotation.x, Rotation.y, Rotation.z);
 
             float Scale;
             pos = msg.find(';');
             Scale = std::stof(msg.substr(0, pos));
+            msg = msg.substr(pos + 1);
             s_pApp->UpdateEntityScale(entity, Scale);
         }
         else if (resultat == "UPDATE_ROT")
         {
             size_t pos = msg.find(';');
-            int ID = std::stof(msg.substr(0, pos));
+            int ID = std::stoi(msg.substr(0, pos));
+            msg = msg.substr(pos + 1);
             cpu_entity* entity = s_pApp->GetEntities()[ID];
 
-            XMFLOAT3 Rotation = StringToXMFLOAT3(&msg);
+            XMFLOAT3 Rotation = StringToXMFLOAT3(msg);
             s_pApp->UpdateEntityRotation(entity, Rotation.x, Rotation.y, Rotation.z);
         }
         else if (resultat == "UPDATE_POS")
         {
             size_t pos = msg.find(';');
-            int ID = std::stof(msg.substr(0, pos));
+            int ID = std::stoi(msg.substr(0, pos));
+            msg = msg.substr(pos + 1);
             cpu_entity* entity = s_pApp->GetEntities()[ID];
 
-            XMFLOAT3 position= StringToXMFLOAT3(&msg);
+            XMFLOAT3 position= StringToXMFLOAT3(msg);
             s_pApp->UpdateEntityPosition(entity, position.x, position.y, position.z);
         }
         else if (resultat == "UPDATE_SCALE")
         {
             size_t pos = msg.find(';');
-            int ID = std::stof(msg.substr(0, pos));
+            int ID = std::stoi(msg.substr(0, pos));
+            msg = msg.substr(pos + 1);
             cpu_entity* entity = s_pApp->GetEntities()[ID];
 
             float Scale;
             pos = msg.find(';');
             Scale = std::stof(msg.substr(0, pos));
+            msg = msg.substr(pos + 1);
             s_pApp->UpdateEntityScale(entity, Scale);
         }
 
