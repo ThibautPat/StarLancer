@@ -11,17 +11,17 @@
 
 void MoveLoop(socket_t sock, sockaddr* Addr_User, int sizeAddr_User, EntityData* ball)
 {
-    //std::ostringstream oss;
-    //oss << std::fixed << std::setprecision(2)<< '{' << ball->PosX << ';' << ball->PosY << ';' << ball->PosZ << '}';
+    char buffer[100] = "{UPDATE_POS;0;0.0;0.0;5.0}";
 
-    //std::string message = oss.str();
+    sendto(sock, buffer, sizeof(buffer), 0, (SOCKADDR*)&Addr_User, sizeof(Addr_User)) == SOCKET_ERROR;
+    std::cout << "SEND\n";
 
-    //sendto(sock, message.c_str(), message.size(), 0, Addr_User, sizeAddr_User);
+    ball->PosZ += 0.02;
 
-    //ball->PosZ += 0.02;
+    if (ball->PosZ >= 100)
+        ball->PosZ = 0;
 
-    //if (ball->PosZ >= 100)
-    //    ball->PosZ = 0;
+    Sleep(500);
 }
 
 /* ======================= MAIN ======================= */
@@ -31,6 +31,8 @@ int main()
     ServerNetwork* network = new ServerNetwork();
 
     network->InitNetwork();
+
+    network->Thread_StartListening();
 
     std::cerr << "Server UP --------------------\n";
 

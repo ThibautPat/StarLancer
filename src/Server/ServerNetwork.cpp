@@ -3,16 +3,15 @@
 
 User* ServerNetwork::NewUser(sockaddr_in addr)
 {
-	User* newUser = new User;
+	User* newUser = new User();
+    newUser->s_EntityData = new EntityData();
+    newUser->s_networkInfo = new ServerNetworkInfo();
+
 	newListUser.push_back(newUser);
 
-	newUser->s_userID = newListUser.size();
-	newUser->s_networkInfo->Addr_User = addr;
-
-	newUser->s_EntityData = new EntityData();
-
-	inet_ntop(AF_INET, &addr.sin_addr, newUser->s_networkInfo->IP, INET_ADDRSTRLEN);
-	newUser->s_networkInfo->port = ntohs(addr.sin_port);
+    newUser->s_networkInfo->Addr_User = addr;
+    newUser->s_networkInfo->port = ntohs(addr.sin_port);
+    inet_ntop(AF_INET, &addr.sin_addr, newUser->s_networkInfo->IP, INET_ADDRSTRLEN);
 
 	std::cout << "New User: " << newUser->s_networkInfo->IP << ":" << newUser->s_networkInfo->port << "\n";
 	return newUser;
