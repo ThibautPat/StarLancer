@@ -95,8 +95,8 @@ bool CreateSocket(SOCKET& sock)
 bool BindSocketToPort(SOCKET& sock, int port, PCSTR ip)
 {
     sockaddr_in Addr;
-    if (inet_pton(AF_INET, ip, &Addr.sin_addr) <= 0)
-        return false;
+   /* if (inet_pton(AF_INET, ip, &Addr.sin_addr) <= 0)
+        return false;*/
 
     Addr.sin_family = AF_INET;
     Addr.sin_port = htons(port);
@@ -116,8 +116,8 @@ bool BindSocketToPort(SOCKET& sock, int port, PCSTR ip)
 
 void Send(sockaddr_in& ServeurAddr)
 {
-    if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
-        return;
+    //if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
+    //    return;
 
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
@@ -147,65 +147,112 @@ void Send(sockaddr_in& ServeurAddr)
 
 void App::OnStart()
 {
-    m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
+    SpaceShip = cpuEngine.CreateEntity();
 
-    InitWinSock();
+    //Mesh
+    m_meshShip = new cpu_mesh();
+    m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
+    m_meshShip->FlipWinding();
+    m_meshShip->Optimize();
+    SpaceShip->pMesh = m_meshShip;
 
-    struct sockaddr_in ServeurAddr;
 
-    Send(ServeurAddr);
+    m_ShipTexture = new cpu_texture();
+    m_ShipTexture->Load(".. /../res/Texture/ORANGE_DEBUG_TEXTURE.png");
 
-    ServeurAddr.sin_family = AF_INET;
-    ServeurAddr.sin_port = htons(1888);
+    m_pEmitter = cpuEngine.CreateParticleEmitter();
+    m_pEmitter->density = 3000.0f;
+    m_pEmitter->colorMin = cpu::ToColor(255, 0, 0);
+    m_pEmitter->colorMax = cpu::ToColor(255, 128, 0);
 
-    // SOCKET
-    CreateSocket(ClientSock);
-
-    //THREAD
-    thread1 = CreateThread(NULL, 0, ThreadFonction, (LPVOID)ClientSock, 0, NULL);
-    CloseHandle(thread1);
-
-    // ENVOIE
-    char buffer[100] = "Hello";
-    if (sendto(ClientSock, buffer, sizeof(buffer), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
-    {
-        std::cout << "ERREUR D'ENVOIE\n";
-    }
-    std::cout << "SENDED\n";
-
-    m_pBall = cpuEngine.CreateEntity();
-    m_pBall->pMesh = &m_meshSphere;
-
-    m_pBall->transform.pos.x = 0.0f;
-    m_pBall->transform.pos.y = 0.0f;
-    m_pBall->transform.pos.z = 0.0f;
+    //Transform
+    SpaceShip->transform.SetPosition(0, 0, 0);
+    SpaceShip->transform.SetYPR(0,0,0);
 }
 
 void App::OnUpdate()
 {
-    // Move ship
-    if (cpuInput.IsKey(VK_UP))
+    cpu_transform& t = SpaceShip->transform;
+
+    // ----- Souris -----
+    POINT currentMouse;
+    GetCursorPos(&currentMouse);
+    ScreenToClient(cpu_engine::GetInstance().GetWindow()->GetHWND(), &currentMouse);
+
+    static POINT lastMousePos = currentMouse;
+    float deltaX = (currentMouse.x - lastMousePos.x) * 0.01f;
+    lastMousePos = currentMouse;
+
+    float centerX = cpu_engine::GetInstance().GetWindow()->GetWidth() / 2.0f;
+    float centerZ = cpu_engine::GetInstance().GetWindow()->GetHeight() / 2.0f;
+
+    float mouseX = (currentMouse.x - centerX) / centerX;
+    float mouseZ = (currentMouse.y - centerZ) / centerZ;
+
+    // Calcul de la position cible relative à la souris
+    XMFLOAT3 target;
+    target.x = t.pos.x + mouseX * 2.0f;
+    target.y = t.pos.y + mouseZ * 2.0f;
+    target.z = t.pos.z + 10.0f;
+
+    // Oriente le vaisseau vers la cible
+    t.LookAt(target.x, target.y, target.z);
+
+    // ----- Déplacement vers la souris -----
+    // Vecteur direction normalisé
+    XMFLOAT3 direction;
+    direction.x = target.x - t.pos.x;
+    direction.y = target.y - t.pos.y;
+    direction.z = target.z - t.pos.z;
+
+    float length = sqrt(direction.x * direction.x +
+        direction.y * direction.y +
+        direction.z * direction.z);
+
+    if (length > 0.0001f)
     {
-        cpuEngine.GetCamera()->transform.Move(cpuTime.delta * 1.0f);
+        direction.x /= length;
+        direction.y /= length;
+        direction.z /= length;
     }
-    if (cpuInput.IsKey(VK_DOWN))
+
+    float speed = 10.0f; // vitesse
+    if (cpuInput.IsKey(VK_UP)) // avancer vers la souris
     {
-        cpuEngine.GetCamera()->transform.Move(-cpuTime.delta * 1.0f);
+        t.pos.x += direction.x * cpuTime.delta * speed;
+        t.pos.y += direction.y * cpuTime.delta * speed;
+        t.pos.z += direction.z * cpuTime.delta * speed;
     }
+    if (cpuInput.IsKey(VK_DOWN)) // reculer
+    {
+        t.pos.x -= direction.x * cpuTime.delta * speed;
+        t.pos.y -= direction.y * cpuTime.delta * speed;
+        t.pos.z -= direction.z * cpuTime.delta * speed;
+    }
+
+    // ----- CAMÉRA -----
+    cpu_transform& cam = cpuEngine.GetCamera()->transform;
+    cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
+    cam.ResetFlags();
+    cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
+
+    // ----- Particule -----
+    m_pEmitter->pos = t.pos;
+    m_pEmitter->dir = t.dir;
+    m_pEmitter->dir.x = -m_pEmitter->dir.x;
+    m_pEmitter->dir.y = -m_pEmitter->dir.y;
+    m_pEmitter->dir.z = -m_pEmitter->dir.z;
 }
 
 void App::OnExit()
 {
-	// YOUR CODE HERE
 }
 
 void App::OnRender(int pass)
 {
-	// YOUR CODE HERE
 }
 
 void App::MyPixelShader(cpu_ps_io& io)
 {
-	// YOUR CODE HERE
 	io.color = io.p.color;
 }

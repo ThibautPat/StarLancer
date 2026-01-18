@@ -20,6 +20,16 @@ public:
 	SOCKET ClientSock;
 	HANDLE thread1;
 
+	//TEMPORARY BUILD
+	cpu_entity* SpaceShip;
+	cpu_mesh* m_meshShip;
+	cpu_texture* m_ShipTexture;
+	cpu_particle_emitter* m_pEmitter;
+
+	float camDistance = 8.0f;
+	float camHeight = 2.0f;
+
+	POINT lastMousePos;
 
 private:
 	inline static App* s_pApp = nullptr;
