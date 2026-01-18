@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "main.h"
 
 #include <map>
@@ -13,14 +13,20 @@ void MoveLoop(socket_t sock, sockaddr* Addr_User, int sizeAddr_User, EntityData*
 {
     char buffer[100] = "{UPDATE_POS;0;0.0;0.0;5.0}";
 
-    sendto(sock, buffer, sizeof(buffer), 0, (SOCKADDR*)&Addr_User, sizeof(Addr_User)) == SOCKET_ERROR;
-    std::cout << "SEND\n";
+    int result = sendto(sock, buffer, sizeof(buffer), 0, Addr_User, sizeAddr_User);
+
+    if (result == SOCKET_ERROR)
+    {
+        std::cout << "SEND ERROR\n";
+    }
+    else
+    {
+        std::cout << "SEND OK\n";
+    }
 
     ball->PosZ += 0.02;
-
     if (ball->PosZ >= 100)
         ball->PosZ = 0;
-
     Sleep(500);
 }
 
@@ -42,11 +48,11 @@ int main()
         {
             if (currentUser == nullptr)
                 continue;
-            MoveLoop(*network->GetSocket(), (sockaddr*)&currentUser->s_networkInfo->Addr_User, sizeof(currentUser->s_networkInfo->Addr_User), currentUser->s_EntityData);
+
+            MoveLoop(*network->GetSocket(),(sockaddr*)&currentUser->s_networkInfo->Addr_User,sizeof(sockaddr_in),currentUser->s_EntityData);
         }
         network->ListUser = network->newListUser;
     }
     network->CloseSocket(*network->GetSocket());
     return 0;
 }
-
