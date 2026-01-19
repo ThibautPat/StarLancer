@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <sstream>
+
 #include "Utils.h"
+
 App::App()
 {
 	s_pApp = this;
@@ -225,7 +227,7 @@ void App::OnUpdate()
     float mouseX = (currentMouse.x - centerX) / centerX;
     float mouseZ = (currentMouse.y - centerZ) / centerZ;
 
-    // Calcul de la position cible relative � la souris
+    // Calcul de la position cible relative a la souris
     XMFLOAT3 target;
     target.x = t.pos.x + mouseX * 2.0f;
     target.y = t.pos.y + mouseZ * 2.0f;

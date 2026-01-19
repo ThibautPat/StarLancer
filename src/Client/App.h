@@ -36,10 +36,6 @@ public:
 
 	POINT lastMousePos;
 
-
-
-
-	
 	std::map<int, cpu_entity*>& GetEntities() { return m_entities; }
 
 private:
