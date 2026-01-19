@@ -9,16 +9,39 @@
 
 #include "Network.h"
 
-void Send(socket_t* sock, sockaddr* Addr_User, int sizeAddr_User, EntityData* entity)
+void SendAllPositions(ServerNetwork* network)
 {
-    std::string buffer = "{UPDATE_POS;0;" + std::to_string(entity->PosX) + ";" + std::to_string(entity->PosY) + ";" + std::to_string(entity->PosZ) + ";}";
+    for (auto* client : network->ListUser)
+    {
+        // On envoie la position de toutes les entités à ce client
+        for (auto* entity : network->ListUser)
+        {
+            if (!entity || !entity->s_EntityData)
+                continue;
 
-    int result = sendto(*sock,buffer.c_str(),buffer.size(),0,Addr_User,sizeAddr_User);
+            std::string buffer = "{UPDATE_POS;"
+                + std::to_string(entity->s_userID) + ";"
+                + std::to_string(entity->s_EntityData->PosX) + ";"
+                + std::to_string(entity->s_EntityData->PosY) + ";"
+                + std::to_string(entity->s_EntityData->PosZ) + ";}";
+
+            sockaddr_in addr = client->s_networkInfo->Addr_User;
+            int sizeAddr = sizeof(addr);
+
+            int result = sendto(*network->GetSocket(),buffer.c_str(),static_cast<int>(buffer.size()),0,(sockaddr*)&addr,sizeAddr);
+
+            if (result == SOCKET_ERROR)
+            {
+                int err = WSAGetLastError();
+                std::cerr << "[SendAllPositions] sendto failed for user "<< client->s_userID << ": " << err << std::endl;
+            }
+        }
+    }
 }
 
 
-/* ======================= MAIN ======================= */
 
+/* ======================= MAIN ======================= */
 
 int main()
 {
@@ -34,9 +57,9 @@ int main()
     {
         EnterCriticalSection(&network->csMovedUsers);
 
-        for (auto* currentUser : network->ListUser)
+        for (auto* currentUser : network->ListOfUserMoved)
         {
-            Send(network->GetSocket(), (sockaddr*)&currentUser->s_networkInfo->Addr_User, sizeof(currentUser->s_networkInfo->Addr_User),currentUser->s_EntityData);
+            SendAllPositions(network);
         }
         network->ListOfUserMoved.clear();
 

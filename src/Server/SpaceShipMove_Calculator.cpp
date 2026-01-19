@@ -22,6 +22,6 @@ void SpaceShipMove_Calculator::Calcul_Left(User* user)
 void SpaceShipMove_Calculator::Calcul_Right(User* user)
 {
     float speed = 0.1f;
-    user->s_EntityData->PosX += speed;
+    user->s_EntityData->PosX -= speed;
 }
 
