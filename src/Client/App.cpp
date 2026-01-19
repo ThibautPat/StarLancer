@@ -31,6 +31,15 @@ void App::UpdateEntityScale(cpu_entity* entity, float scale)
 {
     entity->transform.SetScaling(scale);
 }
+void App::SendMessageToServer(std::string message)
+{
+
+
+    size_t a = sizeof(message);
+
+    sendto(UserSock, message.c_str(), a, 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +115,7 @@ bool BindSocketToPort(SOCKET& sock, int port, PCSTR ip)
     return true;
 }
 
-void Send(sockaddr_in& ServeurAddr)
+void ChoseTarget(sockaddr_in& ServeurAddr)
 {
     //if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
     //    return;
@@ -139,12 +148,13 @@ void Send(sockaddr_in& ServeurAddr)
 
 void App::OnStart()
 {
-    m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
+    InitWinSock();
     m_font.Create(12);
-
-
     SpaceShip = cpuEngine.CreateEntity();
+    m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
     //Mesh
+    m_pBall = cpuEngine.CreateEntity();
+    m_pBall->pMesh = &m_meshSphere;
     m_meshShip = new cpu_mesh();
     m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
     m_meshShip->FlipWinding();
@@ -167,21 +177,15 @@ void App::OnStart()
 
 
     // ------------- CONNEXION ------------------
-    sockaddr_in ServeurAddr;
-    Send(ServeurAddr);
+    ServeurAddr;
+    ChoseTarget(ServeurAddr);
     ServeurAddr.sin_family = AF_INET;
     ServeurAddr.sin_port = htons(1888);
 
     // SOCKET
     CreateSocket(UserSock);
 
-    // BIND sur port 0 = Windows choisit automatiquement un port libre
-    sockaddr_in ClientAddr = {};
-    ClientAddr.sin_family = AF_INET;
-    ClientAddr.sin_port = 0;  // 0 = automatique
-    ClientAddr.sin_addr.s_addr = INADDR_ANY;
-
-    if (bind(ClientSock, (sockaddr*)&ClientAddr, sizeof(ClientAddr)) == SOCKET_ERROR)
+    if (bind(UserSock, (sockaddr*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
     {
         std::cout << "Bind failed: " << WSAGetLastError() << "\n";
     }
@@ -191,87 +195,33 @@ void App::OnStart()
     CloseHandle(thread1);
 
     // ENVOIE
-    char buffer[100] = "Hello";
-    if (sendto(UserSock, buffer, sizeof(buffer), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
-    {
-        std::cout << "ERREUR D'ENVOIE\n";
-    }
+  
+    SendMessageToServer("{CONNEXION}");
     std::cout << "SENDED\n";
 
-    m_pBall = cpuEngine.CreateEntity();
-    m_pBall->pMesh = &m_meshSphere;
+   
+    m_entities[0]= SpaceShip;
 
-    m_pBall->transform.pos.x = 0.0f;
-    m_pBall->transform.pos.y = 0.0f;
-    m_pBall->transform.pos.z = 0.0f;
-    m_entities[0]= m_pBall;
+
 
 }
 
 void App::OnUpdate()
 {
-    cpu_transform& t = SpaceShip->transform;
-
-    // ----- Souris -----
-    POINT currentMouse;
-    GetCursorPos(&currentMouse);
-    ScreenToClient(cpu_engine::GetInstance().GetWindow()->GetHWND(), &currentMouse);
-
-    static POINT lastMousePos = currentMouse;
-    float deltaX = (currentMouse.x - lastMousePos.x) * 0.01f;
-    lastMousePos = currentMouse;
-
-    float centerX = cpu_engine::GetInstance().GetWindow()->GetWidth() / 2.0f;
-    float centerZ = cpu_engine::GetInstance().GetWindow()->GetHeight() / 2.0f;
-
-    float mouseX = (currentMouse.x - centerX) / centerX;
-    float mouseZ = (currentMouse.y - centerZ) / centerZ;
-
-    // Calcul de la position cible relative a la souris
-    XMFLOAT3 target;
-    target.x = t.pos.x + mouseX * 2.0f;
-    target.y = t.pos.y + mouseZ * 2.0f;
-    target.z = t.pos.z + 10.0f;
-
-    // Oriente le vaisseau vers la cible
-    t.LookAt(target.x, target.y, target.z);
-
-    // ----- D�placement vers la souris -----
-    // Vecteur direction normalis�
-    XMFLOAT3 direction;
-    direction.x = target.x - t.pos.x;
-    direction.y = target.y - t.pos.y;
-    direction.z = target.z - t.pos.z;
-
-    float length = sqrt(direction.x * direction.x +
-        direction.y * direction.y +
-        direction.z * direction.z);
-
-    if (length > 0.0001f)
-    {
-        direction.x /= length;
-        direction.y /= length;
-        direction.z /= length;
-    }
-
-    float speed = 10.0f; // vitesse
     if (cpuInput.IsKey(VK_DOWN)) // avancer vers la souris
     {
-        //SEND MESSAGE FORWARD
-        t.pos.x += direction.x * cpuTime.delta * speed;
-        t.pos.y += direction.y * cpuTime.delta * speed;
-        t.pos.z += direction.z * cpuTime.delta * speed;
+        SendMessageToServer("{BACKWARD}");
     }
     if (cpuInput.IsKey(VK_UP)) // reculer
     {
-        //SEND MESSAGE BACKWARD
-        t.pos.x -= direction.x * cpuTime.delta * speed;
-        t.pos.y -= direction.y * cpuTime.delta * speed;
-        t.pos.z -= direction.z * cpuTime.delta * speed;
+        SendMessageToServer("{FORWARD}");
+
     }
 
     // ----- CAM�RA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
+	cpu_transform t = SpaceShip->transform;
+
     cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
     cam.ResetFlags();
     cam.LookAt(t.pos.x, t.pos.y, t.pos.z);

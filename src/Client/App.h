@@ -12,6 +12,8 @@ public:
 
 	void UpdateEntityScale(cpu_entity* entity, float scale);
 
+	void SendMessageToServer(std::string message);
+
 
 	static App& GetInstance() { return *s_pApp; }
 
@@ -24,7 +26,7 @@ public:
 
 	SOCKET UserSock;
 	HANDLE thread1;
-
+	sockaddr_in ServeurAddr;
 	//TEMPORARY BUILD
 	cpu_entity* SpaceShip;
 	cpu_mesh* m_meshShip;

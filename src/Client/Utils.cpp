@@ -19,6 +19,13 @@ namespace Utils
 		return float3;
     }
 
+    std::string XMFLOAT3ToString(XMFLOAT3 float3)
+    {
+
+		return std::to_string(float3.x) + ";" + std::to_string(float3.y) + ";" + std::to_string(float3.z) + ";";
+
+    }
+
     void ParseurMessage(App* s_pApp, const char* buffer)
     {
 
@@ -90,6 +97,19 @@ namespace Utils
             Scale = std::stof(msg.substr(0, pos));
             msg = msg.substr(pos + 1);
             s_pApp->UpdateEntityScale(entity, Scale);
+        }
+        else if (resultat == "ENTITY")
+        {
+            size_t pos = msg.find(';');
+            
+            if (pos != std::string::npos) {
+                resultat = msg.substr(0, pos);
+                msg = msg.substr(pos + 1);
+            }
+            if (resultat == "SPACESHIP")
+            {
+
+            }
         }
 
 
