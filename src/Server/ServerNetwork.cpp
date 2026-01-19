@@ -43,6 +43,16 @@ void ServerNetwork::ParseurMessage(User* user, const char* buffer)
         SpaceShipMove_Calculator::Calcul_Backward(user);
         ListOfUserMoved.push_back(user);
     }
+    else if (msg == "LEFT")
+    {
+        SpaceShipMove_Calculator::Calcul_Forward(user);
+        ListOfUserMoved.push_back(user);
+    }
+    else if (msg == "RIGHT")
+    {
+        SpaceShipMove_Calculator::Calcul_Backward(user);
+        ListOfUserMoved.push_back(user);
+    }
 }
 
 DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
@@ -87,7 +97,10 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
         }
 
         if (!user)
+        {
             user = network->NewUser(senderAddr);
+
+        }
 
         LeaveCriticalSection(&network->csNewUser);
 

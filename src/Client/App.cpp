@@ -217,7 +217,15 @@ void App::OnUpdate()
         SendMessageToServer("{FORWARD}");
 
     }
+    if (cpuInput.IsKey(VK_DOWN)) // avancer vers la souris
+    {
+        SendMessageToServer("{LEFT}");
+    }
+    if (cpuInput.IsKey(VK_UP)) // reculer
+    {
+        SendMessageToServer("{RIGHT}");
 
+    }
     // ----- CAM�RA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
 	cpu_transform t = SpaceShip->transform;
