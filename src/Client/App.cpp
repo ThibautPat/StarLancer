@@ -117,14 +117,14 @@ bool BindSocketToPort(SOCKET& sock, int port, PCSTR ip)
 
 void ChoseTarget(sockaddr_in& ServeurAddr)
 {
-    if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
-        return;
+    //if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
+    //    return;
 
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
 
-    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
-    //    return;
+    if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
+        return;
 
     //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
     //    return;
@@ -150,19 +150,8 @@ void App::OnStart()
 {
     InitWinSock();
     m_font.Create(12);
-    SpaceShip = cpuEngine.CreateEntity();
-    m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
-    //Mesh
-    m_pBall = cpuEngine.CreateEntity();
-    m_pBall->pMesh = &m_meshSphere;
-    m_meshShip = new cpu_mesh();
-    m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
-    m_meshShip->FlipWinding();
-    m_meshShip->Optimize();
-    SpaceShip->pMesh = m_meshShip;
 
-    m_ShipTexture = new cpu_texture();
-    m_ShipTexture->Load(".. /../res/Texture/ORANGE_DEBUG_TEXTURE.png");
+
 
     cpuEngine.GetParticleData()->Create(1000000);
     cpuEngine.GetParticlePhysics()->gy = -0.5f;
@@ -172,8 +161,10 @@ void App::OnStart()
     m_pEmitter->colorMax = cpu::ToColor(255, 128, 0);
 
     //Transform
-    SpaceShip->transform.SetPosition(0, 0, 0);
-    SpaceShip->transform.SetYPR(0,0,0);
+
+
+
+
 
 
     // ------------- CONNEXION ------------------
@@ -185,25 +176,14 @@ void App::OnStart()
     // SOCKET
     CreateSocket(UserSock);
 
-    //if (bind(UserSock, (sockaddr*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
-    //{
-    //    std::cout << "Bind failed: " << WSAGetLastError() << "\n";
-    //}
-
     //THREAD
     thread1 = CreateThread(NULL, 0, ThreadFonction, (LPVOID)UserSock, 0, NULL);
     CloseHandle(thread1);
 
     // ENVOIE
-  
+
     SendMessageToServer("{CONNEXION}");
     std::cout << "SENDED\n";
-
-   
-    m_entities[0]= SpaceShip;
-
-
-
 }
 
 void App::OnUpdate()
@@ -217,18 +197,18 @@ void App::OnUpdate()
         SendMessageToServer("{FORWARD}");
 
     }
-    if (cpuInput.IsKey(VK_DOWN)) // avancer vers la souris
+    if (cpuInput.IsKey(VK_LEFT)) // avancer vers la souris
     {
         SendMessageToServer("{LEFT}");
     }
-    if (cpuInput.IsKey(VK_UP)) // reculer
+    if (cpuInput.IsKey(VK_RIGHT)) // reculer
     {
         SendMessageToServer("{RIGHT}");
 
     }
     // ----- CAM�RA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
-	cpu_transform t = SpaceShip->transform;
+	cpu_transform t = m_entities[0]->transform;
 
     cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
     cam.ResetFlags();

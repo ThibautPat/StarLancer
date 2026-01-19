@@ -100,13 +100,23 @@ namespace Utils
         else if (resultat == "ENTITY")
         {
             size_t pos = msg.find(';');
-            
-            if (pos != std::string::npos) {
-                resultat = msg.substr(0, pos);
-                msg = msg.substr(pos + 1);
-            }
-            if (resultat == "SPACESHIP")
+          
+            if (msg == "SPACESHIP")
             {
+              
+                cpu_entity* SpaceShip = cpuEngine.CreateEntity();
+
+                cpu_mesh* m_meshShip = new cpu_mesh();
+
+                //m_meshShip->CreateCube();
+                //m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj", { 1,1,1 }, false);
+                //m_meshShip->FlipWinding();
+                //m_meshShip->Optimize();
+                SpaceShip->pMesh = m_meshShip;
+
+               
+                int i = s_pApp->GetEntities().size();
+                s_pApp->GetEntities()[i] = SpaceShip;
 
             }
         }

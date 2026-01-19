@@ -28,9 +28,6 @@ public:
 	HANDLE thread1;
 	sockaddr_in ServeurAddr;
 	//TEMPORARY BUILD
-	cpu_entity* SpaceShip;
-	cpu_mesh* m_meshShip;
-	cpu_texture* m_ShipTexture;
 	cpu_particle_emitter* m_pEmitter;
 
 	float camDistance = 8.0f;
@@ -43,8 +40,8 @@ public:
 private:
 	cpu_font m_font;
 
-	inline static App* s_pApp = nullptr;
 	std::map<int, cpu_entity*> m_entities;
+	inline static App* s_pApp = nullptr;
 	cpu_mesh m_meshSphere;
 	cpu_entity* m_pBall;
 };
