@@ -76,7 +76,6 @@ class ServerNetwork : public Network
 
 	static DWORD WINAPI ThreadFonction(LPVOID lpParam);
 
-	void ReplicationMessage(socket_t sock, const std::string& message, User* sender, bool excludeSender);
 
 	std::atomic<bool> IsRunning = true;
 
@@ -88,6 +87,8 @@ public:
 	ServerNetwork() { InitializeCriticalSection(&csMovedUsers);     InitializeCriticalSection(&csNewUser); };
 
 	void Thread_StartListening();
+
+	void ReplicationMessage(socket_t sock, const std::string& message, User* sender, bool excludeSender);
 
 	std::vector<User*> ListUser;
 

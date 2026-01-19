@@ -9,6 +9,7 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     newUser->s_EntityData = new EntityData();
     newUser->s_networkInfo = new ServerNetworkInfo();
 
+    newUser->s_userID = ListUser.size();
 	ListUser.push_back(newUser);
 
     newUser->s_networkInfo->Addr_User = addr;
@@ -45,12 +46,12 @@ void ServerNetwork::ParseurMessage(User* user, const char* buffer)
     }
     else if (msg == "LEFT")
     {
-        SpaceShipMove_Calculator::Calcul_Forward(user);
+        SpaceShipMove_Calculator::Calcul_Left(user);
         ListOfUserMoved.push_back(user);
     }
     else if (msg == "RIGHT")
     {
-        SpaceShipMove_Calculator::Calcul_Backward(user);
+        SpaceShipMove_Calculator::Calcul_Right(user);
         ListOfUserMoved.push_back(user);
     }
 }
@@ -100,6 +101,8 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
         {
             user = network->NewUser(senderAddr);
 
+            std::string buffer = "{ENTITY;SPACESHIP}";
+            network->ReplicationMessage(*network->GetSocket(), buffer, user, false);
         }
 
         LeaveCriticalSection(&network->csNewUser);
