@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <sstream>
-
+#include "Utils.h"
 App::App()
 {
 	s_pApp = this;
@@ -17,52 +17,42 @@ App::~App()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void App::MoveBall(const char* buffer)
+void App::UpdateEntityPosition(cpu_entity* entity, float x, float y, float z)
 {
-    float x = 0.f, y = 0.f, z = 0.f;
-
-    std::string msg(buffer);
-
-    if (msg.front() == '{' && msg.back() == '}')
-    {
-        msg = msg.substr(1, msg.size() - 2);
-    }
-    else
-    {
-        return;
-    }
-
-    std::stringstream ss(msg);
-    char separator;
-
-    ss >> x >> separator >> y >> separator >> z;
-
-    if (ss.fail())
-        return;
-    
-    s_pApp->m_pBall->transform.SetPosition(x, y, z);
-    std::cout << "NEW LOCATION";
+    entity->transform.SetPosition(x, y, z);
 }
+void App::UpdateEntityRotation(cpu_entity* entity, float rx, float ry, float rz)
+{
+    entity->transform.SetYPR(rx, ry, rz);
+}
+void App::UpdateEntityScale(cpu_entity* entity, float scale)
+{
+    entity->transform.SetScaling(scale);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 DWORD WINAPI ThreadFonction(LPVOID lpParam)
 {
+    char buffer[1024];
+    SOCKET sock = (SOCKET)lpParam;
     while (true)
     {
-        sockaddr_in SenderAddr{};
+        sockaddr_in SenderAddr;
         int SenderAddrSize = sizeof(SenderAddr);
-        char buffer[1024];
-        SOCKET sock = (SOCKET)lpParam;
 
-        int received = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, (sockaddr*)&SenderAddr, &SenderAddrSize);
-
+        int received = recvfrom(sock, buffer, 1024 - 1, 0, (sockaddr*)&SenderAddr, &SenderAddrSize);
+        if (received == SOCKET_ERROR)
+        {
+            int error = WSAGetLastError();
+            continue;
+        }
         if (received > 0)
         {
             buffer[received] = '\0';
-            App::MoveBall(buffer);
+            Utils::ParseurMessage(&App::GetInstance(), buffer);
         }
     }
     return 0;
@@ -122,8 +112,8 @@ void Send(sockaddr_in& ServeurAddr)
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
 
-    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
-    //    return;
+    if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
+        return;
 
     //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
     //    return;
@@ -147,8 +137,11 @@ void Send(sockaddr_in& ServeurAddr)
 
 void App::OnStart()
 {
-    SpaceShip = cpuEngine.CreateEntity();
+    m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
+    m_font.Create(12);
 
+
+    SpaceShip = cpuEngine.CreateEntity();
     //Mesh
     m_meshShip = new cpu_mesh();
     m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
@@ -169,6 +162,48 @@ void App::OnStart()
     //Transform
     SpaceShip->transform.SetPosition(0, 0, 0);
     SpaceShip->transform.SetYPR(0,0,0);
+
+
+    // ------------- CONNEXION ------------------
+    sockaddr_in ServeurAddr;
+    Send(ServeurAddr);
+    ServeurAddr.sin_family = AF_INET;
+    ServeurAddr.sin_port = htons(1888);
+
+    // SOCKET
+    CreateSocket(ClientSock);
+
+    // BIND sur port 0 = Windows choisit automatiquement un port libre
+    sockaddr_in ClientAddr = {};
+    ClientAddr.sin_family = AF_INET;
+    ClientAddr.sin_port = 0;  // 0 = automatique
+    ClientAddr.sin_addr.s_addr = INADDR_ANY;
+
+    if (bind(ClientSock, (sockaddr*)&ClientAddr, sizeof(ClientAddr)) == SOCKET_ERROR)
+    {
+        std::cout << "Bind failed: " << WSAGetLastError() << "\n";
+    }
+
+    //THREAD
+    thread1 = CreateThread(NULL, 0, ThreadFonction, (LPVOID)ClientSock, 0, NULL);
+    CloseHandle(thread1);
+
+    // ENVOIE
+    char buffer[100] = "Hello";
+    if (sendto(ClientSock, buffer, sizeof(buffer), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
+    {
+        std::cout << "ERREUR D'ENVOIE\n";
+    }
+    std::cout << "SENDED\n";
+
+    m_pBall = cpuEngine.CreateEntity();
+    m_pBall->pMesh = &m_meshSphere;
+
+    m_pBall->transform.pos.x = 0.0f;
+    m_pBall->transform.pos.y = 0.0f;
+    m_pBall->transform.pos.z = 0.0f;
+    m_entities[0]= m_pBall;
+
 }
 
 void App::OnUpdate()
@@ -190,7 +225,7 @@ void App::OnUpdate()
     float mouseX = (currentMouse.x - centerX) / centerX;
     float mouseZ = (currentMouse.y - centerZ) / centerZ;
 
-    // Calcul de la position cible relative à la souris
+    // Calcul de la position cible relative ï¿½ la souris
     XMFLOAT3 target;
     target.x = t.pos.x + mouseX * 2.0f;
     target.y = t.pos.y + mouseZ * 2.0f;
@@ -199,8 +234,8 @@ void App::OnUpdate()
     // Oriente le vaisseau vers la cible
     t.LookAt(target.x, target.y, target.z);
 
-    // ----- Déplacement vers la souris -----
-    // Vecteur direction normalisé
+    // ----- Dï¿½placement vers la souris -----
+    // Vecteur direction normalisï¿½
     XMFLOAT3 direction;
     direction.x = target.x - t.pos.x;
     direction.y = target.y - t.pos.y;
@@ -234,7 +269,7 @@ void App::OnUpdate()
         t.pos.z -= direction.z * cpuTime.delta * speed;
     }
 
-    // ----- CAMÉRA -----
+    // ----- CAMï¿½RA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
     cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
     cam.ResetFlags();
@@ -254,6 +289,30 @@ void App::OnExit()
 
 void App::OnRender(int pass)
 {
+    switch (pass)
+    {
+    case CPU_PASS_PARTICLE_BEGIN:
+    {
+        // Blur particles
+        //cpuEngine.SetRT(m_rts[0]);
+        //cpuEngine.ClearColor();
+        break;
+    }
+    case CPU_PASS_PARTICLE_END:
+    {
+        // Blur particles
+        //cpuEngine.Blur(10);
+        //cpuEngine.SetMainRT();
+        //cpuEngine.AlphaBlend(m_rts[0]);
+        break;
+    }
+    case CPU_PASS_UI_END:
+    {
+        // Debug
+        cpu_stats& stats = *cpuEngine.GetStats();
+        break;
+    }
+    }
 }
 
 void App::MyPixelShader(cpu_ps_io& io)
