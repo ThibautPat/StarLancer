@@ -66,7 +66,7 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
             break; 
         }
 
-        buffer[received + 1] = '\0';
+        buffer[received] = '\0';
 
         char ip_current[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &senderAddr.sin_addr, ip_current, INET_ADDRSTRLEN);
