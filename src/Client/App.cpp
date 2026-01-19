@@ -156,10 +156,11 @@ void App::OnStart()
     m_meshShip->Optimize();
     SpaceShip->pMesh = m_meshShip;
 
-
     m_ShipTexture = new cpu_texture();
     m_ShipTexture->Load(".. /../res/Texture/ORANGE_DEBUG_TEXTURE.png");
 
+    cpuEngine.GetParticleData()->Create(1000000);
+    cpuEngine.GetParticlePhysics()->gy = -0.5f;
     m_pEmitter = cpuEngine.CreateParticleEmitter();
     m_pEmitter->density = 3000.0f;
     m_pEmitter->colorMin = cpu::ToColor(255, 0, 0);
@@ -219,12 +220,15 @@ void App::OnUpdate()
     float speed = 10.0f; // vitesse
     if (cpuInput.IsKey(VK_UP)) // avancer vers la souris
     {
+
+        //SEND MESSAGE FORWARD
         t.pos.x += direction.x * cpuTime.delta * speed;
         t.pos.y += direction.y * cpuTime.delta * speed;
         t.pos.z += direction.z * cpuTime.delta * speed;
     }
     if (cpuInput.IsKey(VK_DOWN)) // reculer
     {
+        //SEND MESSAGE BACKWARD
         t.pos.x -= direction.x * cpuTime.delta * speed;
         t.pos.y -= direction.y * cpuTime.delta * speed;
         t.pos.z -= direction.z * cpuTime.delta * speed;
@@ -237,7 +241,7 @@ void App::OnUpdate()
     cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
 
     // ----- Particule -----
-    m_pEmitter->pos = t.pos;
+    m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z};
     m_pEmitter->dir = t.dir;
     m_pEmitter->dir.x = -m_pEmitter->dir.x;
     m_pEmitter->dir.y = -m_pEmitter->dir.y;
