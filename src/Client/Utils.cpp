@@ -48,7 +48,6 @@ namespace Utils
             XMFLOAT3 position = StringToXMFLOAT3(msg);
             s_pApp->UpdateEntityPosition(entity, position.x, position.y, position.z);
 
-
             XMFLOAT3 Rotation = StringToXMFLOAT3(msg);
             s_pApp->UpdateEntityRotation(entity, Rotation.x, Rotation.y, Rotation.z);
 
@@ -92,19 +91,12 @@ namespace Utils
             s_pApp->UpdateEntityScale(entity, Scale);
         }
 
-
-
-
-
         std::stringstream ss(msg);
         char separator;
-
 
         if (ss.fail())
             return;
 
-        //s_pApp->m_pBall->transform.SetPosition(x, y, z);
         std::cout << "NEW LOCATION";
     }
-
 }

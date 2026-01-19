@@ -37,6 +37,7 @@ public:
 	socket_t* GetSocket() { return &m_NetworkSocket; };
 
 	void CloseSocket(socket_t& sock);
+
 };
 
 // SERVEUR LOGIQUE -----------------------------------------
@@ -71,6 +72,8 @@ class ServerNetwork : public Network
 {
 	User* NewUser(sockaddr_in addr);
 
+	void ParseurMessage(User* user, const char* buffer);
+
 	static DWORD WINAPI ThreadFonction(LPVOID lpParam);
 
 	void ReplicationMessage(socket_t sock, const std::string& message, User* sender, bool excludeSender);
@@ -79,9 +82,15 @@ class ServerNetwork : public Network
 
 public:
 
+	CRITICAL_SECTION csNewUser;
+	CRITICAL_SECTION csMovedUsers;
+
+	ServerNetwork() { InitializeCriticalSection(&csMovedUsers);     InitializeCriticalSection(&csNewUser); };
+
 	void Thread_StartListening();
 
 	std::vector<User*> ListUser;
-	std::vector<User*> newListUser;
+
+	std::vector<User*> ListOfUserMoved;
 };
 

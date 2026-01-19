@@ -181,7 +181,7 @@ void App::OnStart()
     ClientAddr.sin_port = 0;  // 0 = automatique
     ClientAddr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(ClientSock, (sockaddr*)&ClientAddr, sizeof(ClientAddr)) == SOCKET_ERROR)
+    if (bind(UserSock, (sockaddr*)&ClientAddr, sizeof(ClientAddr)) == SOCKET_ERROR)
     {
         std::cout << "Bind failed: " << WSAGetLastError() << "\n";
     }
@@ -210,78 +210,7 @@ void App::OnStart()
 
 void App::OnUpdate()
 {
-    cpu_transform& t = SpaceShip->transform;
 
-    // ----- Souris -----
-    POINT currentMouse;
-    GetCursorPos(&currentMouse);
-    ScreenToClient(cpu_engine::GetInstance().GetWindow()->GetHWND(), &currentMouse);
-
-    static POINT lastMousePos = currentMouse;
-    float deltaX = (currentMouse.x - lastMousePos.x) * 0.01f;
-    lastMousePos = currentMouse;
-
-    float centerX = cpu_engine::GetInstance().GetWindow()->GetWidth() / 2.0f;
-    float centerZ = cpu_engine::GetInstance().GetWindow()->GetHeight() / 2.0f;
-
-    float mouseX = (currentMouse.x - centerX) / centerX;
-    float mouseZ = (currentMouse.y - centerZ) / centerZ;
-
-    // Calcul de la position cible relative a la souris
-    XMFLOAT3 target;
-    target.x = t.pos.x + mouseX * 2.0f;
-    target.y = t.pos.y + mouseZ * 2.0f;
-    target.z = t.pos.z + 10.0f;
-
-    // Oriente le vaisseau vers la cible
-    t.LookAt(target.x, target.y, target.z);
-
-    // ----- D�placement vers la souris -----
-    // Vecteur direction normalis�
-    XMFLOAT3 direction;
-    direction.x = target.x - t.pos.x;
-    direction.y = target.y - t.pos.y;
-    direction.z = target.z - t.pos.z;
-
-    float length = sqrt(direction.x * direction.x +
-        direction.y * direction.y +
-        direction.z * direction.z);
-
-    if (length > 0.0001f)
-    {
-        direction.x /= length;
-        direction.y /= length;
-        direction.z /= length;
-    }
-
-    float speed = 10.0f; // vitesse
-    if (cpuInput.IsKey(VK_DOWN)) // avancer vers la souris
-    {
-        //SEND MESSAGE FORWARD
-        t.pos.x += direction.x * cpuTime.delta * speed;
-        t.pos.y += direction.y * cpuTime.delta * speed;
-        t.pos.z += direction.z * cpuTime.delta * speed;
-    }
-    if (cpuInput.IsKey(VK_UP)) // reculer
-    {
-        //SEND MESSAGE BACKWARD
-        t.pos.x -= direction.x * cpuTime.delta * speed;
-        t.pos.y -= direction.y * cpuTime.delta * speed;
-        t.pos.z -= direction.z * cpuTime.delta * speed;
-    }
-
-    // ----- CAM�RA -----
-    cpu_transform& cam = cpuEngine.GetCamera()->transform;
-    cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
-    cam.ResetFlags();
-    cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
-
-    // ----- Particule -----
-    m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z};
-    m_pEmitter->dir = t.dir;
-    m_pEmitter->dir.x = -m_pEmitter->dir.x;
-    m_pEmitter->dir.y = -m_pEmitter->dir.y;
-    m_pEmitter->dir.z = -m_pEmitter->dir.z;
 }
 
 void App::OnExit()
