@@ -22,7 +22,7 @@ public:
 
 	static void MyPixelShader(cpu_ps_io& io);
 
-	SOCKET ClientSock;
+	SOCKET UserSock;
 	HANDLE thread1;
 
 	//TEMPORARY BUILD
