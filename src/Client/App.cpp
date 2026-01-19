@@ -114,8 +114,8 @@ void Send(sockaddr_in& ServeurAddr)
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
 
-    if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
-        return;
+    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
+    //    return;
 
     //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
     //    return;
@@ -255,15 +255,14 @@ void App::OnUpdate()
     }
 
     float speed = 10.0f; // vitesse
-    if (cpuInput.IsKey(VK_UP)) // avancer vers la souris
+    if (cpuInput.IsKey(VK_DOWN)) // avancer vers la souris
     {
-
         //SEND MESSAGE FORWARD
         t.pos.x += direction.x * cpuTime.delta * speed;
         t.pos.y += direction.y * cpuTime.delta * speed;
         t.pos.z += direction.z * cpuTime.delta * speed;
     }
-    if (cpuInput.IsKey(VK_DOWN)) // reculer
+    if (cpuInput.IsKey(VK_UP)) // reculer
     {
         //SEND MESSAGE BACKWARD
         t.pos.x -= direction.x * cpuTime.delta * speed;
