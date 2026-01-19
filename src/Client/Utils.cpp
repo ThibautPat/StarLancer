@@ -103,12 +103,12 @@ namespace Utils
           
             if (msg == "SPACESHIP")
             {
-              
+                EnterCriticalSection(&s_pApp->m_cs2);
                 cpu_entity* SpaceShip = cpuEngine.CreateEntity();
 
                 cpu_mesh* m_meshShip = new cpu_mesh();
 
-                //m_meshShip->CreateCube();
+                m_meshShip->CreateCube();
                 //m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj", { 1,1,1 }, false);
                 //m_meshShip->FlipWinding();
                 //m_meshShip->Optimize();
@@ -117,6 +117,7 @@ namespace Utils
                
                 int i = s_pApp->GetEntities().size();
                 s_pApp->GetEntities()[i] = SpaceShip;
+                LeaveCriticalSection(&s_pApp->m_cs2);
 
             }
         }

@@ -12,11 +12,15 @@ App::App()
 	CPU_CALLBACK_UPDATE(OnUpdate);
 	CPU_CALLBACK_EXIT(OnExit);
 	CPU_CALLBACK_RENDER(OnRender);
+    InitializeCriticalSection(&m_cs);
 
+    InitializeCriticalSection(&m_cs2);
 }
 
 App::~App()
 {
+	
+
 }
 
 void App::UpdateEntityPosition(cpu_entity* entity, float x, float y, float z)
@@ -208,18 +212,23 @@ void App::OnUpdate()
     }
     // ----- CAM�RA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
-	cpu_transform t = m_entities[0]->transform;
+	EnterCriticalSection(&m_cs);
+    if (m_entities[0])
+    {
+        cpu_transform t = m_entities[0]->transform;
 
-    cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
-    cam.ResetFlags();
-    cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
+        cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
+        cam.ResetFlags();
+        cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
+        m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z};
+        m_pEmitter->dir = t.dir;
+        m_pEmitter->dir.x = -m_pEmitter->dir.x;
+        m_pEmitter->dir.y = -m_pEmitter->dir.y;
+        m_pEmitter->dir.z = -m_pEmitter->dir.z;
+    }
+    LeaveCriticalSection(&m_cs);
 
     // ----- Particule -----
-    m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z};
-    m_pEmitter->dir = t.dir;
-    m_pEmitter->dir.x = -m_pEmitter->dir.x;
-    m_pEmitter->dir.y = -m_pEmitter->dir.y;
-    m_pEmitter->dir.z = -m_pEmitter->dir.z;
 }
 
 void App::OnExit()

@@ -37,6 +37,9 @@ public:
 
 	std::map<int, cpu_entity*>& GetEntities() { return m_entities; }
 
+	CRITICAL_SECTION m_cs;
+	CRITICAL_SECTION m_cs2;
+
 private:
 	cpu_font m_font;
 
