@@ -147,6 +147,9 @@ void Send(sockaddr_in& ServeurAddr)
 
 void App::OnStart()
 {
+    menuManager = new MenuManager();
+    menuManager->Start();
+
     m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
 
     InitWinSock();
@@ -183,6 +186,10 @@ void App::OnStart()
 
 void App::OnUpdate()
 {
+
+    menuManager->Update(cpuTime.delta);
+
+
     // Move ship
     if (cpuInput.IsKey(VK_UP))
     {
@@ -201,7 +208,14 @@ void App::OnExit()
 
 void App::OnRender(int pass)
 {
-	// YOUR CODE HERE
+    switch (pass)
+    {
+        case CPU_PASS_UI_END:
+        {
+
+            menuManager->Draw(&cpuDevice);
+        }
+    }
 }
 
 void App::MyPixelShader(cpu_ps_io& io)

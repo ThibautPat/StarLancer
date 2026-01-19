@@ -38,6 +38,8 @@ public:
 	void DrawText(cpu_font* pFont, const char* text, int x, int y, int align = CPU_TEXT_LEFT);
 	void DrawTexture(cpu_texture* pTexture, int x, int y);
 	void DrawSprite(cpu_sprite* pSprite);
+	// Dans cpu_device.h, ajoutez cette déclaration :
+	void DrawSprite(cpu_sprite* pSprite, int srcX, int srcY, int srcW, int srcH);
 	void DrawHorzLine(int x1, int x2, int y, XMFLOAT3& color);
 	void DrawVertLine(int y1, int y2, int x, XMFLOAT3& color);
 	void DrawRectangle(int x, int y, int w, int h, XMFLOAT3& color);
