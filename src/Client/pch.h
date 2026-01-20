@@ -1,15 +1,18 @@
 #pragma once 
+#include <nlohmann.hpp>
 
-	#ifdef _DEBUG
-		#pragma comment(lib, "../../lib/lib/cpu-core-debug.lib")
-		#pragma comment(lib, "../../lib/lib/cpu-render-debug.lib")
-		#pragma comment(lib, "../../lib/lib/cpu-engine-debug.lib")
-	#else
-		#pragma comment(lib, "../../lib/lib/cpu-core.lib")
-		#pragma comment(lib, "../../lib/lib/cpu-render.lib")
-		#pragma comment(lib, "../../lib/lib/cpu-engine.lib")
-	#endif
+#ifdef _DEBUG
+	#pragma comment(lib, "../../lib/lib/cpu-core-debug.lib")
+	#pragma comment(lib, "../../lib/lib/cpu-render-debug.lib")
+	#pragma comment(lib, "../../lib/lib/cpu-engine-debug.lib")
+#else
+	#pragma comment(lib, "../../lib/lib/cpu-core.lib")
+	#pragma comment(lib, "../../lib/lib/cpu-render.lib")
+	#pragma comment(lib, "../../lib/lib/cpu-engine.lib")
+#endif
+#include <SDKDDKVer.h>
 
 #include "../lib/include/cpu-engine/cpu-engine.h"
+#include <fstream>
 
 #include "App.h"
