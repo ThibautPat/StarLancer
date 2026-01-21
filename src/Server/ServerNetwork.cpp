@@ -9,8 +9,8 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     newUser->s_EntityData = new EntityData();
     newUser->s_networkInfo = new ServerNetworkInfo();
 
-    newUser->s_userID = ListUser.size();
-	ListUser.push_back(newUser);
+    newUser->s_userID = ListUser_Tread.size();
+    ListUser_Tread.push_back(newUser);
 
     newUser->s_networkInfo->Addr_User = addr;
     newUser->s_networkInfo->port = ntohs(addr.sin_port);
@@ -20,39 +20,63 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
 	return newUser;
 }
 
-void ServerNetwork::ParseurMessage(User* user, const char* buffer)
+void ServerNetwork::ParseurMessage(const char* buffer)
 {
-    std::string msg(buffer);
+    const Header* head = reinterpret_cast<const Header*>(buffer);
 
-    if (msg.front() == '{' && msg.back() == '}')
-    {
-        msg = msg.substr(1, msg.size() - 2);
-    }
-    else { return;}
+    switch(head->type) {
+        case MessageType::CONNEXION:
+        {
+            //VERIF MAGIC NUMBER
+            //VERIF EXISTE DEJA
+            //AJOUT NEW CLIENT
+            //OU RIEN
+            break;
+        }
+        case MessageType::FORWARD:
+        {
+            const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-    if (msg == "CONNEXION")
-    {
+            for(int i = 0; i < ListUser_MainTread.size(); i++)
+            {
+                if(message->ClientID == ListUser_MainTread[i]->s_userID)
+                     SpaceShipMove_Calculator::Calcul_Forward(ListUser_MainTread[i]);
+            }
+            break;
+        }
+        case MessageType::BACKWARD:
+        {
+            const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-    }
-    else if (msg == "FORWARD")
-    {
-        SpaceShipMove_Calculator::Calcul_Forward(user);
-        ListOfUserMoved.push_back(user);
-    }
-    else if (msg == "BACKWARD")
-    {
-        SpaceShipMove_Calculator::Calcul_Backward(user);
-        ListOfUserMoved.push_back(user);
-    }
-    else if (msg == "LEFT")
-    {
-        SpaceShipMove_Calculator::Calcul_Left(user);
-        ListOfUserMoved.push_back(user);
-    }
-    else if (msg == "RIGHT")
-    {
-        SpaceShipMove_Calculator::Calcul_Right(user);
-        ListOfUserMoved.push_back(user);
+            for (int i = 0; i < ListUser_MainTread.size(); i++)
+            {
+                if (message->ClientID == ListUser_MainTread[i]->s_userID)
+                    SpaceShipMove_Calculator::Calcul_Backward(ListUser_MainTread[i]);
+            }
+            break;
+        }
+        case MessageType::LEFT:
+        {
+            const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
+
+            for (int i = 0; i < ListUser_MainTread.size(); i++)
+            {
+                if (message->ClientID == ListUser_MainTread[i]->s_userID)
+                    SpaceShipMove_Calculator::Calcul_Left(ListUser_MainTread[i]);
+            }
+            break;
+        }
+        case MessageType::RIGHT:
+        {
+            const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
+
+            for (int i = 0; i < ListUser_MainTread.size(); i++)
+            {
+                if (message->ClientID == ListUser_MainTread[i]->s_userID)
+                    SpaceShipMove_Calculator::Calcul_Right(ListUser_MainTread[i]);
+            }
+            break;
+        }
     }
 }
 
@@ -75,7 +99,7 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
             if (err == WSAEWOULDBLOCK)
                 continue;
             break; 
-        }
+        } // ERREUR
 
         buffer[received] = '\0';
 
@@ -86,7 +110,7 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
 
         EnterCriticalSection(&network->csNewUser);
 
-        for (auto c : network->ListUser)
+        for (auto c : network->ListUser_MainTread)
         {
             if (strcmp(ip_current, c->s_networkInfo->IP) == 0)
             {
@@ -96,18 +120,13 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
                 break;
             }
         }
-
         if (!user)
         {
             user = network->NewUser(senderAddr);
             network->BacklogSend(user);
         }
-
         LeaveCriticalSection(&network->csNewUser);
-
-        network->ParseurMessage(user, buffer);
     }
-
     return 0;
 }
 
@@ -121,19 +140,23 @@ void ServerNetwork::Thread_StartListening()
 
 void ServerNetwork::BacklogSend(User* Recever)
 {
-    std::string buffer = "{ENTITY;SPACESHIP}";
-    sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+    SpawnEntity msg;
+    msg.head.type = MessageType::ENTITY;
+    char name[32] = "SPACESHIP";
+    msg.entity = EntityType::SPACESHIP;
 
-    for (int i = 0; i < ListUser.size(); ++i)
-    {
-        if (ListUser[i] == Recever)
-            continue;
+    sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(SpawnEntity), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
-        //Create SpaceShip for each client -> the new client
-        sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
-        
-        //Create one SpaceShip for client already connect
-        sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&ListUser[i]->s_networkInfo->Addr_User, sizeof(ListUser[i]->s_networkInfo->Addr_User));
-    }
+    //for (int i = 0; i < ListUser.size(); ++i)
+    //{
+    //    if (ListUser[i] == Recever)
+    //        continue;
+
+    //    //Create SpaceShip for each client -> the new client
+    //    sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+    //    
+    //    //Create one SpaceShip for client already connect
+    //    sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&ListUser[i]->s_networkInfo->Addr_User, sizeof(ListUser[i]->s_networkInfo->Addr_User));
+    //}
 }
 

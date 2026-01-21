@@ -5,6 +5,7 @@
 
 #include "Utils.h"
 
+
 App::App()
 {
 	s_pApp = this;
@@ -12,8 +13,8 @@ App::App()
 	CPU_CALLBACK_UPDATE(OnUpdate);
 	CPU_CALLBACK_EXIT(OnExit);
 	CPU_CALLBACK_RENDER(OnRender);
-    InitializeCriticalSection(&m_cs);
 
+    InitializeCriticalSection(&m_cs);
     InitializeCriticalSection(&m_cs2);
 }
 
@@ -27,97 +28,25 @@ void App::UpdateEntityPosition(cpu_entity* entity, float x, float y, float z)
 {
     entity->transform.SetPosition(x, y, z);
 }
+
 void App::UpdateEntityRotation(cpu_entity* entity, float rx, float ry, float rz)
 {
     entity->transform.SetYPR(rx, ry, rz);
 }
+
 void App::UpdateEntityScale(cpu_entity* entity, float scale)
 {
     entity->transform.SetScaling(scale);
 }
-void App::SendMessageToServer(std::string message)
+
+void App::SendMessageToServer(const char* message)
 {
-
-
-    size_t a = sizeof(message);
-
-    sendto(UserSock, message.c_str(), a, 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr));
+    sendto(UserSock, message, sizeof(message), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-DWORD WINAPI ThreadFonction(LPVOID lpParam)
-{
-    char buffer[1024];
-    SOCKET sock = (SOCKET)lpParam;
-    while (true)
-    {
-        sockaddr_in SenderAddr;
-        int SenderAddrSize = sizeof(SenderAddr);
-
-        int received = recvfrom(sock, buffer, 1024 - 1, 0, (sockaddr*)&SenderAddr, &SenderAddrSize);
-        if (received == SOCKET_ERROR)
-        {
-            int error = WSAGetLastError();
-            continue;
-        }
-        if (received > 0)
-        {
-            buffer[received] = '\0';
-            Utils::ParseurMessage(&App::GetInstance(), buffer);
-        }
-    }
-    return 0;
-}
-
-bool InitWinSock()
-{
-    WSADATA wsaData;
-    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (result != 0) {
-        std::cout << "WSAStartup failed\n";
-        return false;
-    }
-    std::cout << "WSAStartup successful\n";
-    return true;
-}
-
-bool CreateSocket(SOCKET& sock)
-{
-    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sock == INVALID_SOCKET) {
-        std::cout << "Socket creation failed\n";
-        WSACleanup();
-        return false;
-    }
-    std::cout << "Socket created\n";
-    return true;
-}
-
-bool BindSocketToPort(SOCKET& sock, int port, PCSTR ip)
-{
-    sockaddr_in Addr;
-   /* if (inet_pton(AF_INET, ip, &Addr.sin_addr) <= 0)
-        return false;*/
-
-    Addr.sin_family = AF_INET;
-    Addr.sin_port = htons(port);
-    Addr.sin_addr.s_addr = ADDR_ANY;
-
-    if (bind(sock, (sockaddr*)&Addr, sizeof(Addr)) == SOCKET_ERROR)
-    {
-        std::cout << "bind failed\n";
-        closesocket(sock);
-        WSACleanup();
-        return false;
-    }
-
-    std::cout << "bind successful\n";
-    return true;
-}
 
 void ChoseTarget(sockaddr_in& ServeurAddr)
 {
@@ -157,10 +86,7 @@ void App::OnStart()
 
     m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
 
-    InitWinSock();
     m_font.Create(12);
-
-
 
     cpuEngine.GetParticleData()->Create(1000000);
     cpuEngine.GetParticlePhysics()->gy = -0.5f;
@@ -169,55 +95,69 @@ void App::OnStart()
     m_pEmitter->colorMin = cpu::ToColor(255, 0, 0);
     m_pEmitter->colorMax = cpu::ToColor(255, 128, 0);
 
-    //Transform
-
-
-
-
-
-
     // ------------- CONNEXION ------------------
     ServeurAddr;
     ChoseTarget(ServeurAddr);
     ServeurAddr.sin_family = AF_INET;
     ServeurAddr.sin_port = htons(1888);
 
-    // SOCKET
-    CreateSocket(UserSock);
+    network = new ClientNetwork();
+    network->InitNetwork();
+    network->Thread_StartListening();
 
-    //THREAD
-    thread1 = CreateThread(NULL, 0, ThreadFonction, (LPVOID)UserSock, 0, NULL);
-    CloseHandle(thread1);
-
-    // ENVOIE
-
-    SendMessageToServer("{CONNEXION}");
-    std::cout << "SENDED\n";
+    ConnexionMessage msg;
+    msg.head.type = MessageType::CONNEXION;
+    msg.magicnumber = 8542;
+    SendMessageToServer(reinterpret_cast<const char*>(&msg));
 }
 
 void App::OnUpdate()
 {
+    // ----- PARSE -----
+    for (const auto& message : network->MessageBuffer)
+    {
+        network->ParseurMessage(message.data());
+    }
+    network->MessageBuffer.clear();
+
+    // ----- UI -----
     menuManager->Update(cpuTime.delta);
 
-    if (cpuInput.IsKey(VK_DOWN)) // avancer vers la souris
+    // ----- INPUT -----
+    if (cpuInput.IsKey(VK_DOWN))
     {
-        SendMessageToServer("{BACKWARD}");
-    }
-    if (cpuInput.IsKey(VK_UP)) // reculer
-    {
-        SendMessageToServer("{FORWARD}");
+        InputMessage msg;
+        msg.head.type = MessageType::BACKWARD;
+        msg.ClientID = network->MyIDClient;
 
+        SendMessageToServer(reinterpret_cast<const char*>(&msg));
     }
-    if (cpuInput.IsKey(VK_LEFT)) // avancer vers la souris
+    if (cpuInput.IsKey(VK_UP))
     {
-        SendMessageToServer("{LEFT}");
-    }
-    if (cpuInput.IsKey(VK_RIGHT)) // reculer
-    {
-        SendMessageToServer("{RIGHT}");
+        InputMessage msg;
+        msg.head.type = MessageType::FORWARD;
+        msg.ClientID = network->MyIDClient;
 
+        SendMessageToServer(reinterpret_cast<const char*>(&msg));
     }
-    // ----- CAM�RA -----
+    if (cpuInput.IsKey(VK_LEFT)) 
+    {
+        InputMessage msg;
+        msg.head.type = MessageType::LEFT;
+        msg.ClientID = network->MyIDClient;
+
+        SendMessageToServer(reinterpret_cast<const char*>(&msg));
+    }
+    if (cpuInput.IsKey(VK_RIGHT))
+    {
+        InputMessage msg;
+        msg.head.type = MessageType::RIGHT;
+        msg.ClientID = network->MyIDClient;
+
+        SendMessageToServer(reinterpret_cast<const char*>(&msg));
+    }
+
+    // ----- CAMERA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
 	EnterCriticalSection(&m_cs);
     if (m_entities[0])
@@ -234,8 +174,6 @@ void App::OnUpdate()
         m_pEmitter->dir.z = -m_pEmitter->dir.z;
     }
     LeaveCriticalSection(&m_cs);
-
-    // ----- Particule -----
 }
 
 void App::OnExit()
@@ -246,31 +184,29 @@ void App::OnRender(int pass)
 {
     switch (pass)
     {
-    case CPU_PASS_PARTICLE_BEGIN:
-    {
-        // Blur particles
-        //cpuEngine.SetRT(m_rts[0]);
-        //cpuEngine.ClearColor();
-        break;
-    }
-    case CPU_PASS_PARTICLE_END:
-    {
-        // Blur particles
-        //cpuEngine.Blur(10);
-        //cpuEngine.SetMainRT();
-        //cpuEngine.AlphaBlend(m_rts[0]);
-        break;
-    }
-    case CPU_PASS_UI_END:
-    {
-        // Debug
-        cpu_stats& stats = *cpuEngine.GetStats();
+        case CPU_PASS_PARTICLE_BEGIN:
+        {
+            // Blur particles
+            //cpuEngine.SetRT(m_rts[0]);
+            //cpuEngine.ClearColor();
+            break;
+        }
+        case CPU_PASS_PARTICLE_END:
+        {
+            // Blur particles
+            //cpuEngine.Blur(10);
+            //cpuEngine.SetMainRT();
+            //cpuEngine.AlphaBlend(m_rts[0]);
+            break;
+        }
+        case CPU_PASS_UI_END:
+        {
+            // Debug
+            cpu_stats& stats = *cpuEngine.GetStats();
 
-
-
-        menuManager->Draw(&cpuDevice);
-        break;
-    }
+            menuManager->Draw(&cpuDevice);
+            break;
+        }
     }
 }
 

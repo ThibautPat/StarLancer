@@ -1,5 +1,6 @@
 #pragma once
 #include "MenuManager.h"
+#include "Network.h"
 
 class App
 {
@@ -13,8 +14,7 @@ public:
 
 	void UpdateEntityScale(cpu_entity* entity, float scale);
 
-	void SendMessageToServer(std::string message);
-
+	void SendMessageToServer(const char* message);
 
 	static App& GetInstance() { return *s_pApp; }
 
@@ -28,7 +28,7 @@ public:
 	SOCKET UserSock;
 	HANDLE thread1;
 	sockaddr_in ServeurAddr;
-	//TEMPORARY BUILD
+
 	cpu_particle_emitter* m_pEmitter;
 
 	float camDistance = 8.0f;
@@ -50,18 +50,20 @@ public:
 		GAME,
 		WIN,
 		LOOSE,
-		PAUSE,
-
+		PAUSE
 	};
+
 	States CurrentStates = States::PLAY;
+
+	ClientNetwork* network;
+
 private:
+
 	cpu_font m_font;
 	bool m_pause = false;
 
-
 	static void OnPlayButtonClick()
 	{
-		// Code quand le bouton est cliqu�
 		printf("Play button clicked!\n");
 	}
 

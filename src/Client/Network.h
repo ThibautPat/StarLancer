@@ -68,31 +68,17 @@ public:
 
 };
 
-// SERVEUR LOGIQUE -----------------------------------------
-
-class ServerNetwork : public Network
+class ClientNetwork : public Network
 {
-	User* NewUser(sockaddr_in addr);
+
+public:
+	void ParseurMessage(const char* buffer);
 
 	static DWORD WINAPI ThreadFonction(LPVOID lpParam);
 
-	std::atomic<bool> IsRunning = true;
-
-public:
-
-	void ParseurMessage(const char* buffer);
-
-	CRITICAL_SECTION csNewUser;
-	CRITICAL_SECTION csMovedUsers;
-
-	ServerNetwork() { InitializeCriticalSection(&csMovedUsers); InitializeCriticalSection(&csNewUser); };
-
 	void Thread_StartListening();
 
-	void BacklogSend(User* Recever);
-
-	std::vector<User*> ListUser_MainTread;
-	std::vector<User*> ListUser_Tread;
-
 	std::vector<std::vector<char>> MessageBuffer;
-};
+
+	uint32_t MyIDClient;
+};            

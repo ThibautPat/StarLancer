@@ -9,30 +9,31 @@
 
 #include "Network.h"
 
-void SendAllPositions(ServerNetwork* network)
+void SendAllPositions(ServerNetwork* network) // DOOOM
 {
-    for (auto* client : network->ListUser)
+    for (auto* client : network->ListUser_MainTread)
     {
-        for (auto* entity : network->ListOfUserMoved)
+        for (auto* entity : network->ListUser_MainTread)
         {
             if (!entity || !entity->s_EntityData)
                 continue;
 
-            std::string buffer = "{UPDATE_POS;"
-                + std::to_string(entity->s_userID) + ";"
-                + std::to_string(entity->s_EntityData->PosX) + ";"
-                + std::to_string(entity->s_EntityData->PosY) + ";"
-                + std::to_string(entity->s_EntityData->PosZ) + ";}";
+            UpdatePos msg;
+            msg.head.type = MessageType::UPDATE_POS;
+            msg.entityID = entity->s_userID;
+            msg.PosX = entity->s_EntityData->PosX;
+            msg.PosY = entity->s_EntityData->PosY;
+            msg.PosZ = entity->s_EntityData->PosZ;
 
             sockaddr_in addr = client->s_networkInfo->Addr_User;
             int sizeAddr = sizeof(addr);
 
-            int result = sendto(*network->GetSocket(),buffer.c_str(),static_cast<int>(buffer.size()),0,(sockaddr*)&addr,sizeAddr);
+            int result = sendto(*network->GetSocket(),reinterpret_cast<const char*>(&msg), sizeof(UpdatePos), 0, (sockaddr*)&addr, sizeAddr);
 
             if (result == SOCKET_ERROR)
             {
                 int err = WSAGetLastError();
-                std::cerr << "[SendAllPositions] sendto failed for user "<< client->s_userID << ": " << err << std::endl;
+                std::cerr << "[SendAllPositions] sendto failed for user "<< client->s_userID << " : " << err << std::endl;
             }
         }
     }
@@ -56,17 +57,23 @@ int main()
     {
         // PHYSIQUE
 
-        EnterCriticalSection(&network->csMovedUsers);
-
-        for (auto* currentUser : network->ListOfUserMoved)
+        // ----- PARSE -----
+        for (const auto& message : network->MessageBuffer)
         {
-            SendAllPositions(network);
+            network->ParseurMessage(message.data());
         }
-        network->ListOfUserMoved.clear();
+        network->MessageBuffer.clear();
 
+        // ----- MERGE USER -----
+        EnterCriticalSection(&network->csMovedUsers);
+        network->ListUser_MainTread = network->ListUser_Tread;
         LeaveCriticalSection(&network->csMovedUsers);
 
-        Sleep(1);
+        // ----- SEND NUKE -----
+        for (auto* currentUser : network->ListUser_MainTread)
+            SendAllPositions(network);
+        
+        Sleep(10);
     }
     network->CloseSocket(*network->GetSocket());
     return 0;
