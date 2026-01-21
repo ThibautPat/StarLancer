@@ -1,5 +1,4 @@
 #pragma once
-
 class cpu_engine
 {
 public:
@@ -26,17 +25,23 @@ public:
 	int NextTile() { return m_nextTile.Add(1); }
 	void GetParticleRange(int& min, int& max, int iTile);
 	cpu_stats* GetStats() { return &m_stats; }
+	void EnableRender(bool enabled = true) { m_renderEnabled = enabled; }
 
+	void ClearManagers();
 	template <typename T>
 	cpu_fsm<T>* CreateFSM(T* pInstance);
 	cpu_entity* CreateEntity();
-	cpu_sprite* CreateSprite();
+	UiBase* CreateSprite();
+
+	template<typename T>
+	T* CreateUiElement();
+
 	cpu_particle_emitter* CreateParticleEmitter();
 	cpu_rt* CreateRT(bool depth = true);
 	template <typename T>
 	cpu_fsm<T>* Release(cpu_fsm<T>* pFSM);
 	cpu_entity* Release(cpu_entity* pEntity);
-	cpu_sprite* Release(cpu_sprite* pSprite);
+	UiBase* Release(UiBase* pSprite);
 	cpu_particle_emitter* Release(cpu_particle_emitter* pEmitter);
 	cpu_rt* Release(cpu_rt* pRT);
 
@@ -78,6 +83,9 @@ private:
 
 private:
 	inline static cpu_engine* s_pEngine;
+
+	// Options
+	bool m_renderEnabled;
 
 	// Window
 	cpu_window m_window;
@@ -123,7 +131,8 @@ private:
 	cpu_manager<cpu_fsm_base> m_fsmManager;
 	cpu_manager<cpu_entity> m_entityManager;
 	cpu_manager<cpu_particle_emitter> m_particleManager;
-	cpu_manager<cpu_sprite> m_spriteManager;
+	cpu_manager<UiBase> m_spriteManager;
+
 	cpu_manager<cpu_rt> m_rtManager;
 
 	// Callback

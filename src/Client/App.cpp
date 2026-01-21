@@ -152,6 +152,11 @@ void ChoseTarget(sockaddr_in& ServeurAddr)
 
 void App::OnStart()
 {
+    menuManager = new MenuManager();
+    menuManager->Start();
+
+    m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
+
     InitWinSock();
     m_font.Create(12);
 
@@ -258,8 +263,11 @@ void App::OnRender(int pass)
     {
         // Debug
         cpu_stats& stats = *cpuEngine.GetStats();
+    
+       
+
+        menuManager->Draw(&cpuDevice);
         break;
-    }
     }
 }
 

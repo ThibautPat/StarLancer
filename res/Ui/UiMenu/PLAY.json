@@ -1,0 +1,98 @@
+{
+  "buttons": [
+    {
+      "id": "button_2",
+      "pos": {
+        "x": 0.7107371794871795,
+        "y": 0.3669950738916256,
+        "z": 0
+      },
+      "size": {
+        "x": 243,
+        "y": 74,
+        "z": 0
+      },
+      "name": "res/Ui/UiTextures/PasPresser.PNG",
+      "listenerList": [],
+      "hover": "res/Ui/UiTextures/Presser.PNG",
+      "animated": false,
+      "frameCount": 1,
+      "currentFrame": 0,
+      "frameSize": {
+        "x": 110,
+        "y": 100
+      },
+      "looping": false,
+      "frameRate": 0
+    }
+  ],
+  "images": [
+    {
+      "id": "image_1",
+      "pos": {
+        "x": 0.1554487179487179,
+        "y": 0.1391625615763547,
+        "z": 0
+      },
+      "size": {
+        "x": 110,
+        "y": 100,
+        "z": 0
+      },
+      "name": "res/Ui/UiTextures/spritesheet.png",
+      "animated": true,
+      "frameCount": 8,
+      "currentFrame": 6,
+      "frameSize": {
+        "x": 110,
+        "y": 100
+      },
+      "looping": true,
+      "frameRate": 8
+    }
+  ],
+  "texts": [
+    {
+      "id": "text_3",
+      "pos": {
+        "x": 0.7131410256410257,
+        "y": 0.44704433497536955,
+        "z": 0
+      },
+      "size": {
+        "x": 384,
+        "y": 162,
+        "z": 0
+      },
+      "text": "HELLO WORLD",
+      "fontPath": "font",
+      "color": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+      },
+      "fontSize": 24,
+      "animated": false,
+      "frameCount": 1,
+      "currentFrame": 0,
+      "frameSize": {
+        "x": 110,
+        "y": 100
+      },
+      "looping": false,
+      "frameRate": 0
+    }
+  ],
+  "layers": [
+    {
+      "id": "default",
+      "name": "Calque par défaut",
+      "visible": true,
+      "elementIds": [
+        "image_1",
+        "button_2",
+        "text_3"
+      ]
+    }
+  ]
+}

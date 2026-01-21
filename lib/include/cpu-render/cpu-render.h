@@ -54,3 +54,7 @@ using CPU_PS_FUNC						= void(*)(cpu_ps_io& data);
 #include "cpu_draw.h"
 #include "cpu_rt.h"
 #include "cpu_device.h"
+#include "UiBase.h"
+#include "UiImage.h"
+#include "UiButton.h"
+#include "UiText.h"

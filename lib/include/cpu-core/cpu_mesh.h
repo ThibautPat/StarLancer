@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.h"
 
 struct cpu_mesh
 {
@@ -24,8 +23,5 @@ public:
 	void CreateSphere(float radius = 0.5f, int stacks = 5, int slices = 5, XMFLOAT3 color1 = CPU_WHITE, XMFLOAT3 color2 = CPU_WHITE);
 	void CreateSpaceship();
 	void LoadOBJ(const std::string& filename, XMFLOAT3 defaultColor, bool recomputeNormalsIfMissing);
-
-	//hard code
-	void FlipWinding() {for (cpu_triangle& t : triangles)
-						std::swap(t.v[1], t.v[2]);}
+	void FlipWinding();
 };
