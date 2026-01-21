@@ -40,8 +40,11 @@ void App::UpdateEntityScale(cpu_entity* entity, float scale)
 }
 
 void App::SendMessageToServer(const char* message)
-{
-    sendto(UserSock, message, sizeof(message), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr));
+{ 
+    int a= std::strlen(message);
+
+    if (sendto(*network->GetSocket(), message, std::strlen(message), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
+        std::cout << "PROUT";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,9 +108,12 @@ void App::OnStart()
     network->InitNetwork();
     network->Thread_StartListening();
 
-    ConnexionMessage msg;
-    msg.head.type = MessageType::CONNEXION;
+    ConnexionMessage msg{};
+    msg.head.type = MessageType::BACKWARD;
     msg.magicnumber = 8542;
+
+    const char* a = reinterpret_cast<const char*>(&msg);
+
     SendMessageToServer(reinterpret_cast<const char*>(&msg));
 }
 

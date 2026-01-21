@@ -61,9 +61,9 @@ void ClientNetwork::ParseurMessage(const char* buffer)
             {
                 case(EntityType::SPACESHIP):
                 {
-                    App instance = App::GetInstance();
+                    App* instance = &App::GetInstance();
 
-                    EnterCriticalSection(&instance.m_cs2); //SECTION DASSAUlT
+                    EnterCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
 
                     cpu_entity* SpaceShip = cpuEngine.CreateEntity();
 
@@ -77,13 +77,13 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 
                     SpaceShip->pMesh = m_meshShip;
 
-                    int i = instance.GetEntities().size();
-                    instance.GetEntities()[i] = SpaceShip;
+                        int i = instance->GetEntities().size();
+                        instance->GetEntities()[i] = SpaceShip;
 
-                    LeaveCriticalSection(&instance.m_cs2); //SECTION DASSAUlT
-                    break;
+                        LeaveCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
+                        break;
+                    }
                 }
             }
         }
     }
-}
