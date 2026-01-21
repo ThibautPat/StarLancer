@@ -70,8 +70,8 @@ int main()
         LeaveCriticalSection(&network->csMovedUsers);
 
         // ----- SEND NUKE -----
-        for (auto* currentUser : network->ListUser_MainTread)
-            SendAllPositions(network);
+        //for (auto* currentUser : network->ListUser_MainTread)
+        //    SendAllPositions(network);
         
         Sleep(10);
     }

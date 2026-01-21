@@ -27,10 +27,13 @@ void ServerNetwork::ParseurMessage(const char* buffer)
     switch(head->type) {
         case MessageType::CONNEXION:
         {
-            //VERIF MAGIC NUMBER
-            //VERIF EXISTE DEJA
-            //AJOUT NEW CLIENT
-            //OU RIEN
+            const ConnexionMessage* message = reinterpret_cast<const ConnexionMessage*>(buffer);
+            if (message->magicnumber != 8542)
+                return;
+            
+            ReturnConnexionMessage msg;
+            msg.ClientID = ListUser_MainTread.size();
+            msg.head.type = MessageType::CONNEXION;
             break;
         }
         case MessageType::FORWARD:
@@ -98,10 +101,16 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
             int err = WSAGetLastError();
             if (err == WSAEWOULDBLOCK)
                 continue;
-            break; 
-        } // ERREUR
+            break;
+        }
+
+        if (received <= 0)
+        {
+            continue;
+        }
 
         buffer[received] = '\0';
+        network->MessageBuffer.emplace_back(buffer, buffer + received);
 
         char ip_current[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &senderAddr.sin_addr, ip_current, INET_ADDRSTRLEN);
