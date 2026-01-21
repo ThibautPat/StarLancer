@@ -76,6 +76,8 @@ class ServerNetwork : public Network
 
 	static DWORD WINAPI ThreadFonction(LPVOID lpParam);
 
+	void ClientAlreadyRegister();
+
 	std::atomic<bool> IsRunning = true;
 
 public:
