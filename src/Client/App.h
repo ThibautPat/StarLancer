@@ -56,7 +56,6 @@ public:
 	States CurrentStates = States::PLAY;
 private:
 	cpu_font m_font;
-	inline static App* s_pApp = nullptr;
 	bool m_pause = false;
 
 

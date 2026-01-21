@@ -197,6 +197,8 @@ void App::OnStart()
 
 void App::OnUpdate()
 {
+    menuManager->Update(cpuTime.delta);
+
     if (cpuInput.IsKey(VK_DOWN)) // avancer vers la souris
     {
         SendMessageToServer("{BACKWARD}");
@@ -263,15 +265,13 @@ void App::OnRender(int pass)
     {
         // Debug
         cpu_stats& stats = *cpuEngine.GetStats();
-    
-       
+
+
 
         menuManager->Draw(&cpuDevice);
         break;
     }
+    }
 }
 
-void App::MyPixelShader(cpu_ps_io& io)
-{
-	io.color = io.p.color;
-}
+
