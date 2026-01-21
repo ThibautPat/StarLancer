@@ -88,7 +88,7 @@ public:
 
 	void Thread_StartListening();
 
-	void ReplicationMessage(socket_t sock, const std::string& message, User* sender, bool excludeSender);
+	void BacklogSend(User* Recever);
 
 	std::vector<User*> ListUser;
 

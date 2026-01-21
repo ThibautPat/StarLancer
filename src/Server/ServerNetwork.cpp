@@ -100,9 +100,7 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
         if (!user)
         {
             user = network->NewUser(senderAddr);
-
-            std::string buffer = "{ENTITY;SPACESHIP}";
-            network->ReplicationMessage(*network->GetSocket(), buffer, user, false);
+            network->BacklogSend(user);
         }
 
         LeaveCriticalSection(&network->csNewUser);
@@ -121,14 +119,21 @@ void ServerNetwork::Thread_StartListening()
 	CloseHandle(thread1);
 }
 
-void ServerNetwork::ReplicationMessage(socket_t sock, const std::string& message, User* sender, bool excludeSender)
+void ServerNetwork::BacklogSend(User* Recever)
 {
-	for (auto* currentUser : ListUser)
-	{
-		if (excludeSender && sender && currentUser->s_userID == sender->s_userID)
-			continue;
+    std::string buffer = "{ENTITY;SPACESHIP}";
+    sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
-		sendto(sock, message.c_str(), message.size(), 0, (sockaddr*)&currentUser->s_networkInfo->Addr_User, sizeof(currentUser->s_networkInfo->Addr_User));
-	}
+    for (int i = 0; i < ListUser.size(); ++i)
+    {
+        if (ListUser[i] == Recever)
+            continue;
+
+        //Create SpaceShip for each client -> the new client
+        sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+        
+        //Create one SpaceShip for client already connect
+        sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&ListUser[i]->s_networkInfo->Addr_User, sizeof(ListUser[i]->s_networkInfo->Addr_User));
+    }
 }
 

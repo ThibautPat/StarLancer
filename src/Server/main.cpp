@@ -13,8 +13,7 @@ void SendAllPositions(ServerNetwork* network)
 {
     for (auto* client : network->ListUser)
     {
-        // On envoie la position de toutes les entités à ce client
-        for (auto* entity : network->ListUser)
+        for (auto* entity : network->ListOfUserMoved)
         {
             if (!entity || !entity->s_EntityData)
                 continue;
@@ -55,6 +54,8 @@ int main()
 
     while (true)
     {
+        // PHYSIQUE
+
         EnterCriticalSection(&network->csMovedUsers);
 
         for (auto* currentUser : network->ListOfUserMoved)
