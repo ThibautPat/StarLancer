@@ -64,30 +64,23 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 
             switch (message->entity)
             {
-                case(EntityType::SPACESHIP):
-                {
-                    App* instance = &App::GetInstance();
-                    EnterCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
+            case(EntityType::SPACESHIP):
+            {
+                App* instance = &App::GetInstance();
+                EnterCriticalSection(&instance->m_cs2);
 
+                cpu_entity* SpaceShip = cpuEngine.CreateEntity();
+                cpu_mesh* m_meshShip = new cpu_mesh();
+                m_meshShip->CreateCube();
+                SpaceShip->pMesh = m_meshShip;
 
-                    cpu_entity* SpaceShip = cpuEngine.CreateEntity();
+                // Utiliser l'ID du message au lieu de nextEntityID
+                UINT entityID = message->IDEntity; // Le serveur doit envoyer l'ID
+                instance->GetEntities()[entityID] = SpaceShip;
 
-                    cpu_mesh* m_meshShip = new cpu_mesh();
-
-                    m_meshShip->CreateCube();
-
-                    //m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj", { 1,1,1 }, false);
-                    //m_meshShip->FlipWinding();
-                    //m_meshShip->Optimize();
-
-                    SpaceShip->pMesh = m_meshShip;
-
-                    instance->GetEntities()[instance->nextEntityID] = SpaceShip;
-                    instance->nextEntityID++;
-                    LeaveCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
-                    break;
-
-                }
+                LeaveCriticalSection(&instance->m_cs2);
+                break;
+            }
             }
         }
     }
