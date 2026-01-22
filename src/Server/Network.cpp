@@ -53,5 +53,11 @@ bool Network::InitNetwork()
 		return 1;
 	}
 
+	if (!BindSocketToPort(m_NetworkSocket, 1888))
+	{
+		std::cerr << "Bind failed\n";
+		CloseSocket(m_NetworkSocket);
+		return 1;
+	}
 
 }

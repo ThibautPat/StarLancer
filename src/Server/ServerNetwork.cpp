@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Network.h"
 
 #include "SpaceShipMove_Calculator.h"
@@ -166,23 +166,35 @@ void ServerNetwork::Thread_StartListening()
 
 void ServerNetwork::BacklogSend(User* Recever)
 {
-    SpawnEntity msg;
+    // 1️ Nouveau client reçoit son propre vaisseau
+    SpawnEntity msg{};
     msg.head.type = MessageType::ENTITY;
-    char name[32] = "SPACESHIP";
     msg.entity = EntityType::SPACESHIP;
+    msg.IDEntity = htonl(Recever->s_userID);
 
-    sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(SpawnEntity), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+    sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg),0,(sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
-    //for (int i = 0; i < ListUser.size(); ++i)
-    //{
-    //    if (ListUser[i] == Recever)
-    //        continue;
+    // 2️ Envoyer aux autres clients
+    for (auto& u : ListUser_MainTread)
+    {
+        if (u == Recever)
+            continue;
 
-    //    //Create SpaceShip for each client -> the new client
-    //    sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
-    //    
-    //    //Create one SpaceShip for client already connect
-    //    sendto(*GetSocket(), buffer.c_str(), buffer.size(), 0, (sockaddr*)&ListUser[i]->s_networkInfo->Addr_User, sizeof(ListUser[i]->s_networkInfo->Addr_User));
-    //}
+        // Ancien joueur  nouveau client
+        SpawnEntity oldMsg{};
+        oldMsg.head.type = MessageType::ENTITY;
+        oldMsg.entity = EntityType::SPACESHIP;
+        oldMsg.IDEntity = htonl(u->s_userID); //  ID de l'ancien joueur
+        sendto(*GetSocket(),reinterpret_cast<const char*>(&oldMsg),sizeof(oldMsg),0,(sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+
+        // Nouveau joueur  ancien joueur
+        SpawnEntity newMsg{};
+        newMsg.head.type = MessageType::ENTITY;
+        newMsg.entity = EntityType::SPACESHIP;
+        newMsg.IDEntity = htonl(Recever->s_userID); //  ID du nouveau joueur
+        sendto(*GetSocket(), reinterpret_cast<const char*>(&newMsg), sizeof(newMsg), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
+    }
 }
+
+
 

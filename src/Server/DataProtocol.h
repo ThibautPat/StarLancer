@@ -47,6 +47,7 @@ struct ReturnConnexionMessage
 struct SpawnEntity
 {
     Header head;
+    uint32_t IDEntity;
     EntityType entity;
 };
 

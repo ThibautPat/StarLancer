@@ -39,8 +39,6 @@ void SendAllPositions(ServerNetwork* network) // DOOOM
     }
 }
 
-
-
 /* ======================= MAIN ======================= */
 
 int main()
@@ -55,24 +53,19 @@ int main()
 
     while (true)
     {
-        // PHYSIQUE
-
-        // ----- PARSE -----
+        // PARSE
         for (const auto& message : network->MessageBufferRecev)
-        {
             network->ParseurMessage(message.first.data(), message.second);
-        }
         network->MessageBufferRecev.clear();
 
-        // ----- MERGE USER -----
+        // MERGE USER
         EnterCriticalSection(&network->csMovedUsers);
         network->ListUser_MainTread = network->ListUser_Tread;
         LeaveCriticalSection(&network->csMovedUsers);
 
-        // ----- SEND NUKE -----
-        //for (auto* currentUser : network->ListUser_MainTread)
-        //    SendAllPositions(network);
-        
+        // SEND NUKE 
+        SendAllPositions(network);
+
         Sleep(10);
     }
     network->CloseSocket(*network->GetSocket());
