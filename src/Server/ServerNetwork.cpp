@@ -39,7 +39,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
                 return;
             
             ReturnConnexionMessage msg;
-            msg.ClientID = htonl(static_cast<uint32_t>(ListUser_MainTread.size()));
+            msg.ClientID = htonl(user->s_userID);
             msg.head.type = MessageType::CONNEXION;
 
             sockaddr_in addr = user->s_networkInfo->Addr_User;

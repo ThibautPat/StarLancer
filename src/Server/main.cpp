@@ -20,7 +20,7 @@ void SendAllPositions(ServerNetwork* network) // DOOOM
 
             UpdatePos msg;
             msg.head.type = MessageType::UPDATE_POS;
-            msg.entityID = entity->s_userID;
+            msg.entityID = htonl(entity->s_userID);
             msg.PosX = entity->s_EntityData->PosX;
             msg.PosY = entity->s_EntityData->PosY;
             msg.PosZ = entity->s_EntityData->PosZ;
