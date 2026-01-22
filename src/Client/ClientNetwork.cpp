@@ -36,52 +36,80 @@ DWORD WINAPI ClientNetwork::ThreadFonction(LPVOID lpParam)
 void ClientNetwork::ParseurMessage(const char* buffer)
 {
     const Header* head = reinterpret_cast<const Header*>(buffer);
-
-    if (!head||head == nullptr)
+    if (!head || head == nullptr)
     {
         return;
     }
 
     switch (head->type)
+    {
+    case MessageType::CONNEXION:
+    {
+        const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
+        MyIDClient = ntohl(message->ClientID);
+        std::cout << "Received ClientID: " << MyIDClient << std::endl;
+        break;
+    }
+
+    case MessageType::UPDATE_POS:
+    {
+        const UpdatePos* message = reinterpret_cast<const UpdatePos*>(buffer);
+        App& instance = App::GetInstance();  
+
+        uint32_t entityID = ntohl(message->entityID); 
+
+        EnterCriticalSection(&instance.m_cs);
+
+        auto it = instance.GetEntities().find(entityID);
+        if (it != instance.GetEntities().end() && it->second != nullptr)
         {
-        case MessageType::CONNEXION:
-        {
-            const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
-            MyIDClient = message->ClientID;
-            break;
-        }
-        case MessageType::UPDATE_POS:
-        {
-            const UpdatePos* message = reinterpret_cast<const UpdatePos*>(buffer);
-            App instance = App::GetInstance();
-            cpu_entity* entity = instance.GetEntities()[message->entityID];
+            cpu_entity* entity = it->second;
             instance.UpdateEntityPosition(entity, message->PosX, message->PosY, message->PosZ);
-            break;
         }
-        case MessageType::ENTITY:
+        else
         {
-            const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(buffer);
+            std::cout << "Warning: Entity " << entityID << " not found for UPDATE_POS" << std::endl;
+        }
 
-            switch (message->entity)
+        LeaveCriticalSection(&instance.m_cs);
+        break;
+    }
+
+    case MessageType::ENTITY:
+    {
+        const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(buffer);
+
+        switch (message->entity)
+        {
+        case(EntityType::SPACESHIP):
+        {
+            App& instance = App::GetInstance(); 
+
+            uint32_t entityID = ntohl(message->IDEntity); 
+
+            EnterCriticalSection(&instance.m_cs);
+
+            if (instance.GetEntities().find(entityID) != instance.GetEntities().end())
             {
-            case(EntityType::SPACESHIP):
-            {
-                App* instance = &App::GetInstance();
-                EnterCriticalSection(&instance->m_cs2);
-
-                cpu_entity* SpaceShip = cpuEngine.CreateEntity();
-                cpu_mesh* m_meshShip = new cpu_mesh();
-                m_meshShip->CreateCube();
-                SpaceShip->pMesh = m_meshShip;
-
-                // Utiliser l'ID du message au lieu de nextEntityID
-                UINT entityID = message->IDEntity; // Le serveur doit envoyer l'ID
-                instance->GetEntities()[entityID] = SpaceShip;
-
-                LeaveCriticalSection(&instance->m_cs2);
+                std::cout << "Warning: Entity " << entityID << " already exists!" << std::endl;
+                LeaveCriticalSection(&instance.m_cs);
                 break;
             }
-            }
+
+            cpu_entity* SpaceShip = cpuEngine.CreateEntity();
+            cpu_mesh* m_meshShip = new cpu_mesh();
+            m_meshShip->CreateCube();
+            SpaceShip->pMesh = m_meshShip;
+
+            instance.GetEntities()[entityID] = SpaceShip;
+
+            std::cout << "Spawned entity " << entityID << std::endl;
+
+            LeaveCriticalSection(&instance.m_cs);
+            break;
         }
+        }
+        break;
+    }
     }
 }

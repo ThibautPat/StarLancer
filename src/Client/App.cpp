@@ -127,6 +127,12 @@ void App::OnUpdate()
     // ----- UI -----
     menuManager->Update(cpuTime.delta);
 
+    // Ne continuer que si on a un ID valide
+    if (network->MyIDClient == 0 && m_entities.find(0) == m_entities.end())
+    {
+        return;
+    }
+
     // ----- INPUT -----
     if (cpuInput.IsKey(VK_DOWN))
     {
@@ -163,20 +169,22 @@ void App::OnUpdate()
 
     // ----- CAMERA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
-	EnterCriticalSection(&m_cs);
-    if (m_entities[network->MyIDClient])
-    {
-        cpu_transform t = m_entities[network->MyIDClient]->transform;
+    EnterCriticalSection(&m_cs);
 
+    auto it = m_entities.find(network->MyIDClient);
+    if (it != m_entities.end() && it->second != nullptr)
+    {
+        cpu_transform t = it->second->transform;
         cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
         cam.ResetFlags();
         cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
-        m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z};
+        m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z };
         m_pEmitter->dir = t.dir;
         m_pEmitter->dir.x = -m_pEmitter->dir.x;
         m_pEmitter->dir.y = -m_pEmitter->dir.y;
         m_pEmitter->dir.z = -m_pEmitter->dir.z;
     }
+
     LeaveCriticalSection(&m_cs);
 }
 
