@@ -51,7 +51,16 @@ struct SpawnEntity
     EntityType entity;
 };
 
+
 //STRUCT MESSAGE FROM CLIENT ---------------------------
+
+struct AABBUpdateMessage
+{
+    Header head;
+    uint32_t IDEntity;
+    XMFLOAT3 min;
+    XMFLOAT3 max;
+};
 
 struct InputMessage
 {

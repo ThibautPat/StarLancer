@@ -58,46 +58,45 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-            for(int i = 0; i < ListUser_MainTread.size(); i++)
-            {
-                if(message->ClientID == ListUser_MainTread[i]->s_userID)
-                     SpaceShipMove_Calculator::Calcul_Forward(ListUser_MainTread[i]);
-            }
+            SpaceShipMove_Calculator::Calcul_Forward(user);
+            
             break;
         }
         case MessageType::BACKWARD:
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-            for (int i = 0; i < ListUser_MainTread.size(); i++)
-            {
-                if (message->ClientID == ListUser_MainTread[i]->s_userID)
-                    SpaceShipMove_Calculator::Calcul_Backward(ListUser_MainTread[i]);
-            }
+            SpaceShipMove_Calculator::Calcul_Backward(user);
+            
             break;
         }
         case MessageType::LEFT:
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-            for (int i = 0; i < ListUser_MainTread.size(); i++)
-            {
-                if (message->ClientID == ListUser_MainTread[i]->s_userID)
-                    SpaceShipMove_Calculator::Calcul_Left(ListUser_MainTread[i]);
-            }
+           
+            SpaceShipMove_Calculator::Calcul_Left(user);
+            
             break;
         }
         case MessageType::RIGHT:
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-            for (int i = 0; i < ListUser_MainTread.size(); i++)
-            {
-                if (message->ClientID == ListUser_MainTread[i]->s_userID)
-                    SpaceShipMove_Calculator::Calcul_Right(ListUser_MainTread[i]);
-            }
+           
+            SpaceShipMove_Calculator::Calcul_Right(user);
+            
             break;
         }
+        case MessageType::ENTITY:
+        {
+            const AABBUpdateMessage* message = reinterpret_cast<const AABBUpdateMessage*>(buffer);
+
+			user->s_EntityData->maxAABB = message->max;
+			user->s_EntityData->minAABB = message->min;
+			break;
+        }
+
     }
 }
 

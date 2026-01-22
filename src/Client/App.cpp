@@ -41,8 +41,6 @@ void App::UpdateEntityScale(cpu_entity* entity, float scale)
 
 void App::SendMessageToServer(const char* message , size_t size)
 { 
-
-
     if (sendto(*network->GetSocket(), message, size, 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
         std::cout << "PROUT";
 }

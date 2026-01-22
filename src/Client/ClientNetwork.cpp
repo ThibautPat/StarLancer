@@ -105,6 +105,15 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 
             std::cout << "Spawned entity " << entityID << std::endl;
 
+
+
+			AABBUpdateMessage AabbMessage;
+			AabbMessage.head.type = MessageType::ENTITY;
+            AabbMessage.IDEntity = entityID;
+            AabbMessage.max = SpaceShip->aabb.max;
+            AabbMessage.min = SpaceShip->aabb.min;
+
+			instance.SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(uint32_t));
             LeaveCriticalSection(&instance.m_cs);
             break;
         }

@@ -53,6 +53,29 @@ int main()
 
     while (true)
     {
+
+        for (User* user : network->ListUser_MainTread)
+        {
+            for (User* user1 : network->ListUser_MainTread)
+            {
+                if(user1 == user)
+					continue;   
+
+                cpu_aabb aabb1;
+                aabb1.min = user->s_EntityData->minAABB;
+                aabb1.max = user->s_EntityData->maxAABB;
+
+                cpu_aabb aabb2;
+                aabb2.min = user1->s_EntityData->minAABB;
+                aabb2.max = user1->s_EntityData->maxAABB;
+
+                if (cpu::AabbAabb(aabb1, aabb2))
+                {
+                    exit(0);
+                }
+            }
+        }
+
         // PARSE
         for (const auto& message : network->MessageBufferRecev)
             network->ParseurMessage(message.first.data(), message.second);
