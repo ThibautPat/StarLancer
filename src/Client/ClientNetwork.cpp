@@ -37,8 +37,8 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 {
     const Header* head = reinterpret_cast<const Header*>(buffer);
 
-    switch (head->type) 
-    {
+    switch (head->type)
+        {
         case MessageType::CONNEXION:
         {
             const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
@@ -57,7 +57,7 @@ void ClientNetwork::ParseurMessage(const char* buffer)
         {
             const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(buffer);
 
-            switch(message->entity) 
+            switch (message->entity)
             {
                 case(EntityType::SPACESHIP):
                 {
@@ -77,13 +77,14 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 
                     SpaceShip->pMesh = m_meshShip;
 
-                        int i = instance->GetEntities().size();
-                        instance->GetEntities()[i] = SpaceShip;
+                    int i = instance->GetEntities().size()-1;
+                    instance->GetEntities()[i] = SpaceShip;
 
-                        LeaveCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
-                        break;
-                    }
+                    LeaveCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
+                    break;
+
                 }
             }
         }
     }
+}

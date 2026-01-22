@@ -39,11 +39,11 @@ void App::UpdateEntityScale(cpu_entity* entity, float scale)
     entity->transform.SetScaling(scale);
 }
 
-void App::SendMessageToServer(const char* message)
+void App::SendMessageToServer(const char* message , size_t size)
 { 
-    int a= std::strlen(message);
 
-    if (sendto(*network->GetSocket(), message, std::strlen(message), 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
+
+    if (sendto(*network->GetSocket(), message, size, 0, (SOCKADDR*)&ServeurAddr, sizeof(ServeurAddr)) == SOCKET_ERROR)
         std::cout << "PROUT";
 }
 
@@ -109,12 +109,10 @@ void App::OnStart()
     network->Thread_StartListening();
 
     ConnexionMessage msg{};
-    msg.head.type = MessageType::BACKWARD;
-    msg.magicnumber = 8542;
+    msg.head.type = MessageType::CONNEXION;
+    msg.magicnumber = htonl(8542);
 
-    const char* a = reinterpret_cast<const char*>(&msg);
-
-    SendMessageToServer(reinterpret_cast<const char*>(&msg));
+    SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(ConnexionMessage));
 }
 
 void App::OnUpdate()
@@ -136,7 +134,7 @@ void App::OnUpdate()
         msg.head.type = MessageType::BACKWARD;
         msg.ClientID = network->MyIDClient;
 
-        SendMessageToServer(reinterpret_cast<const char*>(&msg));
+        SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
     if (cpuInput.IsKey(VK_UP))
     {
@@ -144,7 +142,7 @@ void App::OnUpdate()
         msg.head.type = MessageType::FORWARD;
         msg.ClientID = network->MyIDClient;
 
-        SendMessageToServer(reinterpret_cast<const char*>(&msg));
+        SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
     if (cpuInput.IsKey(VK_LEFT)) 
     {
@@ -152,7 +150,7 @@ void App::OnUpdate()
         msg.head.type = MessageType::LEFT;
         msg.ClientID = network->MyIDClient;
 
-        SendMessageToServer(reinterpret_cast<const char*>(&msg));
+        SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
     if (cpuInput.IsKey(VK_RIGHT))
     {
@@ -160,7 +158,7 @@ void App::OnUpdate()
         msg.head.type = MessageType::RIGHT;
         msg.ClientID = network->MyIDClient;
 
-        SendMessageToServer(reinterpret_cast<const char*>(&msg));
+        SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
 
     // ----- CAMERA -----

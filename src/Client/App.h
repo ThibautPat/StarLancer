@@ -14,7 +14,7 @@ public:
 
 	void UpdateEntityScale(cpu_entity* entity, float scale);
 
-	void SendMessageToServer(const char* message);
+	void SendMessageToServer(const char* message, size_t size);
 
 	static App& GetInstance() { return *s_pApp; }
 
@@ -72,7 +72,7 @@ private:
 		printf("Hovering play button\n");
 	}
 
-	std::map<int, cpu_entity*> m_entities;
+	std::map<int, cpu_entity*> m_entities{};
 	inline static App* s_pApp = nullptr;
 	cpu_mesh m_meshSphere;
 	cpu_entity* m_pBall;
