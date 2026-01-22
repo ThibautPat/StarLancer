@@ -43,7 +43,7 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 
     switch (head->type)
     {
-    case MessageType::CONNEXION:
+    case MessageType::CONNECTION:
     {
         const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
         MyIDClient = ntohl(message->ClientID);
@@ -109,9 +109,14 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 
 			AABBUpdateMessage AabbMessage;
 			AabbMessage.head.type = MessageType::ENTITY;
-            AabbMessage.IDEntity = entityID;
-            AabbMessage.max = SpaceShip->aabb.max;
-            AabbMessage.min = SpaceShip->aabb.min;
+            AabbMessage.IDEntity = htonl(entityID);
+            AabbMessage.minX =m_meshShip->aabb.min.x;
+            AabbMessage.minY =m_meshShip->aabb.min.y;
+            AabbMessage.minZ =m_meshShip->aabb.min.z;
+
+            AabbMessage.maxX =m_meshShip->aabb.max.x;
+            AabbMessage.maxY =m_meshShip->aabb.max.y;
+            AabbMessage.maxZ =m_meshShip->aabb.max.z;
 
 			instance.SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(uint32_t));
             LeaveCriticalSection(&instance.m_cs);

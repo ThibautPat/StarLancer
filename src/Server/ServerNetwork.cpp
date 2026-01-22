@@ -25,7 +25,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
     const Header* head = reinterpret_cast<const Header*>(buffer);
 
     switch(head->type) {
-        case MessageType::CONNEXION:
+        case MessageType::CONNECTION:
         {
             ConnexionMessage message;
 
@@ -40,7 +40,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             
             ReturnConnexionMessage msg;
             msg.ClientID = htonl(user->s_userID);
-            msg.head.type = MessageType::CONNEXION;
+            msg.head.type = MessageType::CONNECTION;
 
             sockaddr_in addr = user->s_networkInfo->Addr_User;
             int sizeAddr = sizeof(addr);
@@ -92,8 +92,14 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         {
             const AABBUpdateMessage* message = reinterpret_cast<const AABBUpdateMessage*>(buffer);
 
-			user->s_EntityData->maxAABB = message->max;
-			user->s_EntityData->minAABB = message->min;
+            user->s_EntityData->maxAABB.x = message->maxX;
+            user->s_EntityData->maxAABB.y = message->maxY;
+            user->s_EntityData->maxAABB.z = message->maxZ;
+
+            user->s_EntityData->minAABB.x = message->minX;
+            user->s_EntityData->minAABB.y = message->minY;
+            user->s_EntityData->minAABB.z = message->minZ;
+
 			break;
         }
 
@@ -131,9 +137,8 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
 
         User* user = nullptr;
 
-        EnterCriticalSection(&network->csNewUser);
 
-        for (auto c : network->ListUser_MainTread)
+        for (auto c : network->ListUser_Tread)
         {
             if (strcmp(ip_current, c->s_networkInfo->IP) == 0)
             {
@@ -148,8 +153,8 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
             user = network->NewUser(senderAddr);
         }
 
+        EnterCriticalSection(&network->csNewUser);
         network->MessageBufferRecev.emplace( std::vector<char>(buffer, buffer + received), user); // ADD MESSAGE TO BUFFER
-
         LeaveCriticalSection(&network->csNewUser);
     }
     return 0;

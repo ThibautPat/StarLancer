@@ -3,17 +3,20 @@
 
 enum class MessageType : uint8_t
 {
-    MISSING = 0,
-    CONNEXION = 1,
-    UPDATE_POS = 2,
-    UPDATE_ROT = 3,
-    UPDATE_SCALE = 4,
-    UPDATE_FULL = 5,
-    ENTITY = 6,
-    FORWARD = 7,
-    BACKWARD = 8,
-    LEFT = 9,
-    RIGHT = 10
+    MISSING        ,
+    CONNECTION     ,
+    UPDATE_POS      ,
+    UPDATE_ROT      ,
+    UPDATE_SCALE    ,
+
+    UPDATE_FULL     ,
+    ENTITY          ,
+    FORWARD        ,
+    BACKWARD       ,
+    LEFT           ,
+    RIGHT,
+
+    COUNT,
 };
 
 enum class EntityType : uint8_t
@@ -33,9 +36,9 @@ struct UpdatePos
     Header head;
     uint32_t entityID;
 
-    float PosX = 0;
-    float PosY = 0;
-    float PosZ = 0;
+    float PosX = 0.0f;
+    float PosY = 0.0f;
+    float PosZ = 0.0f;
 };
 
 struct ReturnConnexionMessage
@@ -58,8 +61,14 @@ struct AABBUpdateMessage
 {
     Header head;
     uint32_t IDEntity;
-    XMFLOAT3 min;
-    XMFLOAT3 max;
+
+    float minX = 0;
+    float minY = 0;
+    float minZ = 0;
+
+    float maxX = 0;
+    float maxY = 0;
+    float maxZ = 0;
 };
 
 struct InputMessage

@@ -57,11 +57,11 @@ void ChoseTarget(sockaddr_in& ServeurAddr)
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
 
-    if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
-        return;
-
-    //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
+    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
     //    return;
+
+    if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
+        return;
 
     //if (inet_pton(AF_INET, "10.10.137.53", &ServeurAddr.sin_addr) <= 0) //ARNAUD
     //    return;
@@ -107,7 +107,7 @@ void App::OnStart()
     network->Thread_StartListening();
 
     ConnexionMessage msg{};
-    msg.head.type = MessageType::CONNEXION;
+    msg.head.type = MessageType::CONNECTION;
     msg.magicnumber = htonl(8542);
 
     SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(ConnexionMessage));
