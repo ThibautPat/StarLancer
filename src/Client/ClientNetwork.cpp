@@ -37,6 +37,11 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 {
     const Header* head = reinterpret_cast<const Header*>(buffer);
 
+    if (!head||head == nullptr)
+    {
+        return;
+    }
+
     switch (head->type)
         {
         case MessageType::CONNEXION:
@@ -62,8 +67,8 @@ void ClientNetwork::ParseurMessage(const char* buffer)
                 case(EntityType::SPACESHIP):
                 {
                     App* instance = &App::GetInstance();
-
                     EnterCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
+
 
                     cpu_entity* SpaceShip = cpuEngine.CreateEntity();
 
@@ -77,9 +82,8 @@ void ClientNetwork::ParseurMessage(const char* buffer)
 
                     SpaceShip->pMesh = m_meshShip;
 
-                    int i = instance->GetEntities().size()-1;
-                    instance->GetEntities()[i] = SpaceShip;
-
+                    instance->GetEntities()[instance->nextEntityID] = SpaceShip;
+                    instance->nextEntityID++;
                     LeaveCriticalSection(&instance->m_cs2); //SECTION DASSAUlT
                     break;
 

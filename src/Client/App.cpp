@@ -164,9 +164,9 @@ void App::OnUpdate()
     // ----- CAMERA -----
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
 	EnterCriticalSection(&m_cs);
-    if (m_entities[0])
+    if (m_entities[network->MyIDClient])
     {
-        cpu_transform t = m_entities[0]->transform;
+        cpu_transform t = m_entities[network->MyIDClient]->transform;
 
         cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
         cam.ResetFlags();

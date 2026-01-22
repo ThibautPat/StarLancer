@@ -57,7 +57,11 @@ public:
 
 	ClientNetwork* network;
 
+	int nextEntityID = 0;
+
 private:
+
+	
 
 	cpu_font m_font;
 	bool m_pause = false;
