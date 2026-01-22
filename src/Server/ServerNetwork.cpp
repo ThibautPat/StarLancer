@@ -20,20 +20,38 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
 	return newUser;
 }
 
-void ServerNetwork::ParseurMessage(const char* buffer)
+void ServerNetwork::ParseurMessage(const char* buffer, User* user)
 {
     const Header* head = reinterpret_cast<const Header*>(buffer);
 
     switch(head->type) {
         case MessageType::CONNEXION:
         {
-            const ConnexionMessage* message = reinterpret_cast<const ConnexionMessage*>(buffer);
-            if (message->magicnumber != 8542)
+            ConnexionMessage message;
+
+            //if (strlen(buffer) < sizeof(ConnexionMessage))
+            //    return;
+
+            memcpy(&message, buffer, sizeof(ConnexionMessage));
+
+            message.magicnumber = ntohl(message.magicnumber);
+            if (message.magicnumber != 8542)
                 return;
             
             ReturnConnexionMessage msg;
-            msg.ClientID = ListUser_MainTread.size();
+            msg.ClientID = htonl(static_cast<uint32_t>(ListUser_MainTread.size()));
             msg.head.type = MessageType::CONNEXION;
+
+            sockaddr_in addr = user->s_networkInfo->Addr_User;
+            int sizeAddr = sizeof(addr);
+
+            int result = sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(ReturnConnexionMessage), 0, (sockaddr*)&addr, sizeAddr);
+
+            BacklogSend(user);
+
+            if (result == SOCKET_ERROR)
+                int err = WSAGetLastError();
+
             break;
         }
         case MessageType::FORWARD:
@@ -94,7 +112,7 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
 
     while (network->IsRunning)
     {
-        int received = recvfrom(*network->GetSocket(),buffer,sizeof(buffer) - 1,0,(sockaddr*)&senderAddr, &senderAddrSize);
+        int received = recvfrom(*network->GetSocket(), buffer, sizeof(buffer) - 1, 0, (sockaddr*)&senderAddr, &senderAddrSize);
 
         if (received == SOCKET_ERROR)
         {
@@ -108,9 +126,6 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
         {
             continue;
         }
-
-        buffer[received] = '\0';
-        network->MessageBuffer.emplace_back(buffer, buffer + received);
 
         char ip_current[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &senderAddr.sin_addr, ip_current, INET_ADDRSTRLEN);
@@ -132,8 +147,10 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
         if (!user)
         {
             user = network->NewUser(senderAddr);
-            network->BacklogSend(user);
         }
+
+        network->MessageBufferRecev.emplace( std::vector<char>(buffer, buffer + received), user); // ADD MESSAGE TO BUFFER
+
         LeaveCriticalSection(&network->csNewUser);
     }
     return 0;

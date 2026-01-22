@@ -58,11 +58,11 @@ int main()
         // PHYSIQUE
 
         // ----- PARSE -----
-        for (const auto& message : network->MessageBuffer)
+        for (const auto& message : network->MessageBufferRecev)
         {
-            network->ParseurMessage(message.data());
+            network->ParseurMessage(message.first.data(), message.second);
         }
-        network->MessageBuffer.clear();
+        network->MessageBufferRecev.clear();
 
         // ----- MERGE USER -----
         EnterCriticalSection(&network->csMovedUsers);

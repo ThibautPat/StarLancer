@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
+#include <map>
 
 #ifdef _WIN32
 	#include <winsock2.h>
@@ -82,7 +83,7 @@ class ServerNetwork : public Network
 
 public:
 
-	void ParseurMessage(const char* buffer);
+	void ParseurMessage(const char* buffer, User* user);
 
 	CRITICAL_SECTION csNewUser;
 	CRITICAL_SECTION csMovedUsers;
@@ -96,5 +97,5 @@ public:
 	std::vector<User*> ListUser_MainTread;
 	std::vector<User*> ListUser_Tread;
 
-	std::vector<std::vector<char>> MessageBuffer;
+	std::map< std::vector<char>, User*> MessageBufferRecev;
 };

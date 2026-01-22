@@ -1,18 +1,19 @@
 #pragma once
 #include <cstdint>
 
-enum class MessageType : uint8_t 
+enum class MessageType : uint8_t
 {
-    CONNEXION = 0,
-    UPDATE_POS = 1,
-    UPDATE_ROT = 2,
-    UPDATE_SCALE = 3,
-    UPDATE_FULL = 4,
-    ENTITY = 5,
-    FORWARD = 6,
-    BACKWARD = 7,
-    LEFT = 8,
-    RIGHT = 9
+    MISSING = 0,
+    CONNEXION = 1,
+    UPDATE_POS = 2,
+    UPDATE_ROT = 3,
+    UPDATE_SCALE = 4,
+    UPDATE_FULL = 5,
+    ENTITY = 6,
+    FORWARD = 7,
+    BACKWARD = 8,
+    LEFT = 9,
+    RIGHT = 10
 };
 
 enum class EntityType : uint8_t
