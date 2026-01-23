@@ -26,8 +26,8 @@ enum class MessageType : uint8_t
 
 enum class EntityType : uint8_t
 {
-    SPACESHIP = 0,
-    BULLET = 0,
+    SPACESHIP,
+    BULLET,
 };
 
 #pragma pack(push,1)  //Sert a éviter le padding binaire
