@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
-
+#include "EntityServer.h"
 #ifdef _WIN32
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
@@ -25,21 +25,6 @@
 
 // SERVEUR DATA -----------------------------------------
 
-struct EntityData
-{
-	uint32_t entityID;
-
-	//POS
-	float PosX = 0;
-	float PosY = 0;
-	float PosZ = 0;
-
-	//SIZE COLLIDER AABB
-
-	XMFLOAT3 minAABB;
-	XMFLOAT3 maxAABB;
-
-};
 
 struct ServerNetworkInfo
 {
@@ -52,7 +37,7 @@ struct User
 {
 	uint32_t s_userID;
 	ServerNetworkInfo* s_networkInfo;
-	EntityData* s_EntityData;
+	EntityServer* s_EntityData;
 };
 
 // NETWORK BASE -----------------------------------------

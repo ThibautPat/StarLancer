@@ -6,7 +6,7 @@
 User* ServerNetwork::NewUser(sockaddr_in addr)
 {
 	User* newUser = new User();
-    newUser->s_EntityData = new EntityData();
+    newUser->s_EntityData = new EntityServer();
     newUser->s_networkInfo = new ServerNetworkInfo();
 
     newUser->s_userID = ListUser_Tread.size();

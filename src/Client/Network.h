@@ -24,7 +24,7 @@
 
 // SERVEUR DATA -----------------------------------------
 
-struct EntityData
+struct EntityServer
 {
 	uint32_t entityID;
 	float PosX = 0;
@@ -43,7 +43,7 @@ struct User
 {
 	uint32_t s_userID;
 	ServerNetworkInfo* s_networkInfo;
-	EntityData* s_EntityData;
+	EntityServer* s_EntityData;
 };
 
 // NETWORK BASE -----------------------------------------
