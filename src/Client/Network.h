@@ -22,30 +22,6 @@
 	#define SOCKET_ERROR   (-1)
 #endif
 
-// SERVEUR DATA -----------------------------------------
-
-struct EntityServer
-{
-	uint32_t entityID;
-	float PosX = 0;
-	float PosY = 0;
-	float PosZ = 0;
-};
-
-struct ServerNetworkInfo
-{
-	sockaddr_in Addr_User{};
-	char IP[INET_ADDRSTRLEN];
-	int port;
-};
-
-struct User
-{
-	uint32_t s_userID;
-	ServerNetworkInfo* s_networkInfo;
-	EntityServer* s_EntityData;
-};
-
 // NETWORK BASE -----------------------------------------
 
 class Network
@@ -70,9 +46,18 @@ public:
 
 class ClientNetwork : public Network
 {
-
 public:
-	void ParseurMessage(const char* buffer);
+	SOCKET UserSock;
+	HANDLE thread1;
+	sockaddr_in ServeurAddr;
+
+	void SendMessageToServer(const char* message, size_t size);
+
+	void ConnexionProtcol();
+
+	void ChoseTarget();
+
+	void ParseurMessage();
 
 	static DWORD WINAPI ThreadFonction(LPVOID lpParam);
 

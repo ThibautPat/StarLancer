@@ -1,31 +1,5 @@
 #include "pch.h"
-#include "Utils.h"
-#include <iostream>
-#include <sstream>
-namespace Utils
-{
-    XMFLOAT3 StringToXMFLOAT3(std::string& msg)
-    {
-        XMFLOAT3 float3;
-        int pos = msg.find(';');
-        float3.x = std::stof(msg.substr(0, pos));
-        msg = msg.substr(pos + 1);
-        pos = msg.find(';');
-        float3.y = std::stof(msg.substr(0, pos));
-        msg = msg.substr(pos + 1);
-        pos = msg.find(';');
-        float3.z = std::stof(msg.substr(0, pos));
-        msg = msg.substr(pos + 1);
-		return float3;
-    }
-
-    std::string XMFLOAT3ToString(XMFLOAT3 float3)
-    {
-
-		return std::to_string(float3.x) + ";" + std::to_string(float3.y) + ";" + std::to_string(float3.z) + ";";
-
-    }
-
+/*
     void ParseurMessage(App* s_pApp, const char* buffer)
     {
 
@@ -131,3 +105,5 @@ namespace Utils
         std::cout << "NEW LOCATION";
     }
 }
+
+*/
