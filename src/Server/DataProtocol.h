@@ -47,7 +47,7 @@ struct ReturnConnexionMessage
     uint32_t ClientID;
 };
 
-struct SpawnEntity
+struct SpawnPlayer
 {
     Header head;
     uint32_t IDEntity;

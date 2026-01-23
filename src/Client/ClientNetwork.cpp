@@ -40,90 +40,94 @@ void ClientNetwork::ParseurMessage()
 
         const Header* head = reinterpret_cast<const Header*>(buffer);
         if (!head || head == nullptr)
-        {
             return;
-        }
 
         switch (head->type)
         {
-        case MessageType::CONNECTION:
-        {
-            const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
-            MyIDClient = ntohl(message->ClientID);
-            break;
-        }
-
-        case MessageType::UPDATE_POS:
-        {
-            const UpdatePos* message = reinterpret_cast<const UpdatePos*>(buffer);
-            App& instance = App::GetInstance();
-
-            uint32_t entityID = ntohl(message->entityID);
-
-            EnterCriticalSection(&instance.m_cs);
-
-            auto it = instance.GetEntities().find(entityID);
-            if (it != instance.GetEntities().end() && it->second != nullptr)
+            case MessageType::CONNECTION:
             {
-                cpu_entity* entity = it->second;
-                instance.UpdateEntityPosition(entity, message->PosX, message->PosY, message->PosZ);
-            } else {
-                std::cout << "Warning: Entity " << entityID << " not found for UPDATE_POS" << std::endl;
+                const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
+                MyIDClient = ntohl(message->ClientID);
+                break;
             }
 
-            LeaveCriticalSection(&instance.m_cs);
-            break;
-        }
-
-        case MessageType::ENTITY:
-        {
-            const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(buffer);
-
-            switch (message->entity)
+            case MessageType::UPDATE_POS:
             {
-            case(EntityType::SPACESHIP):
-            {
+                const UpdatePos* message = reinterpret_cast<const UpdatePos*>(buffer);
                 App& instance = App::GetInstance();
 
-                uint32_t entityID = ntohl(message->IDEntity);
+                uint32_t entityID = ntohl(message->entityID);
 
                 EnterCriticalSection(&instance.m_cs);
 
-                if (instance.GetEntities().find(entityID) != instance.GetEntities().end())
+                auto it = instance.GetEntities().find(entityID);
+                if (it != instance.GetEntities().end() && it->second != nullptr)
                 {
-                    std::cout << "Warning: Entity " << entityID << " already exists!" << std::endl;
-                    LeaveCriticalSection(&instance.m_cs);
-                    break;
+                    cpu_entity* entity = it->second;
+                    instance.UpdateEntityPosition(entity, message->PosX, message->PosY, message->PosZ);
+                } else {
+                    std::cout << "Warning: Entity " << entityID << " not found for UPDATE_POS" << std::endl;
                 }
 
-                cpu_entity* SpaceShip = cpuEngine.CreateEntity();
-                cpu_mesh* m_meshShip = new cpu_mesh();
-                m_meshShip->CreateCube();
-                SpaceShip->pMesh = m_meshShip;
-
-                instance.GetEntities()[entityID] = SpaceShip;
-
-                AABBUpdateMessage AabbMessage;
-                AabbMessage.head.type = MessageType::ENTITY;
-                AabbMessage.IDEntity = htonl(entityID);
-                AabbMessage.minX = m_meshShip->aabb.min.x;
-                AabbMessage.minY = m_meshShip->aabb.min.y;
-                AabbMessage.minZ = m_meshShip->aabb.min.z;
-
-                AabbMessage.maxX = m_meshShip->aabb.max.x;
-                AabbMessage.maxY = m_meshShip->aabb.max.y;
-                AabbMessage.maxZ = m_meshShip->aabb.max.z;
-
-                SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
                 LeaveCriticalSection(&instance.m_cs);
                 break;
             }
+
+            case MessageType::ENTITY:
+            {
+                const SpawnPlayer* message = reinterpret_cast<const SpawnPlayer*>(buffer);
+
+                switch (message->entity)
+                {
+                    case(EntityType::SPACESHIP):
+                    {
+                        App& instance = App::GetInstance();
+
+                        uint32_t entityID = ntohl(message->IDEntity);
+
+                        EnterCriticalSection(&instance.m_cs);
+
+                        if (instance.GetEntities().find(entityID) != instance.GetEntities().end())
+                        {
+                            std::cout << "Warning: Entity " << entityID << " already exists!" << std::endl;
+                            LeaveCriticalSection(&instance.m_cs);
+                            break;
+                        }
+
+                        cpu_entity* SpaceShip = cpuEngine.CreateEntity();
+                        cpu_mesh* m_meshShip = new cpu_mesh();
+
+                        m_meshShip->CreateCube();
+
+                        /*m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
+                        m_meshShip->FlipWinding();
+                        m_meshShip->Optimize();*/
+
+                        SpaceShip->pMesh = m_meshShip;
+
+                        instance.GetEntities()[entityID] = SpaceShip;
+
+                        AABBUpdateMessage AabbMessage;
+                        AabbMessage.head.type = MessageType::ENTITY;
+                        AabbMessage.IDEntity = htonl(entityID);
+                        AabbMessage.minX = m_meshShip->aabb.min.x;
+                        AabbMessage.minY = m_meshShip->aabb.min.y;
+                        AabbMessage.minZ = m_meshShip->aabb.min.z;
+
+                        AabbMessage.maxX = m_meshShip->aabb.max.x;
+                        AabbMessage.maxY = m_meshShip->aabb.max.y;
+                        AabbMessage.maxZ = m_meshShip->aabb.max.z;
+
+                        SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
+                        LeaveCriticalSection(&instance.m_cs);
+                        break;
+                    }
+                }
+                break;
             }
-            break;
         }
-        }
-        MessageBuffer.clear();
     }
+    MessageBuffer.clear();
 }
 
 void ClientNetwork::SendMessageToServer(const char* message, size_t size)

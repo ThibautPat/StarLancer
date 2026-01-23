@@ -171,7 +171,7 @@ void ServerNetwork::Thread_StartListening()
 void ServerNetwork::BacklogSend(User* Recever)
 {
     // 1️ Nouveau client reçoit son propre vaisseau
-    SpawnEntity msg{};
+    SpawnPlayer msg{};
     msg.head.type = MessageType::ENTITY;
     msg.entity = EntityType::SPACESHIP;
     msg.IDEntity = htonl(Recever->s_userID);
@@ -185,14 +185,14 @@ void ServerNetwork::BacklogSend(User* Recever)
             continue;
 
         // Ancien joueur  nouveau client
-        SpawnEntity oldMsg{};
+        SpawnPlayer oldMsg{};
         oldMsg.head.type = MessageType::ENTITY;
         oldMsg.entity = EntityType::SPACESHIP;
         oldMsg.IDEntity = htonl(u->s_userID); //  ID de l'ancien joueur
         sendto(*GetSocket(),reinterpret_cast<const char*>(&oldMsg),sizeof(oldMsg),0,(sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
         // Nouveau joueur  ancien joueur
-        SpawnEntity newMsg{};
+        SpawnPlayer newMsg{};
         newMsg.head.type = MessageType::ENTITY;
         newMsg.entity = EntityType::SPACESHIP;
         newMsg.IDEntity = htonl(Recever->s_userID); //  ID du nouveau joueur
