@@ -4,17 +4,22 @@
 enum class MessageType : uint8_t
 {
     MISSING,
+
     CONNECTION,
+    ENTITY,
+
     UPDATE_POS,
     UPDATE_ROT,
     UPDATE_SCALE,
-
     UPDATE_FULL,
-    ENTITY,
+
     FORWARD,
     BACKWARD,
     LEFT,
     RIGHT,
+
+    FIRE_BULLET,
+    FIRE_MISSILE,
 
     COUNT,
 };
@@ -22,6 +27,7 @@ enum class MessageType : uint8_t
 enum class EntityType : uint8_t
 {
     SPACESHIP = 0,
+    BULLET = 0,
 };
 
 #pragma pack(push,1)  //Sert a éviter le padding binaire
@@ -52,8 +58,16 @@ struct SpawnPlayer
     Header head;
     uint32_t IDEntity;
     EntityType entity;
+
+    char pseudo[32];
 };
 
+struct SpawnEntity
+{
+    Header head;
+    uint32_t IDEntity;
+    EntityType entity;
+};
 
 //STRUCT MESSAGE FROM CLIENT ---------------------------
 

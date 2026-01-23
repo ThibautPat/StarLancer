@@ -75,7 +75,7 @@ void ClientNetwork::ParseurMessage()
 
             case MessageType::ENTITY:
             {
-                const SpawnPlayer* message = reinterpret_cast<const SpawnPlayer*>(buffer);
+                const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(buffer);
 
                 switch (message->entity)
                 {

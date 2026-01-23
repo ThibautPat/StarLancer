@@ -25,7 +25,6 @@
 
 // SERVEUR DATA -----------------------------------------
 
-
 struct ServerNetworkInfo
 {
 	sockaddr_in Addr_User{};
