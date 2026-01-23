@@ -9,7 +9,7 @@ void MenuManager::Start()
     for (Menu* object : menuList)
         object->SetActive(false);
 
-    App::GetInstance().CurrentStates =  App::PLAY;
+    App::GetInstance().CurrentState =  App::State::PLAY;
 
     switchMenu("PLAY");
     App::GetInstance().Pause();
@@ -19,37 +19,37 @@ void MenuManager::Update(float deltatime)
 {
     m_currentMenu->Update(deltatime);
 
-    switch (App::GetInstance().CurrentStates)
+    switch (App::GetInstance().CurrentState)
     {
-    case App::PLAY:
+    case App::State::PLAY:
     {
         switchMenu("PLAY");
         //ShowMouseCursor();
         App::GetInstance().Pause();
         break;
     }
-    case App::GAME:
+    case App::State::GAME:
     {
         switchMenu("HUD");
         App::GetInstance().Pause();
         //gce::HideMouseCursor();
         break;
     }
-    case App::LOOSE:
+    case App::State::LOOSE:
     {
         switchMenu("LOOSE");
         App::GetInstance().Pause();
         //gce::ShowMouseCursor();
         break;
     }
-    case App::WIN:
+    case App::State::WIN:
     {
         switchMenu("WIN");
         App::GetInstance().Pause();
         //gce::ShowMouseCursor();
         break;
     }
-    case App::PAUSE:
+    case App::State::PAUSE:
     {
         switchMenu("PAUSE");
         App::GetInstance().Pause();
@@ -71,15 +71,15 @@ void MenuManager::Update(float deltatime)
             //scoreText = std::to_wstring(score);
             //ScoreText->GetComponent<gce::TextRenderer>()->text = scoreText;
         }
-       
-       
     }
 }
+
 void MenuManager::Draw(cpu_device* pDevice)
 {
     if (m_currentMenu && m_currentMenu->active)
         m_currentMenu->Draw(pDevice);
 }
+
 Menu* MenuManager::getMenu(std::string name)
 {
     for (Menu* object :menuList)
@@ -102,6 +102,7 @@ void MenuManager::forceUnActiveMenu(std::string name)
         }
     }
 }
+
 void MenuManager::forceActiveMenu(std::string name)
 {
     for (Menu* object : menuList)
