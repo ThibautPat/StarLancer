@@ -97,11 +97,11 @@ void ClientNetwork::ParseurMessage()
                         cpu_entity* SpaceShip = cpuEngine.CreateEntity();
                         cpu_mesh* m_meshShip = new cpu_mesh();
 
-                        m_meshShip->CreateCube();
+                        //m_meshShip->CreateCube();
 
-                        /*m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
+                        m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
                         m_meshShip->FlipWinding();
-                        m_meshShip->Optimize();*/
+                        m_meshShip->Optimize();
 
                         SpaceShip->pMesh = m_meshShip;
 

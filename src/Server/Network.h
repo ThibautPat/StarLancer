@@ -36,7 +36,6 @@ struct User
 {
 	uint32_t s_userID;
 	ServerNetworkInfo* s_networkInfo;
-	EntityServer* s_EntityData;
 };
 
 // NETWORK BASE -----------------------------------------
@@ -83,11 +82,14 @@ public:
 	ServerNetwork() { InitializeCriticalSection(&csMovedUsers); InitializeCriticalSection(&csNewUser); };
 
 	void Thread_StartListening();
-
 	void BacklogSend(User* Recever);
+	template<typename T>
+	void ReplicationMessage( char* test);
 
 	std::vector<User*> ListUser_MainTread;
 	std::vector<User*> ListUser_Tread;
+
+	std::map<uint32_t,EntityServer*> ListEntity;
 
 	std::map< std::vector<char>, User*> MessageBufferRecev;
 };

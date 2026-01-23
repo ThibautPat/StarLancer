@@ -1,15 +1,17 @@
 ﻿#include "pch.h"
 #include "Network.h"
-
+#include "EntityBulletServer.h"
 #include "SpaceShipMove_Calculator.h"
 
 User* ServerNetwork::NewUser(sockaddr_in addr)
 {
 	User* newUser = new User();
-    newUser->s_EntityData = new EntityServer();
     newUser->s_networkInfo = new ServerNetworkInfo();
 
-    newUser->s_userID = ListUser_Tread.size();
+    newUser->s_userID = ListEntity.size();
+
+    ListEntity[newUser->s_userID] = new EntityServer();
+
     ListUser_Tread.push_back(newUser);
 
     newUser->s_networkInfo->Addr_User = addr;
@@ -58,7 +60,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-            SpaceShipMove_Calculator::Calcul_Forward(user);
+            SpaceShipMove_Calculator::Calcul_Forward(user,this);
             
             break;
         }
@@ -66,7 +68,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
-            SpaceShipMove_Calculator::Calcul_Backward(user);
+            SpaceShipMove_Calculator::Calcul_Backward(user, this);
             
             break;
         }
@@ -75,7 +77,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
            
-            SpaceShipMove_Calculator::Calcul_Left(user);
+            SpaceShipMove_Calculator::Calcul_Left(user, this);
             
             break;
         }
@@ -84,23 +86,31 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
 
            
-            SpaceShipMove_Calculator::Calcul_Right(user);
+            SpaceShipMove_Calculator::Calcul_Right(user, this);
             
             break;
         }
         case MessageType::ENTITY:
         {
             const AABBUpdateMessage* message = reinterpret_cast<const AABBUpdateMessage*>(buffer);
+            ListEntity[user->s_userID]->maxAABB.x = message->maxX;
+            ListEntity[user->s_userID]->maxAABB.y = message->maxY;
+            ListEntity[user->s_userID]->maxAABB.z = message->maxZ;
 
-            user->s_EntityData->maxAABB.x = message->maxX;
-            user->s_EntityData->maxAABB.y = message->maxY;
-            user->s_EntityData->maxAABB.z = message->maxZ;
-
-            user->s_EntityData->minAABB.x = message->minX;
-            user->s_EntityData->minAABB.y = message->minY;
-            user->s_EntityData->minAABB.z = message->minZ;
+            ListEntity[user->s_userID]->minAABB.x = message->minX;
+            ListEntity[user->s_userID]->minAABB.y = message->minY;
+            ListEntity[user->s_userID]->minAABB.z = message->minZ;
 
 			break;
+        }
+        case MessageType::FIRE_BULLET:
+        {
+             
+            SpawnEntity replicationMessage;
+            replicationMessage.head.type = MessageType::ENTITY;
+            replicationMessage.entity = EntityType::BULLET;
+			replicationMessage.IDEntity = htonl(ListEntity.size());
+
         }
 
     }
@@ -168,6 +178,7 @@ void ServerNetwork::Thread_StartListening()
 	CloseHandle(thread1);
 }
 
+
 void ServerNetwork::BacklogSend(User* Recever)
 {
     // 1️ Nouveau client reçoit son propre vaisseau
@@ -176,7 +187,7 @@ void ServerNetwork::BacklogSend(User* Recever)
     msg.entity = EntityType::SPACESHIP;
     msg.IDEntity = htonl(Recever->s_userID);
 
-    sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg),0,(sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+    sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
     // 2️ Envoyer aux autres clients
     for (auto& u : ListUser_MainTread)
@@ -189,15 +200,36 @@ void ServerNetwork::BacklogSend(User* Recever)
         oldMsg.head.type = MessageType::ENTITY;
         oldMsg.entity = EntityType::SPACESHIP;
         oldMsg.IDEntity = htonl(u->s_userID); //  ID de l'ancien joueur
-        sendto(*GetSocket(),reinterpret_cast<const char*>(&oldMsg),sizeof(oldMsg),0,(sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+        sendto(*GetSocket(), reinterpret_cast<const char*>(&oldMsg), sizeof(oldMsg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
         // Nouveau joueur  ancien joueur
         SpawnPlayer newMsg{};
         newMsg.head.type = MessageType::ENTITY;
         newMsg.entity = EntityType::SPACESHIP;
         newMsg.IDEntity = htonl(Recever->s_userID); //  ID du nouveau joueur
-        sendto(*GetSocket(), reinterpret_cast<const char*>(&newMsg), sizeof(newMsg), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
+        sendto(*GetSocket(), reinterpret_cast<const char*>(&newMsg), sizeof(newMsg), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
     }
+}
+
+
+template<typename T>
+void ServerNetwork::ReplicationMessage( char * test)
+{
+     T* msg = reinterpret_cast< T*>(test);
+    msg->IDEntity = htonl(msg->IDEntity);
+
+
+    for (auto& u : ListUser_MainTread)
+    {
+
+        sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(msg), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
+    }
+
+
+
+
+
+
 }
 
 
