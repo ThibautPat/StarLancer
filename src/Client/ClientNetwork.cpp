@@ -118,7 +118,7 @@ void ClientNetwork::ParseurMessage(const char* buffer)
             AabbMessage.maxY =m_meshShip->aabb.max.y;
             AabbMessage.maxZ =m_meshShip->aabb.max.z;
 
-			instance.SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(uint32_t));
+			instance.SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
             LeaveCriticalSection(&instance.m_cs);
             break;
         }
