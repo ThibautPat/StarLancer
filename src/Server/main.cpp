@@ -50,12 +50,22 @@ void CollisionCheck(ServerNetwork* network)
                 continue;
 
             cpu_aabb aabb1;
-            aabb1.min = user->s_EntityData->minAABB;
-            aabb1.max = user->s_EntityData->maxAABB;
+            aabb1.min.x = user->s_EntityData->minAABB.x + user->s_EntityData->PosX;
+            aabb1.min.y = user->s_EntityData->minAABB.y + user->s_EntityData->PosY;
+            aabb1.min.z = user->s_EntityData->minAABB.z + user->s_EntityData->PosZ;
+
+            aabb1.max.x = user->s_EntityData->maxAABB.x + user->s_EntityData->PosX;
+            aabb1.max.y = user->s_EntityData->maxAABB.y + user->s_EntityData->PosY;
+            aabb1.max.z = user->s_EntityData->maxAABB.z + user->s_EntityData->PosZ;
 
             cpu_aabb aabb2;
-            aabb2.min = user1->s_EntityData->minAABB;
-            aabb2.max = user1->s_EntityData->maxAABB;
+            aabb2.min.x = user1->s_EntityData->minAABB.x + user1->s_EntityData->PosX;
+            aabb2.min.y = user1->s_EntityData->minAABB.y + user1->s_EntityData->PosY;
+            aabb2.min.z = user1->s_EntityData->minAABB.z + user1->s_EntityData->PosZ;
+
+            aabb2.max.x = user1->s_EntityData->maxAABB.x + user1->s_EntityData->PosX;
+            aabb2.max.y = user1->s_EntityData->maxAABB.y + user1->s_EntityData->PosY;
+            aabb2.max.z = user1->s_EntityData->maxAABB.z + user1->s_EntityData->PosZ;
 
             if (cpu::AabbAabb(aabb1, aabb2))
             {
@@ -100,7 +110,7 @@ int main()
 
 
 
-        Sleep(10);
+        Sleep(32);
     }
     network->CloseSocket(*network->GetSocket());
     return 0;
