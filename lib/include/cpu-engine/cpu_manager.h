@@ -1,4 +1,5 @@
 #pragma once
+
 template<typename T>
 struct cpu_manager
 {
@@ -10,17 +11,16 @@ public:
 	int bornCount = 0;
 	std::vector<T*> deadList;
 	int deadCount = 0;
+
 public:
-	cpu_manager() { static_assert(std::is_base_of_v<cpu_object, T>, "T must derive from cpu_object"); }
+	cpu_manager() { static_assert(std::is_base_of_v<cpu_object, T>, "T must derive from cpu_object");}
 	~cpu_manager() { Clear(); }
+
 	void Clear();
 	T* operator[](int index) { return list[index]; }
 	T* Create();
-
-	// ? AJOUT : Méthode template pour créer des types dérivés
 	template<typename Derived>
 	Derived* Create();
-
 	void Add(T* p);
 	void Release(T* p);
 	void Purge();
@@ -29,9 +29,9 @@ public:
 template<typename T>
 void cpu_manager<T>::Clear()
 {
-	assert(bornCount == 0);
-	assert(deadCount == 0);
-	for (int i = 0; i < count; i++)
+	assert( bornCount==0 );
+	assert( deadCount==0 );
+	for ( int i=0 ; i<count ; i++ )
 		delete list[i];
 	list.clear();
 	sortedList.clear();
@@ -46,15 +46,13 @@ template<typename T>
 T* cpu_manager<T>::Create()
 {
 	T* p = new T;
-	if (bornCount < bornList.size())
+	if ( bornCount<bornList.size() )
 		bornList[bornCount] = p;
 	else
 		bornList.push_back(p);
 	bornCount++;
 	return p;
 }
-
-// ? AJOUT : Implémentation de la méthode template pour types dérivés
 template<typename T>
 template<typename Derived>
 Derived* cpu_manager<T>::Create()
@@ -69,11 +67,10 @@ Derived* cpu_manager<T>::Create()
 	bornCount++;
 	return p;
 }
-
 template<typename T>
 void cpu_manager<T>::Add(T* p)
 {
-	if (bornCount < bornList.size())
+	if ( bornCount<bornList.size() )
 		bornList[bornCount] = p;
 	else
 		bornList.push_back(p);
@@ -83,10 +80,10 @@ void cpu_manager<T>::Add(T* p)
 template<typename T>
 void cpu_manager<T>::Release(T* p)
 {
-	if (p == nullptr || p->dead)
+	if ( p==nullptr || p->dead )
 		return;
 	p->dead = true;
-	if (deadCount < deadList.size())
+	if ( deadCount<deadList.size() )
 		deadList[deadCount] = p;
 	else
 		deadList.push_back(p);
@@ -97,42 +94,43 @@ template<typename T>
 void cpu_manager<T>::Purge()
 {
 	// Born
-	for (int i = 0; i < bornCount; i++)
+	for ( int i=0 ; i<bornCount ; i++ )
 	{
 		T* p = bornList[i];
-		if (p->dead)
+		if ( p->dead )
 			continue;
 		p->index = count;
 		p->sortedIndex = p->index;
-		if (p->index < list.size())
+		if ( p->index<list.size() )
 			list[p->index] = p;
 		else
 			list.push_back(p);
-		if (p->sortedIndex < sortedList.size())
+		if ( p->sortedIndex<sortedList.size() )
 			sortedList[p->sortedIndex] = p;
 		else
 			sortedList.push_back(p);
 		count++;
 	}
 	bornCount = 0;
+
 	// Dead
-	for (int i = 0; i < deadCount; i++)
+	for ( int i=0 ; i<deadCount ; i++ )
 	{
 		T* p = deadList[i];
-		if (p->index == -1)
+		if ( p->index==-1 )
 		{
 			delete deadList[i];
 			deadList[i] = nullptr;
 			continue;
 		}
-		if (p->index < count - 1)
+		if ( p->index<count-1 )
 		{
-			list[p->index] = list[count - 1];
+			list[p->index] = list[count-1];
 			list[p->index]->index = p->index;
 		}
-		if (p->sortedIndex < count - 1)
+		if ( p->sortedIndex<count-1 )
 		{
-			sortedList[p->sortedIndex] = sortedList[count - 1];
+			sortedList[p->sortedIndex] = sortedList[count-1];
 			sortedList[p->sortedIndex]->sortedIndex = p->sortedIndex;
 		}
 		delete deadList[i];

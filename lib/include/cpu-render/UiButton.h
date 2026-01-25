@@ -85,7 +85,7 @@ private:
     bool m_looping = true;
     bool m_playing = false;
 
-        int m_width = 0;
+    int m_width = 0;
     int m_height = 0;
 
     struct SrcRect {

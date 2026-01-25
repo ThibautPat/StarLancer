@@ -3,7 +3,9 @@
 struct cpu_obb
 {
 public:
-	XMFLOAT3 pts[8];
+	XMFLOAT3 center;
+	XMFLOAT3 axis[3];
+	XMFLOAT3 half;
 
 public:
 	cpu_obb();
@@ -12,4 +14,5 @@ public:
 
 	void Zero();
 	void XM_CALLCONV Transform(FXMMATRIX m);
+	XMMATRIX GetMatrix();
 };
