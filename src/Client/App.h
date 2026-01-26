@@ -56,10 +56,6 @@ public:
 	enum class State
 	{
 		PLAY,
-		GAME,
-		WIN,
-		LOOSE,
-		PAUSE
 	};
 
 	void Pause() { m_pause = true; }

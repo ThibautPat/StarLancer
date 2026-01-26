@@ -99,9 +99,11 @@ void ClientNetwork::ParseurMessage()
 
                         m_meshShip->CreateCube();
 
-                        /*m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
+                        /*
+                        m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
                         m_meshShip->FlipWinding();
-                        m_meshShip->Optimize();*/
+                        m_meshShip->Optimize();
+                        */
 
                         SpaceShip->pMesh = m_meshShip;
 
@@ -164,8 +166,6 @@ void ClientNetwork::ParseurMessage()
                         LeaveCriticalSection(&instance.m_cs);
                         break;
                     }
-
-
                 }
                 break;
             }
