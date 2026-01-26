@@ -1,7 +1,8 @@
 #pragma once 
 #include "MenuManager.h" 
 #include "Network.h"
-
+#include "EntityBulletClient.h"
+#include "EntityClient.h"
 class App
 {
 	// --- UI callbacks -----------------------------------------------
@@ -22,7 +23,9 @@ class App
 	cpu_mesh m_meshSphere;
 
 	cpu_entity* m_pBall = nullptr;
-	std::map<int, cpu_entity*> m_entities;
+	std::vector<EntityClient*> m_entities;
+	std::vector<EntityBulletClient*> m_bullets;
+
 	std::map<int, char[32]> m_pseudos;
 
 	inline static App* s_pApp = nullptr;
@@ -43,11 +46,14 @@ public:
 	void OnExit();
 
 	// --- Entity management ------------------------------------------
+	void CreateBullet(uint32_t IdEntity, uint32_t OwnerID);
+	void UpdateBullets(float deltaTime);
 	void UpdateEntityPosition(cpu_entity* entity, float x, float y, float z);
 	void UpdateEntityRotation(cpu_entity* entity, float rx, float ry, float rz);
 	void UpdateEntityScale(cpu_entity* entity, float scale);
 
-	std::map<int, cpu_entity*>& GetEntities() { return m_entities; }
+	std::vector<EntityClient*>& GetEntities() { return m_entities; }
+	std::vector<EntityBulletClient*>& GetBullets() { return m_bullets; }
 
 	// --- Rendering --------------------------------------------------
 	static void MyPixelShader(cpu_ps_io& io);
@@ -77,6 +83,9 @@ public:
 	float camHeight = 2.0f;
 
 	int nextEntityID = 0;
+
+	float coldownNetwork = 0.f;
+	float TimerBeforeRetry = 5.f;
 
 	cpu_particle_emitter* m_pEmitter = nullptr;
 	ClientNetwork* network = nullptr;

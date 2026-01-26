@@ -5,6 +5,14 @@
 
 class EntityBulletServer : public EntityServer
 {
+	public:
+	EntityBulletServer()
+	{
+		entityType = EntityType::BULLET;
+
+		minAABB = { -0.1f, -0.1f, -0.1f };
+		maxAABB = { 0.1f, 0.1f, 0.1f };
+	}
 
 	void OnCollide(EntityServer* entity) override
 	{

@@ -51,6 +51,8 @@ public:
 	HANDLE thread1;
 	sockaddr_in ServeurAddr;
 
+	bool Connected = false;
+
 	void SendMessageToServer(const char* message, size_t size);
 
 	void ConnexionProtcol();

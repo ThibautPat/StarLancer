@@ -21,6 +21,8 @@ enum class MessageType : uint8_t
     FIRE_BULLET,
     FIRE_MISSILE,
 
+    HIT,
+
     COUNT,
 };
 
@@ -66,6 +68,7 @@ struct SpawnEntity
 {
     Header head;
     uint32_t IDEntity;
+    uint32_t IDUser;
     EntityType entity;
 };
 
@@ -95,6 +98,13 @@ struct ConnexionMessage
 {
     Header head;
     uint32_t magicnumber;
+};
+
+struct BulletHitMessage
+{
+    Header head;
+    uint32_t bulletID;
+    uint32_t targetID;
 };
 
 #pragma pack(pop) //Sert a éviter le padding binaire

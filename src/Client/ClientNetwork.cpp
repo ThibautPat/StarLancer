@@ -48,6 +48,7 @@ void ClientNetwork::ParseurMessage()
             {
                 const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
                 MyIDClient = ntohl(message->ClientID);
+				Connected = true; // Successfully connected to the server
                 break;
             }
 
@@ -60,10 +61,10 @@ void ClientNetwork::ParseurMessage()
 
                 EnterCriticalSection(&instance.m_cs);
 
-                auto it = instance.GetEntities().find(entityID);
-                if (it != instance.GetEntities().end() && it->second != nullptr)
+                EntityClient* Entity = instance.GetEntities()[entityID];
+                if (Entity != nullptr)
                 {
-                    cpu_entity* entity = it->second;
+                    cpu_entity* entity = Entity->pEntity;
                     instance.UpdateEntityPosition(entity, message->PosX, message->PosY, message->PosZ);
                 } else {
                     std::cout << "Warning: Entity " << entityID << " not found for UPDATE_POS" << std::endl;
@@ -87,14 +88,9 @@ void ClientNetwork::ParseurMessage()
 
                         EnterCriticalSection(&instance.m_cs);
 
-                        if (instance.GetEntities().find(entityID) != instance.GetEntities().end())
-                        {
-                            std::cout << "Warning: Entity " << entityID << " already exists!" << std::endl;
-                            LeaveCriticalSection(&instance.m_cs);
-                            break;
-                        }
+						EntityClient* entityClient = new EntityClient();
 
-                        cpu_entity* SpaceShip = cpuEngine.CreateEntity();
+                        entityClient->pEntity = cpuEngine.CreateEntity();
                         cpu_mesh* m_meshShip = new cpu_mesh();
 
                         m_meshShip->CreateCube();
@@ -105,9 +101,10 @@ void ClientNetwork::ParseurMessage()
                         m_meshShip->Optimize();
                         */
 
-                        SpaceShip->pMesh = m_meshShip;
+                        entityClient->pEntity->pMesh = m_meshShip;
+						entityClient->entityID = entityID;
 
-                        instance.GetEntities()[entityID] = SpaceShip;
+                        instance.GetEntities().push_back(entityClient);
 
                         AABBUpdateMessage AabbMessage;
                         AabbMessage.head.type = MessageType::ENTITY;
@@ -126,44 +123,8 @@ void ClientNetwork::ParseurMessage()
                     }
                     case(EntityType::BULLET):
                     {
-                        App& instance = App::GetInstance();
-
-                        uint32_t entityID = ntohl(message->IDEntity);
-
-                        EnterCriticalSection(&instance.m_cs);
-
-                        if (instance.GetEntities().find(entityID) != instance.GetEntities().end())
-                        {
-                            std::cout << "Warning: Entity " << entityID << " already exists!" << std::endl;
-                            LeaveCriticalSection(&instance.m_cs);
-                            break;
-                        }
-
-                        cpu_entity* Bullet = cpuEngine.CreateEntity();
-                        cpu_mesh* m_meshBullet = new cpu_mesh();
-
-                        m_meshBullet->CreateSphere();
-                        m_meshBullet->radius = 0.5f;
-
-                        Bullet->pMesh = m_meshBullet;
-
-                        instance.GetEntities()[entityID] = Bullet;
-
-                        AABBUpdateMessage AabbMessage;
-                        AabbMessage.head.type = MessageType::ENTITY;
-                        AabbMessage.IDEntity = htonl(entityID);
-
-                        AabbMessage.minX = m_meshBullet->aabb.min.x;
-                        AabbMessage.minY = m_meshBullet->aabb.min.y;
-                        AabbMessage.minZ = m_meshBullet->aabb.min.z;
-
-                        AabbMessage.maxX = m_meshBullet->aabb.max.x;
-                        AabbMessage.maxY = m_meshBullet->aabb.max.y;
-                        AabbMessage.maxZ = m_meshBullet->aabb.max.z;
-
-                        SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
-
-                        LeaveCriticalSection(&instance.m_cs);
+						App& instance = App::GetInstance();
+						instance.CreateBullet(ntohl(message->IDEntity), ntohl(message->IDUser));
                         break;
                     }
                 }

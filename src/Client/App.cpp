@@ -115,10 +115,10 @@ void App::CameraUpdate()
     cpu_transform& cam = cpuEngine.GetCamera()->transform;
 
     EnterCriticalSection(&m_cs);
-    auto it = m_entities.find(network->MyIDClient);
-    if (it != m_entities.end() && it->second != nullptr)
+    EntityClient* player = m_entities[network->MyIDClient];
+    if (player != nullptr)
     {
-        cpu_transform t = it->second->transform;
+        cpu_transform t = player->pEntity->transform;
         cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
         cam.ResetFlags();
         cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
@@ -129,10 +129,10 @@ void App::CameraUpdate()
 void App::UpdateParticul()
 {
     EnterCriticalSection(&m_cs);
-    auto it = m_entities.find(network->MyIDClient);
-    if (it != m_entities.end() && it->second != nullptr)
+    EntityClient* player = m_entities[network->MyIDClient];
+    if (player != nullptr)
     {
-        cpu_transform t = it->second->transform;
+        cpu_transform t = player->pEntity->transform;
         m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z };
         m_pEmitter->dir = t.dir;
         m_pEmitter->dir.x = -m_pEmitter->dir.x;
@@ -146,13 +146,28 @@ void App::OnUpdate()
 {
     network->ParseurMessage();
 
-    menuManager->Update(cpuTime.delta);
+    if (network->Connected == false)
+    {   
+		coldownNetwork += cpuTime.delta;
+        if (coldownNetwork > TimerBeforeRetry)
+        {
+			coldownNetwork = 0.0f;
+            network->ConnexionProtcol();
+        }
+    }
 
-    InputManager();
+    if(network->Connected == true)
+    {
+        menuManager->Update(cpuTime.delta);
 
-    UpdateParticul();
+        InputManager();
 
-    CameraUpdate();
+        UpdateBullets(cpuTime.delta);
+
+        UpdateParticul();
+
+        CameraUpdate();
+    }
 }
 
 void App::OnExit()
@@ -181,4 +196,64 @@ void App::OnRender(int pass)
     }
 }
 
+void App::UpdateBullets(float deltaTime)
+{
+	std::vector<BulletHitMessage*> HitDetection;
 
+    EnterCriticalSection(&m_cs);
+
+    for (auto& bullet : m_bullets)
+    {
+		bullet->pEntity->transform.pos.z -= 0.5f * deltaTime; // Move bullet forward
+       for (auto Entity : m_entities)
+        {
+           if (Entity->entityID == network->MyIDClient || bullet->OwnerID == Entity->entityID)
+           {
+               continue;
+           }
+
+            if (cpu::AabbAabb(bullet->pEntity->aabb, Entity->pEntity->aabb))
+            {
+				BulletHitMessage* msg = new BulletHitMessage();
+				msg->head.type = MessageType::HIT;
+				msg->bulletID = htonl(bullet->entityID);
+				msg->targetID = htonl(Entity->entityID);
+				HitDetection.push_back(msg);
+            }
+        }
+
+    }
+    LeaveCriticalSection(&m_cs);
+
+
+    for (BulletHitMessage* msg: HitDetection)
+    {
+		network->SendMessageToServer(reinterpret_cast<const char*>(msg), sizeof(BulletHitMessage));
+    }
+
+}
+
+void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
+{
+
+    uint32_t entityID = ntohl(IdEntity);
+    uint32_t ownerID = ntohl(OwnerID);
+
+    EnterCriticalSection(&m_cs);
+
+    EntityBulletClient* bullet= new EntityBulletClient();
+	bullet->pEntity = cpuEngine.CreateEntity();
+    
+    cpu_mesh* m_meshBullet = new cpu_mesh();
+    m_meshBullet->radius = 0.1f;
+    m_meshBullet->CreateSphere(m_meshBullet->radius);
+
+    bullet->pEntity->pMesh = m_meshBullet;
+    bullet->pEntity->transform.pos = GetEntities()[ownerID]->pEntity->transform.pos;
+    bullet->OwnerID = ownerID;
+	bullet->entityID = entityID;
+
+    GetBullets().push_back(bullet);
+
+    LeaveCriticalSection(&m_cs);
+}
