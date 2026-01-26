@@ -18,7 +18,6 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     newUser->s_networkInfo->port = ntohs(addr.sin_port);
     inet_ntop(AF_INET, &addr.sin_addr, newUser->s_networkInfo->IP, INET_ADDRSTRLEN);
 
-	std::cout << "New User: " << newUser->s_networkInfo->IP << ":" << newUser->s_networkInfo->port << "\n";
 	return newUser;
 }
 
@@ -176,12 +175,12 @@ void ServerNetwork::Thread_StartListening()
 
 	thread1 = CreateThread(NULL, 0, ServerNetwork::ThreadFonction, (LPVOID)this, 0, NULL);
 	CloseHandle(thread1);
+
 }
 
 
 void ServerNetwork::BacklogSend(User* Recever)
 {
-    // 1️ Nouveau client reçoit son propre vaisseau
     SpawnPlayer msg{};
     msg.head.type = MessageType::ENTITY;
     msg.entity = EntityType::SPACESHIP;
@@ -189,20 +188,17 @@ void ServerNetwork::BacklogSend(User* Recever)
 
     sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
-    // 2️ Envoyer aux autres clients
     for (auto& u : ListUser_MainTread)
     {
         if (u == Recever)
             continue;
 
-        // Ancien joueur  nouveau client
         SpawnPlayer oldMsg{};
         oldMsg.head.type = MessageType::ENTITY;
         oldMsg.entity = EntityType::SPACESHIP;
         oldMsg.IDEntity = htonl(u->s_userID); //  ID de l'ancien joueur
         sendto(*GetSocket(), reinterpret_cast<const char*>(&oldMsg), sizeof(oldMsg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
-        // Nouveau joueur  ancien joueur
         SpawnPlayer newMsg{};
         newMsg.head.type = MessageType::ENTITY;
         newMsg.entity = EntityType::SPACESHIP;
@@ -218,18 +214,11 @@ void ServerNetwork::ReplicationMessage( char * test)
      T* msg = reinterpret_cast< T*>(test);
     msg->IDEntity = htonl(msg->IDEntity);
 
-
     for (auto& u : ListUser_MainTread)
     {
 
         sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(msg), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
     }
-
-
-
-
-
-
 }
 
 

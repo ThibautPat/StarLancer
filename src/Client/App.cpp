@@ -100,6 +100,14 @@ void App::InputManager()
 
         network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
+    if (cpuInput.IsKey(VK_SPACE)) 
+    {
+        InputMessage msg;
+        msg.head.type = MessageType::FIRE_BULLET;
+        msg.ClientID = network->MyIDClient;
+
+        network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
+    }
 }
 
 void App::CameraUpdate()

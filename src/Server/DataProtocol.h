@@ -26,11 +26,11 @@ enum class MessageType : uint8_t
 
 enum class EntityType : uint8_t
 {
-    SPACESHIP ,
-    BULLET ,
+    SPACESHIP,
+    BULLET,
 };
 
-#pragma pack(push,1)  //Sert a éviter le padding binaire
+#pragma pack(push,1)  //Sert a ï¿½viter le padding binaire
 struct Header
 {
     MessageType type;
@@ -97,4 +97,4 @@ struct ConnexionMessage
     uint32_t magicnumber;
 };
 
-#pragma pack(pop) //Sert a éviter le padding binaire
+#pragma pack(pop) //Sert a ï¿½viter le padding binaire

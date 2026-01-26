@@ -97,11 +97,13 @@ void ClientNetwork::ParseurMessage()
                         cpu_entity* SpaceShip = cpuEngine.CreateEntity();
                         cpu_mesh* m_meshShip = new cpu_mesh();
 
-                        //m_meshShip->CreateCube();
+                        m_meshShip->CreateCube();
 
+                        /*
                         m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
                         m_meshShip->FlipWinding();
                         m_meshShip->Optimize();
+                        */
 
                         SpaceShip->pMesh = m_meshShip;
 
@@ -119,6 +121,48 @@ void ClientNetwork::ParseurMessage()
                         AabbMessage.maxZ = m_meshShip->aabb.max.z;
 
                         SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
+                        LeaveCriticalSection(&instance.m_cs);
+                        break;
+                    }
+                    case(EntityType::BULLET):
+                    {
+                        App& instance = App::GetInstance();
+
+                        uint32_t entityID = ntohl(message->IDEntity);
+
+                        EnterCriticalSection(&instance.m_cs);
+
+                        if (instance.GetEntities().find(entityID) != instance.GetEntities().end())
+                        {
+                            std::cout << "Warning: Entity " << entityID << " already exists!" << std::endl;
+                            LeaveCriticalSection(&instance.m_cs);
+                            break;
+                        }
+
+                        cpu_entity* Bullet = cpuEngine.CreateEntity();
+                        cpu_mesh* m_meshBullet = new cpu_mesh();
+
+                        m_meshBullet->CreateSphere();
+                        m_meshBullet->radius = 0.5f;
+
+                        Bullet->pMesh = m_meshBullet;
+
+                        instance.GetEntities()[entityID] = Bullet;
+
+                        AABBUpdateMessage AabbMessage;
+                        AabbMessage.head.type = MessageType::ENTITY;
+                        AabbMessage.IDEntity = htonl(entityID);
+
+                        AabbMessage.minX = m_meshBullet->aabb.min.x;
+                        AabbMessage.minY = m_meshBullet->aabb.min.y;
+                        AabbMessage.minZ = m_meshBullet->aabb.min.z;
+
+                        AabbMessage.maxX = m_meshBullet->aabb.max.x;
+                        AabbMessage.maxY = m_meshBullet->aabb.max.y;
+                        AabbMessage.maxZ = m_meshBullet->aabb.max.z;
+
+                        SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
+
                         LeaveCriticalSection(&instance.m_cs);
                         break;
                     }
