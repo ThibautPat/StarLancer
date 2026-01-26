@@ -104,14 +104,25 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         }
         case MessageType::FIRE_BULLET:
         {
-             
             SpawnEntity replicationMessage;
             replicationMessage.head.type = MessageType::ENTITY;
             replicationMessage.entity = EntityType::BULLET;
-			replicationMessage.IDEntity = htonl(ListEntity.size());
+			replicationMessage.IDEntity = htonl(ListBullet.size());
+
+            sockaddr_in addr = user->s_networkInfo->Addr_User;
+            int sizeAddr = sizeof(addr);
+
+            int result = sendto(*GetSocket(), reinterpret_cast<const char*>(&replicationMessage), sizeof(SpawnEntity), 0, (sockaddr*)&addr, sizeAddr);
+
+            EntityBulletServer* bullet = new EntityBulletServer();
+            bullet->entityType = EntityType::BULLET;
+            ListBullet[ListBullet.size()] = bullet;
+
+            bullet->PosX = ListEntity[user->s_userID]->PosX;
+            bullet->PosY = ListEntity[user->s_userID]->PosY;
+            bullet->PosZ = ListEntity[user->s_userID]->PosZ;
 
         }
-
     }
 }
 

@@ -91,6 +91,12 @@ int main()
 
     while (true)
     {
+        for (auto& entity : network->ListBullet)
+        {
+            
+            entity.second->PosZ -= 0.5f; 
+			
+        }
 
 
         // PARSE

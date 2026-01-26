@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 #include "EntityServer.h"
+#include "EntityBulletServer.h"
+
 #ifdef _WIN32
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
@@ -90,6 +92,7 @@ public:
 	std::vector<User*> ListUser_Tread;
 
 	std::map<uint32_t,EntityServer*> ListEntity;
+	std::map<uint32_t, EntityBulletServer*> ListBullet;
 
 	std::map< std::vector<char>, User*> MessageBufferRecev;
 };
