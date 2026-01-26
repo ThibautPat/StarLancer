@@ -42,6 +42,7 @@ void App::OnStart()
     network = new ClientNetwork();
     network->InitNetwork();
     network->Thread_StartListening();
+    ShowCursor(TRUE);
 
     network->ChoseTarget();
     network->ServeurAddr.sin_family = AF_INET;
@@ -107,6 +108,51 @@ void App::InputManager()
         msg.ClientID = network->MyIDClient;
 
         network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
+    }
+    if (cpuInput.IsKeyDown(VK_ESCAPE))
+    {
+        if (m_LockCursor)
+        {
+            m_LockCursor = !m_LockCursor;
+        }
+        else {
+            m_LockCursor = !m_LockCursor;
+        }
+    }
+
+    if (m_LockCursor)
+    {
+        POINT pt;
+        GetCursorPos(&pt);
+
+        int centerX = cpuEngine.GetWindow()->GetWidth() / 2;
+        int centerY = cpuEngine.GetWindow()->GetHeight() / 2;
+
+        // Delta
+        float deltaX = pt.x - centerX;
+        float deltaY = pt.y - centerY;
+
+        // Seuil de détection (la souris n'est jamais EXACTEMENT au centre)
+        const float DEADZONE = 2.0f; // pixels
+
+        if (fabs(deltaX) < DEADZONE && fabs(deltaY) < DEADZONE)
+        {
+            // Pas de mouvement
+            CursorDir = { 0.0f, 0.0f };
+        }
+        else
+        {
+            // Il y a du mouvement, normaliser
+            CursorDir = { deltaX, deltaY };
+            XMVECTOR vec = XMLoadFloat2(&CursorDir);
+            vec = XMVector2Normalize(vec);
+            XMStoreFloat2(&CursorDir, vec);
+        }
+
+        // Recentrer
+        POINT centerPoint = { centerX, centerY };
+        ClientToScreen(cpuEngine.GetWindow()->GetHWND(), &centerPoint);
+        SetCursorPos(centerPoint.x, centerPoint.y);
     }
 }
 
@@ -189,6 +235,8 @@ void App::OnRender(int pass)
         case CPU_PASS_UI_END:
         {
             cpu_stats& stats = *cpuEngine.GetStats();
+            std::string s = " x :" + std::to_string(CursorDir.x) + " y :" + std::to_string(CursorDir.y);
+            cpuDevice.DrawText(&m_font, s.c_str(), 0, 0);
 
             menuManager->Draw(&cpuDevice);
             break;

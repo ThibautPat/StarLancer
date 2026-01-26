@@ -18,6 +18,7 @@ class App
 
 	// --- Internal data ----------------------------------------------
 	bool m_pause = false;
+	bool m_LockCursor = true;
 
 	cpu_font m_font;
 	cpu_mesh m_meshSphere;
@@ -86,6 +87,8 @@ public:
 
 	float coldownNetwork = 0.f;
 	float TimerBeforeRetry = 5.f;
+
+	XMFLOAT2 CursorDir{ 0,0 };
 
 	cpu_particle_emitter* m_pEmitter = nullptr;
 	ClientNetwork* network = nullptr;
