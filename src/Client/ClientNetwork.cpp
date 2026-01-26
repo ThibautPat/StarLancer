@@ -158,8 +158,11 @@ void ClientNetwork::ChoseTarget()
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
 
-    if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
+    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
+    //    return;
+    if (inet_pton(AF_INET, "192.168.1.159", &ServeurAddr.sin_addr) <= 0) //MOI
         return;
+
 
     //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
     //    return;
