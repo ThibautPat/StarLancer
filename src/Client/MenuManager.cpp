@@ -28,34 +28,34 @@ void MenuManager::Update(float deltatime)
         App::GetInstance().Pause();
         break;
     }
-    case App::State::GAME:
-    {
-        switchMenu("HUD");
-        App::GetInstance().Pause();
-        //gce::HideMouseCursor();
-        break;
-    }
-    case App::State::LOOSE:
-    {
-        switchMenu("LOOSE");
-        App::GetInstance().Pause();
-        //gce::ShowMouseCursor();
-        break;
-    }
-    case App::State::WIN:
-    {
-        switchMenu("WIN");
-        App::GetInstance().Pause();
-        //gce::ShowMouseCursor();
-        break;
-    }
-    case App::State::PAUSE:
-    {
-        switchMenu("PAUSE");
-        App::GetInstance().Pause();
-        //gce::ShowMouseCursor();
-        break;
-    }
+    //case App::State::GAME:
+    //{
+    //    switchMenu("HUD");
+    //    App::GetInstance().Pause();
+    //    //gce::HideMouseCursor();
+    //    break;
+    //}
+    //case App::State::LOOSE:
+    //{
+    //    switchMenu("LOOSE");
+    //    App::GetInstance().Pause();
+    //    //gce::ShowMouseCursor();
+    //    break;
+    //}
+    //case App::State::WIN:
+    //{
+    //    switchMenu("WIN");
+    //    App::GetInstance().Pause();
+    //    //gce::ShowMouseCursor();
+    //    break;
+    //}
+    //case App::State::PAUSE:
+    //{
+    //    switchMenu("PAUSE");
+    //    App::GetInstance().Pause();
+    //    //gce::ShowMouseCursor();
+    //    break;
+    //}
 
     default:
         break;
