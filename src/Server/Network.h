@@ -85,8 +85,6 @@ public:
 
 	void Thread_StartListening();
 	void BacklogSend(User* Recever);
-	template<typename T>
-	void ReplicationMessage( char* test);
 
 	std::vector<User*> ListUser_MainTread;
 	std::vector<User*> ListUser_Tread;
@@ -95,4 +93,7 @@ public:
 	std::map<uint32_t, EntityBulletServer*> ListBullet;
 
 	std::map< std::vector<char>, User*> MessageBufferRecev;
+
+	template<typename T>
+	void ReplicationMessage(char* test);
 };

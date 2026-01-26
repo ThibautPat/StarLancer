@@ -34,10 +34,7 @@ void SendAllPositions(ServerNetwork* network) // DOOOM
             }
         }
     }
-
-
 }
-
 
 void CollisionCheck(ServerNetwork* network)
 {
@@ -70,7 +67,6 @@ void CollisionCheck(ServerNetwork* network)
             {
                 entity.second->OnCollide(entity1.second);
                 entity1.second->OnCollide(entity.second);
-
             }
         }
     }

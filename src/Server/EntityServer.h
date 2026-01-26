@@ -18,6 +18,5 @@ public:
 	XMFLOAT3 maxAABB;
 
 	virtual void OnCollide(EntityServer* entity);
-
 };
 

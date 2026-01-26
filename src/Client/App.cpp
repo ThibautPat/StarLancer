@@ -235,13 +235,9 @@ void App::UpdateBullets(float deltaTime)
 
 void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
 {
-
-    uint32_t entityID = ntohl(IdEntity);
-    uint32_t ownerID = ntohl(OwnerID);
-
     EnterCriticalSection(&m_cs);
 
-    EntityBulletClient* bullet= new EntityBulletClient();
+    EntityBulletClient* bullet = new EntityBulletClient();
 	bullet->pEntity = cpuEngine.CreateEntity();
     
     cpu_mesh* m_meshBullet = new cpu_mesh();
@@ -249,9 +245,9 @@ void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
     m_meshBullet->CreateSphere(m_meshBullet->radius);
 
     bullet->pEntity->pMesh = m_meshBullet;
-    bullet->pEntity->transform.pos = GetEntities()[ownerID]->pEntity->transform.pos;
-    bullet->OwnerID = ownerID;
-	bullet->entityID = entityID;
+    bullet->pEntity->transform.pos = GetEntities()[OwnerID]->pEntity->transform.pos;
+    bullet->OwnerID = OwnerID;
+	bullet->entityID = IdEntity;
 
     GetBullets().push_back(bullet);
 

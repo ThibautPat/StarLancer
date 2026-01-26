@@ -30,9 +30,6 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         {
             ConnexionMessage message;
 
-            //if (strlen(buffer) < sizeof(ConnexionMessage))
-            //    return;
-
             memcpy(&message, buffer, sizeof(ConnexionMessage));
 
             message.magicnumber = ntohl(message.magicnumber);
@@ -104,16 +101,15 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         }
         case MessageType::FIRE_BULLET:
         {
-            SpawnEntity replicationMessage;
+            SpawnEntity replicationMessage{};
             replicationMessage.head.type = MessageType::ENTITY;
             replicationMessage.entity = EntityType::BULLET;
-			replicationMessage.IDEntity = htonl(ListBullet.size());
+            replicationMessage.IDEntity = htonl(ListBullet.size()); // HOST ORDER
+            replicationMessage.IDUser = htonl(user->s_userID);      // HOST ORDER
 
-            sockaddr_in addr = user->s_networkInfo->Addr_User;
-            int sizeAddr = sizeof(addr);
+            ReplicationMessage<SpawnEntity>(reinterpret_cast<char*>(&replicationMessage));
 
-            int result = sendto(*GetSocket(), reinterpret_cast<const char*>(&replicationMessage), sizeof(SpawnEntity), 0, (sockaddr*)&addr, sizeAddr);
-
+            //CREATION STRUCT DONNEE
             EntityBulletServer* bullet = new EntityBulletServer();
             bullet->entityType = EntityType::BULLET;
             ListBullet[ListBullet.size()] = bullet;
@@ -121,7 +117,37 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             bullet->PosX = ListEntity[user->s_userID]->PosX;
             bullet->PosY = ListEntity[user->s_userID]->PosY;
             bullet->PosZ = ListEntity[user->s_userID]->PosZ;
+            break;
+        }
+        case MessageType::HIT:
+        {
+            const BulletHitMessage* message = reinterpret_cast<const BulletHitMessage*>(buffer);
+            uint32_t MyID = ntohl(message->bulletID);
+            uint32_t TargetID = ntohl(message->targetID);
 
+            cpu_aabb aabb1;
+            aabb1.min.x = ListBullet[MyID]->minAABB.x + ListBullet[MyID]->PosX;
+            aabb1.min.y = ListBullet[MyID]->minAABB.y + ListBullet[MyID]->PosY;
+            aabb1.min.z = ListBullet[MyID]->minAABB.z + ListBullet[MyID]->PosZ;
+
+            aabb1.max.x = ListBullet[MyID]->maxAABB.x + ListBullet[MyID]->PosX;
+            aabb1.max.y = ListBullet[MyID]->maxAABB.y + ListBullet[MyID]->PosY;
+            aabb1.max.z = ListBullet[MyID]->maxAABB.z + ListBullet[MyID]->PosZ;
+
+            cpu_aabb aabb2;
+            aabb2.min.x = ListEntity[TargetID]->minAABB.x + ListEntity[TargetID]->PosX;
+            aabb2.min.y = ListEntity[TargetID]->minAABB.y + ListEntity[TargetID]->PosY;
+            aabb2.min.z = ListEntity[TargetID]->minAABB.z + ListEntity[TargetID]->PosZ;
+
+            aabb2.max.x = ListEntity[TargetID]->maxAABB.x + ListEntity[TargetID]->PosX;
+            aabb2.max.y = ListEntity[TargetID]->maxAABB.y + ListEntity[TargetID]->PosY;
+            aabb2.max.z = ListEntity[TargetID]->maxAABB.z + ListEntity[TargetID]->PosZ;
+
+            if (cpu::AabbAabb(aabb1, aabb2))
+            {
+                ListBullet[MyID]->OnCollide(ListEntity[TargetID]);
+            }
+            break;
         }
     }
 }
@@ -189,7 +215,6 @@ void ServerNetwork::Thread_StartListening()
 
 }
 
-
 void ServerNetwork::BacklogSend(User* Recever)
 {
     SpawnPlayer msg{};
@@ -218,17 +243,13 @@ void ServerNetwork::BacklogSend(User* Recever)
     }
 }
 
-
 template<typename T>
-void ServerNetwork::ReplicationMessage( char * test)
+void ServerNetwork::ReplicationMessage(char * test)
 {
-     T* msg = reinterpret_cast< T*>(test);
-    msg->IDEntity = htonl(msg->IDEntity);
-
+    T* msg = reinterpret_cast< T*>(test);
     for (auto& u : ListUser_MainTread)
     {
-
-        sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(msg), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
+        sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(T), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
     }
 }
 
