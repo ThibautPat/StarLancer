@@ -5,6 +5,7 @@
 
 class EntityBulletServer : public EntityServer
 {
+	int damage = 10;
 	public:
 	EntityBulletServer()
 	{
@@ -16,6 +17,12 @@ class EntityBulletServer : public EntityServer
 
 	void OnCollide(EntityServer* entity) override
 	{
+		entity->life -= damage;
+		if (entity->life <= 0)
+		{
+			entity->IsDead = true;
+			entity->DeathCount++;
+		}
 	}
 };
 

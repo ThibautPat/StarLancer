@@ -15,6 +15,9 @@ void SendAllPositions(ServerNetwork* network) // DOOOM
     {
         for (auto& entity : network->ListEntity)
         {
+            if (entity.second->IsDead == true)
+                continue;
+
             UpdatePos msg;
             msg.head.type = MessageType::UPDATE_POS;
             msg.entityID = htonl(entity.first);
@@ -40,8 +43,14 @@ void CollisionCheck(ServerNetwork* network)
 {
     for (auto& entity : network->ListEntity)
     {
+        if (entity.second->IsDead == true)
+            continue;
+
         for (auto& entity1 : network->ListEntity)
         {
+            if (entity1.second->IsDead == true)
+                continue;
+
             if (entity == entity1)
                 continue;
 
@@ -72,7 +81,6 @@ void CollisionCheck(ServerNetwork* network)
     }
 }
 
-
 /* ======================= MAIN ======================= */
 
 int main()
@@ -88,13 +96,8 @@ int main()
     while (true)
     {
         for (auto& entity : network->ListBullet)
-        {
-            
             entity.second->PosZ -= 0.5f; 
-			
-        }
-
-
+        
         // PARSE
         for (const auto& message : network->MessageBufferRecev)
             network->ParseurMessage(message.first.data(), message.second);
@@ -109,7 +112,22 @@ int main()
 
         CollisionCheck(network);
 
+        /*
+        for (auto& entity : network->ListEntity)
+        {
+            entity.second->TimeBeforeRespawn += deltatime;
+            if(entity.second->TimeBeforeRespawn >= TimeToRespawn)
+            {
+                entity.second->TimeBeforeRespawn = 0;
 
+                entity.second->PosX = 0;
+                entity.second->PosY = 0;
+                entity.second->PosZ = 0;
+
+                entity.second->IsDead = false;
+            }
+        }
+        */
 
         Sleep(32);
     }

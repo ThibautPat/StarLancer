@@ -17,6 +17,16 @@ public:
 	XMFLOAT3 minAABB;
 	XMFLOAT3 maxAABB;
 
+	//DATA
+	int life = 50;
+	bool IsDead = false;
+	float TimeToRespawn = 5;
+	float TimeBeforeRespawn = 0;
+	
+	int DeathCount = 0;
+	int KillCount = 0;
+	int Score = 0;
+
 	virtual void OnCollide(EntityServer* entity);
 };
 
