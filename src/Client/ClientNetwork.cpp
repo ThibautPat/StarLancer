@@ -150,7 +150,7 @@ void ClientNetwork::ConnexionProtcol()
     SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(ConnexionMessage));
 }
 
-void ClientNetwork::ChoseTarget()
+void ClientNetwork::ChoseTarget(const char* ip)
 {
     //if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
     //    return;
@@ -158,13 +158,13 @@ void ClientNetwork::ChoseTarget()
     //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
     //    return;
 
-    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI
+    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI192.168.1.159
     //    return;
-    //if (inet_pton(AF_INET, "192.168.1.159", &ServeurAddr.sin_addr) <= 0) //MOI
-    //    return;
+    if (inet_pton(AF_INET,ip, &ServeurAddr.sin_addr) <= 0) //MOI
+        return;
     
-    if (inet_pton(AF_INET, "10.10.137.20", &ServeurAddr.sin_addr) <= 0) //MOI
-            return;
+    //if (inet_pton(AF_INET, "10.10.137.20", &ServeurAddr.sin_addr) <= 0) //MOI
+    //        return;
     //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
     //    return;
 

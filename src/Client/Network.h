@@ -57,7 +57,7 @@ public:
 
 	void ConnexionProtcol();
 
-	void ChoseTarget();
+	void ChoseTarget(const char* ip);
 
 	void ParseurMessage();
 

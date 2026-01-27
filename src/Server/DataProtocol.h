@@ -23,6 +23,9 @@ enum class MessageType : uint8_t
 
     HIT,
 
+    MOUSE,
+
+
     COUNT,
 };
 
@@ -92,6 +95,14 @@ struct InputMessage
 {
     Header head;
     uint32_t ClientID;
+};
+
+struct MouseMessage
+{
+    Header head;
+    uint32_t ClientID;
+    float X = 0;
+    float Y = 0;
 };
 
 struct ConnexionMessage

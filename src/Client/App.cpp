@@ -1,6 +1,25 @@
 #include "pch.h"
 #include <iostream>
 
+DWORD WINAPI App::ConsoleThreadProc(LPVOID param)
+{
+    App* app = reinterpret_cast<App*>(param);
+    char buffer[256];
+
+    while (app->m_consoleRunning)
+    {
+        std::cin.getline(buffer, sizeof(buffer));
+
+        if (buffer[0] != '\0')
+        {
+            strcpy_s(app->m_consoleCommand, buffer);
+            app->m_hasConsoleCommand = true;
+        }
+    }
+    return 0;
+}
+
+
 App::App()
 {
 	s_pApp = this;
@@ -42,9 +61,14 @@ void App::OnStart()
     network = new ClientNetwork();
     network->InitNetwork();
     network->Thread_StartListening();
-    ShowCursor(TRUE);
+    ShowCursor(FALSE);
 
-    network->ChoseTarget();
+    std::string ip;
+    std::cin >> ip;
+
+    std::cout << "Ip : " << ip << std::endl;
+    network->ChoseTarget(ip.c_str());
+
     network->ServeurAddr.sin_family = AF_INET;
     network->ServeurAddr.sin_port = htons(1888);
 
@@ -113,11 +137,20 @@ void App::InputManager()
     {
         if (m_LockCursor)
         {
+            ShowCursor(TRUE);
+
             m_LockCursor = !m_LockCursor;
         }
         else {
+            ShowCursor(FALSE);
+
             m_LockCursor = !m_LockCursor;
         }
+        MouseMessage msg;
+        msg.head.type = MessageType::MOUSE;
+        msg.ClientID = network->MyIDClient;
+
+        network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
 
     if (m_LockCursor)

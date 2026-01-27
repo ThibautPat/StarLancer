@@ -3,6 +3,7 @@
 #include "Network.h"
 #include "EntityBulletClient.h"
 #include "EntityClient.h"
+#include <queue>
 class App
 {
 	// --- UI callbacks -----------------------------------------------
@@ -31,6 +32,16 @@ class App
 
 	inline static App* s_pApp = nullptr;
 
+	
+	// --- Console thread (WinAPI) ----------------------------
+	HANDLE m_hConsoleThread = nullptr;
+	volatile bool m_consoleRunning = false;
+	volatile bool m_hasConsoleCommand = false;
+
+	char m_consoleCommand[256];
+
+	static DWORD WINAPI ConsoleThreadProc(LPVOID param);
+	void HandleConsoleCommand(const char* cmd);
 public:
 	// --- Lifecycle --------------------------------------------------
 	App();
