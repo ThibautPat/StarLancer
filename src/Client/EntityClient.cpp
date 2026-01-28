@@ -17,6 +17,5 @@ void EntityClient::Respawn(int _life)
 	{
 		IsDead = false;
 		life = _life;
-		pEntity->pMaterial->color = { 1, 1, 1 };
 	}
 }

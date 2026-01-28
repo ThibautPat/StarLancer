@@ -135,9 +135,9 @@ void ClientNetwork::ParseurMessage()
 
             EnterCriticalSection(&instance.m_cs);
 
-            EntityClient* target = instance.GetEntitie(ntohl(message->targetID));
+            EntityClient* target = instance.GetEntitie(message->targetID);
             if (target) 
-                target->Respawn(ntohl(message->targetLife));
+                target->Respawn(message->targetLife);
 
             LeaveCriticalSection(&instance.m_cs);
             break;

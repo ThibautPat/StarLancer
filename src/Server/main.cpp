@@ -158,12 +158,10 @@ int main()
                 msg.targetLife = 50;
                 
                 network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&msg));
-
             }
         }
 
         // PARSE
-
         for (const auto& message : network->MessageBufferRecev)
             network->ParseurMessage(message.first.data(), message.second);
 

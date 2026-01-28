@@ -12,6 +12,7 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
 
     ListEntity[newUser->s_userID] = new EntityServer();
     ListEntity[newUser->s_userID]->transform.Identity();
+    ListEntity[newUser->s_userID]->entityID = newUser->s_userID;
 
     ListEntity[newUser->s_userID]->currentPitch = 0.f;
     ListEntity[newUser->s_userID]->currentYaw = 0.f;
@@ -226,6 +227,13 @@ void ServerNetwork::Thread_StartListening()
 
 void ServerNetwork::BacklogSend(User* Recever)
 {
+    SpawnPlayer msg{};
+    msg.head.type = MessageType::ENTITY;
+    msg.entity = EntityType::SPACESHIP;
+    msg.IDEntity = htonl(Recever->s_userID);
+
+    sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+
     for (auto& u : ListUser_MainTread)
     {
         if (u == Recever)
@@ -235,28 +243,12 @@ void ServerNetwork::BacklogSend(User* Recever)
         oldMsg.head.type = MessageType::ENTITY;
         oldMsg.entity = EntityType::SPACESHIP;
         oldMsg.IDEntity = htonl(u->s_userID);
-        sendto(*GetSocket(),
-            reinterpret_cast<const char*>(&oldMsg),
-            sizeof(oldMsg),
-            0,
-            (sockaddr*)&Recever->s_networkInfo->Addr_User,
-            sizeof(Recever->s_networkInfo->Addr_User));
-    }
-
-    for (auto& u : ListUser_MainTread)
-    {
-        if (u == Recever)
-            continue;
+        sendto(*GetSocket(), reinterpret_cast<const char*>(&oldMsg), sizeof(oldMsg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
         SpawnPlayer newMsg{};
         newMsg.head.type = MessageType::ENTITY;
         newMsg.entity = EntityType::SPACESHIP;
         newMsg.IDEntity = htonl(Recever->s_userID);
-        sendto(*GetSocket(),
-            reinterpret_cast<const char*>(&newMsg),
-            sizeof(newMsg),
-            0,
-            (sockaddr*)&u->s_networkInfo->Addr_User,
-            sizeof(u->s_networkInfo->Addr_User));
+        sendto(*GetSocket(), reinterpret_cast<const char*>(&newMsg), sizeof(newMsg), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
     }
 }
