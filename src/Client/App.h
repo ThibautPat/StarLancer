@@ -34,14 +34,9 @@ class App
 
 	
 	// --- Console thread (WinAPI) ----------------------------
-	HANDLE m_hConsoleThread = nullptr;
-	volatile bool m_consoleRunning = false;
-	volatile bool m_hasConsoleCommand = false;
+	bool m_consoleRunning = false;
 
-	char m_consoleCommand[256];
 
-	static DWORD WINAPI ConsoleThreadProc(LPVOID param);
-	void HandleConsoleCommand(const char* cmd);
 public:
 	// --- Lifecycle --------------------------------------------------
 	App();
@@ -104,6 +99,7 @@ public:
 	cpu_particle_emitter* m_pEmitter = nullptr;
 	ClientNetwork* network = nullptr;
 	MenuManager* menuManager = nullptr;
+	bool connected = false;
 
 	CRITICAL_SECTION m_cs;
 	CRITICAL_SECTION m_cs2;

@@ -1,24 +1,6 @@
 #include "pch.h"
 #include <iostream>
 
-DWORD WINAPI App::ConsoleThreadProc(LPVOID param)
-{
-    App* app = reinterpret_cast<App*>(param);
-    char buffer[256];
-
-    while (app->m_consoleRunning)
-    {
-        std::cin.getline(buffer, sizeof(buffer));
-
-        if (buffer[0] != '\0')
-        {
-            strcpy_s(app->m_consoleCommand, buffer);
-            app->m_hasConsoleCommand = true;
-        }
-    }
-    return 0;
-}
-
 
 App::App()
 {
@@ -62,12 +44,24 @@ void App::OnStart()
     network->InitNetwork();
     network->Thread_StartListening();
     ShowCursor(FALSE);
+    while(!connected)
+    {
+		std::cout << "Enter server IP (or 'local' for localhost): ";
+        std::string ip;
+        std::cin >> ip;
 
-    std::string ip;
-    std::cin >> ip;
+        if (ip == "local")
+        {
+            std::cout << "Ip : 127.0.0.1"<< std::endl;
+            network->ChoseTarget("127.0.0.1");
 
-    std::cout << "Ip : " << ip << std::endl;
-    network->ChoseTarget(ip.c_str());
+        }
+        else {
+            std::cout << "Ip : " << ip << std::endl;
+            network->ChoseTarget(ip.c_str());
+        }
+    }
+
 
     network->ServeurAddr.sin_family = AF_INET;
     network->ServeurAddr.sin_port = htons(1888);
@@ -208,7 +202,7 @@ void App::CameraUpdate()
     {
         cpu_transform t = player->pEntity->transform;
 
-        XMFLOAT3 pos = { t.pos.x - (t.dir.x * camDistance) ,t.pos.y - (t.dir.y * camDistance)+ 2  ,t.pos.z - (t.dir.z * camDistance)};
+        XMFLOAT3 pos = { t.pos.x - (t.dir.x * camDistance) ,t.pos.y - (t.dir.y * camDistance)+ 4  ,t.pos.z - (t.dir.z * camDistance)};
 
 
         cam.SetPosition(pos.x, pos.y,pos.z);

@@ -180,7 +180,7 @@ void ClientNetwork::ChoseTarget(const char* ip)
     //    return;
     if (inet_pton(AF_INET,ip, &ServeurAddr.sin_addr) <= 0) //MOI
         return;
-    
+	App::GetInstance().connected = true;
     //if (inet_pton(AF_INET, "10.10.137.20", &ServeurAddr.sin_addr) <= 0) //MOI
     //        return;
     //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB

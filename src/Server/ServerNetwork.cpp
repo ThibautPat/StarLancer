@@ -155,21 +155,29 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         }
         case MessageType::MOUSE:
         {
-
             const MouseMessage* message = reinterpret_cast<const MouseMessage*>(buffer);
             uint32_t MyID = ntohl(message->ClientID);
-
             EntityServer* entity = ListEntity[MyID];
 
             float dirX = message->X;
             float dirY = message->Y;
 
-            float maxRollAngle = XM_PIDIV4;   
-            float maxPitchAngle = XM_PIDIV4;  
-            float smoothFactor = 0.08f;       
+            float maxRollAngle = XM_PIDIV4;
+            float maxPitchAngle = XM_PIDIV4;
 
             float targetPitch = -dirY * maxPitchAngle;
             float targetRoll = -dirX * maxRollAngle;
+
+            //Interpolation adaptative
+            float smoothFactor;
+            if (dirX == 0.0f && dirY == 0.0f)
+            {
+                smoothFactor = 0.25f; 
+            }
+            else
+            {
+                smoothFactor = 0.12f; 
+            }
 
             entity->currentPitch += (targetPitch - entity->currentPitch) * smoothFactor;
             entity->currentRoll += (targetRoll - entity->currentRoll) * smoothFactor;
@@ -177,16 +185,14 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             UpdateRot rotMsg{};
             rotMsg.head.type = MessageType::UPDATE_ROT;
             rotMsg.entityID = htonl(MyID);
-            rotMsg.Yaw = entity->currentYaw;
+            rotMsg.Yaw = 0;
             rotMsg.Pitch = entity->currentPitch;
-            rotMsg.Roll =0;
+            rotMsg.Roll = entity->currentRoll;
 
             entity->transform.SetYPR(entity->currentYaw, entity->currentPitch, entity->currentRoll);
             entity->transform.UpdateWorld();
 
-
             ReplicationMessage<UpdateRot>(reinterpret_cast<char*>(&rotMsg));
-
 
             break;
         }
