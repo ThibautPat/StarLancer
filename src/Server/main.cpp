@@ -94,10 +94,13 @@ int main()
         deltaTime = elapsed.count();
         lastFrameTime = frameStart;
 
-        const float BULLET_SPEED = 0.5f;
+        const float BULLET_SPEED = 20.f;
         for (auto& entity : network->ListBullet)
         {
-            entity.second->transform.pos.z -= BULLET_SPEED * deltaTime;
+            entity.second->transform.pos.x += entity.second->ownerBULLET_FORWARD.x* BULLET_SPEED * deltaTime;
+            entity.second->transform.pos.y += entity.second->ownerBULLET_FORWARD.y * BULLET_SPEED * deltaTime;
+            entity.second->transform.pos.z += entity.second->ownerBULLET_FORWARD.z * BULLET_SPEED * deltaTime;
+
         }
 
         for (auto& entity : network->ListEntity)

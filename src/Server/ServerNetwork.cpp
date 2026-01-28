@@ -117,6 +117,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             //CREATION STRUCT DONNEE
             EntityBulletServer* bullet = new EntityBulletServer();
             bullet->entityType = EntityType::BULLET;
+			bullet->ownerBULLET_FORWARD = ListEntity[user->s_userID]->transform.dir;
             ListBullet[ListBullet.size()] = bullet;
 
             bullet->transform.pos = ListEntity[user->s_userID]->transform.pos;
@@ -156,33 +157,29 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
         case MessageType::MOUSE:
         {
             const MouseMessage* message = reinterpret_cast<const MouseMessage*>(buffer);
-            uint32_t MyID = ntohl(message->ClientID);
+            uint32_t MyID = message->ClientID;
             EntityServer* entity = ListEntity[MyID];
 
             float dirX = message->X;
             float dirY = message->Y;
 
             // Paramètres
-            float maxPitchAngle = XM_PIDIV4;     // 45° max pour pitch (inclinaison visuelle)
-            float yawSpeed = 0.05f;              // Vitesse de rotation horizontale
-            float pitchSmoothFactor = 0.10f;     // Lissage pour pitch
+            float maxPitchAngle = XM_PIDIV4;     
+            float yawSpeed = 0.05f;              
+            float pitchSmoothFactor = 0.10f;     
 
-            // ✅ YAW : Rotation continue (accumulation)
             entity->currentYaw += dirX * yawSpeed;
 
-            // ✅ PITCH : Inclinaison temporaire (interpolation vers cible)
             float targetPitch = -dirY * maxPitchAngle;
             entity->currentPitch += (targetPitch - entity->currentPitch) * pitchSmoothFactor;
 
-            // ROLL : On peut le laisser à 0 ou l'utiliser pour l'effet d'inclinaison dans les virages
             entity->currentRoll = 0.0f;
 
-            // Envoyer la rotation
             UpdateRot rotMsg{};
             rotMsg.head.type = MessageType::UPDATE_ROT;
             rotMsg.entityID = htonl(MyID);
-            rotMsg.Yaw = entity->currentYaw;      // ✅ Yaw qui s'accumule
-            rotMsg.Pitch = entity->currentPitch;  // Pitch limité
+            rotMsg.Yaw = entity->currentYaw;     
+            rotMsg.Pitch = entity->currentPitch; 
             rotMsg.Roll = entity->currentRoll;
 
             entity->transform.SetYPR(entity->currentYaw, entity->currentPitch, entity->currentRoll);

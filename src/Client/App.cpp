@@ -293,21 +293,25 @@ void App::UpdateBullets(float deltaTime)
 
     for (auto& bullet : m_bullets)
     {
-		bullet->pEntity->transform.pos.z -= 0.5f * deltaTime; // Move bullet forward
-       for (auto Entity : m_entities)
+        const float BULLET_SPEED = 20.f;
+      
+        bullet->pEntity->transform.pos.x += bullet->ownerBULLET_FORWARD.x * BULLET_SPEED * deltaTime;
+        bullet->pEntity->transform.pos.y += bullet->ownerBULLET_FORWARD.y * BULLET_SPEED * deltaTime;
+        bullet->pEntity->transform.pos.z += bullet->ownerBULLET_FORWARD.z * BULLET_SPEED * deltaTime;      
+        for (auto Entity : m_entities)
         {
-           if (Entity->entityID == network->MyIDClient || bullet->OwnerID == Entity->entityID)
-           {
-               continue;
-           }
+            if (Entity->entityID == network->MyIDClient || bullet->OwnerID == Entity->entityID)
+            {
+                continue;
+            }
 
             if (cpu::AabbAabb(bullet->pEntity->aabb, Entity->pEntity->aabb))
             {
-				BulletHitMessage* msg = new BulletHitMessage();
-				msg->head.type = MessageType::HIT;
-				msg->bulletID = htonl(bullet->entityID);
-				msg->targetID = htonl(Entity->entityID);
-				HitDetection.push_back(msg);
+			    BulletHitMessage* msg = new BulletHitMessage();
+			    msg->head.type = MessageType::HIT;
+			    msg->bulletID = htonl(bullet->entityID);
+			    msg->targetID = htonl(Entity->entityID);
+			    HitDetection.push_back(msg);
             }
         }
 
@@ -337,7 +341,7 @@ void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
     bullet->pEntity->transform.pos = GetEntities()[OwnerID]->pEntity->transform.pos;
     bullet->OwnerID = OwnerID;
 	bullet->entityID = IdEntity;
-
+    bullet->ownerBULLET_FORWARD = m_entities[OwnerID]->pEntity->transform.dir;
     GetBullets().push_back(bullet);
 
     LeaveCriticalSection(&m_cs);

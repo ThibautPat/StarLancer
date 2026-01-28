@@ -111,13 +111,13 @@ void ClientNetwork::ParseurMessage()
                         entityClient->pEntity = cpuEngine.CreateEntity();
                         cpu_mesh* m_meshShip = new cpu_mesh();
 
-                        m_meshShip->CreateCube();
+                        //m_meshShip->CreateCube();
 
-                        /*
+                        
                         m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
                         m_meshShip->FlipWinding();
                         m_meshShip->Optimize();
-                        */
+                        
 
                         entityClient->pEntity->pMesh = m_meshShip;
 						entityClient->entityID = entityID;
