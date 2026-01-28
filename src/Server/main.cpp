@@ -13,6 +13,9 @@ void SendAllPositions(ServerNetwork* network)
     {
         for (auto& entity : network->ListEntity)
         {
+            if (entity.second->IsDead == true)
+                continue;
+
             UpdatePos msg;
             msg.head.type = MessageType::UPDATE_POS;
             msg.entityID = htonl(entity.first);
@@ -35,8 +38,14 @@ void CollisionCheck(ServerNetwork* network)
 {
     for (auto& entity : network->ListEntity)
     {
+        if (entity.second->IsDead == true)
+            continue;
+
         for (auto& entity1 : network->ListEntity)
         {
+            if (entity1.second->IsDead == true)
+                continue;
+
             if (entity == entity1)
                 continue;
             cpu_aabb aabb1;
@@ -93,6 +102,21 @@ int main()
             entity.second->PosZ -= BULLET_SPEED * deltaTime;
         }
 
+        for (auto& entity : network->ListEntity)
+        {
+            entity.second->TimeBeforeRespawn += deltatime;
+            if(entity.second->TimeBeforeRespawn >= TimeToRespawn)
+            {
+                entity.second->TimeBeforeRespawn = 0;
+
+                entity.second->PosX = 0;
+                entity.second->PosY = 0;
+                entity.second->PosZ = 0;
+
+                entity.second->IsDead = false;
+            }
+        }
+
         // PARSE
         for (const auto& message : network->MessageBufferRecev)
             network->ParseurMessage(message.first.data(), message.second);
@@ -116,6 +140,8 @@ int main()
             auto sleepDuration = TARGET_FRAME_DURATION - frameDuration;
             std::this_thread::sleep_for(sleepDuration);
         }
+        
+        Sleep(32);
     }
 
     network->CloseSocket(*network->GetSocket());

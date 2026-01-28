@@ -212,7 +212,6 @@ void ServerNetwork::Thread_StartListening()
 
 	thread1 = CreateThread(NULL, 0, ServerNetwork::ThreadFonction, (LPVOID)this, 0, NULL);
 	CloseHandle(thread1);
-
 }
 
 void ServerNetwork::BacklogSend(User* Recever)
@@ -252,6 +251,3 @@ void ServerNetwork::ReplicationMessage(char * test)
         sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(T), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
     }
 }
-
-
-
