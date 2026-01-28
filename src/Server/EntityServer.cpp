@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "EntityServer.h"
 
-
 void EntityServer::OnCollide(EntityServer* entity)
 {
     if (!entity) return;
@@ -53,5 +52,23 @@ void EntityServer::OnCollide(EntityServer* entity)
     }
     else if (overlapZ > 0) {
         transform.pos.z += dirZ * overlapZ;
+    }
+}
+
+void EntityServer::Update(float dt)
+{
+    if (IsDead == false)
+        return;
+
+    TimeBeforeRespawn += dt;
+    if (TimeBeforeRespawn >= TimeToRespawn)
+    {
+        TimeBeforeRespawn = 0;
+
+        PosX = 0;
+        PosY = 0;
+        PosZ = 0;
+
+        IsDead = false;
     }
 }

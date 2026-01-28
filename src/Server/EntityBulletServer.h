@@ -2,12 +2,12 @@
 #include "pch.h"
 #include "EntityServer.h"
 
-
 class EntityBulletServer : public EntityServer
 {
 	int damage = 10;
-	public:
+public:
 	XMFLOAT3 ownerBULLET_FORWARD = { 0.5f, 0.0f, 0.0f };
+
 	EntityBulletServer()
 	{
 		entityType = EntityType::BULLET;
@@ -25,5 +25,11 @@ class EntityBulletServer : public EntityServer
 			entity->DeathCount++;
 		}
 	}
+
+	void Update(float dt) override
+	{
+		const float BULLET_SPEED = 0.5f;
+		PosZ -= BULLET_SPEED * dt;
+	} 
 };
 

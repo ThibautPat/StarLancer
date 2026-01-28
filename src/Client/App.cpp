@@ -142,7 +142,6 @@ void App::InputManager()
         }
        
     }
-
     if (m_LockCursor)
     {
         POINT pt;
@@ -155,7 +154,7 @@ void App::InputManager()
         float deltaX = pt.x - centerX;
         float deltaY = pt.y - centerY;
 
-        // Seuil de détection (la souris n'est jamais EXACTEMENT au centre)
+        // Seuil de dï¿½tection (la souris n'est jamais EXACTEMENT au centre)
         const float DEADZONE = 2.0f; // pixels
 
         if (fabs(deltaX) < DEADZONE && fabs(deltaY) < DEADZONE)
@@ -249,8 +248,9 @@ void App::OnUpdate()
 
         InputManager();
 
-        UpdateBullets(cpuTime.delta);
-
+        for (auto entitie : m_entities) 
+            entitie.second->Update_EntityClient(cpuTime.delta);
+        
         UpdateParticul();
 
         CameraUpdate();
@@ -285,47 +285,6 @@ void App::OnRender(int pass)
     }
 }
 
-void App::UpdateBullets(float deltaTime)
-{
-	std::vector<BulletHitMessage*> HitDetection;
-
-    EnterCriticalSection(&m_cs);
-
-    for (auto& bullet : m_bullets)
-    {
-        const float BULLET_SPEED = 20.f;
-      
-        bullet->pEntity->transform.pos.x += bullet->ownerBULLET_FORWARD.x * BULLET_SPEED * deltaTime;
-        bullet->pEntity->transform.pos.y += bullet->ownerBULLET_FORWARD.y * BULLET_SPEED * deltaTime;
-        bullet->pEntity->transform.pos.z += bullet->ownerBULLET_FORWARD.z * BULLET_SPEED * deltaTime;      
-        for (auto Entity : m_entities)
-        {
-            if (Entity->entityID == network->MyIDClient || bullet->OwnerID == Entity->entityID)
-            {
-                continue;
-            }
-
-            if (cpu::AabbAabb(bullet->pEntity->aabb, Entity->pEntity->aabb))
-            {
-			    BulletHitMessage* msg = new BulletHitMessage();
-			    msg->head.type = MessageType::HIT;
-			    msg->bulletID = htonl(bullet->entityID);
-			    msg->targetID = htonl(Entity->entityID);
-			    HitDetection.push_back(msg);
-            }
-        }
-
-    }
-    LeaveCriticalSection(&m_cs);
-
-
-    for (BulletHitMessage* msg: HitDetection)
-    {
-		network->SendMessageToServer(reinterpret_cast<const char*>(msg), sizeof(BulletHitMessage));
-    }
-
-}
-
 void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
 {
     EnterCriticalSection(&m_cs);
@@ -338,11 +297,11 @@ void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
     m_meshBullet->CreateSphere(m_meshBullet->radius);
 
     bullet->pEntity->pMesh = m_meshBullet;
-    bullet->pEntity->transform.pos = GetEntities()[OwnerID]->pEntity->transform.pos;
+    bullet->pEntity->transform.pos = GetEntitie(OwnerID)->pEntity->transform.pos;
     bullet->OwnerID = OwnerID;
 	bullet->entityID = IdEntity;
-    bullet->ownerBULLET_FORWARD = m_entities[OwnerID]->pEntity->transform.dir;
-    GetBullets().push_back(bullet);
+
+    GetEntitiesList()[GetEntitiesList().size()] = bullet;
 
     LeaveCriticalSection(&m_cs);
 }

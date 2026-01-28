@@ -48,6 +48,7 @@ void CollisionCheck(ServerNetwork* network)
 
             if (entity == entity1)
                 continue;
+
             cpu_aabb aabb1;
             aabb1.min.x = entity.second->minAABB.x + entity.second->transform.pos.x;
             aabb1.min.y = entity.second->minAABB.y + entity.second->transform.pos.y;
@@ -62,10 +63,21 @@ void CollisionCheck(ServerNetwork* network)
             aabb2.max.x = entity1.second->maxAABB.x + entity1.second->transform.pos.x;
             aabb2.max.y = entity1.second->maxAABB.y + entity1.second->transform.pos.y;
             aabb2.max.z = entity1.second->maxAABB.z + entity1.second->transform.pos.z;
+            
             if (cpu::AabbAabb(aabb1, aabb2))
             {
                 entity.second->OnCollide(entity1.second);
-                entity1.second->OnCollide(entity.second);
+
+                if (entity.second->entityType == EntityType::BULLET)
+                {
+                    BulletHitMessage msg{};
+                    msg.head.type = MessageType::HIT;
+                    msg.bulletID = entity1.second->entityID;
+                    msg.targetID = entity.second->entityID;
+                    msg.targetLife = entity1.second->life;
+
+                    network->ReplicationMessage<BulletHitMessage>(reinterpret_cast<char*>(&msg));
+                }
             }
         }
     }
@@ -93,32 +105,11 @@ int main()
         std::chrono::duration<float> elapsed = frameStart - lastFrameTime;
         deltaTime = elapsed.count();
         lastFrameTime = frameStart;
-
-        const float BULLET_SPEED = 20.f;
-        for (auto& entity : network->ListBullet)
+        
+        for (auto entity : network->ListEntity)
         {
-            entity.second->transform.pos.x += entity.second->ownerBULLET_FORWARD.x* BULLET_SPEED * deltaTime;
-            entity.second->transform.pos.y += entity.second->ownerBULLET_FORWARD.y * BULLET_SPEED * deltaTime;
-            entity.second->transform.pos.z += entity.second->ownerBULLET_FORWARD.z * BULLET_SPEED * deltaTime;
-
-        }
-
-        for (auto& entity : network->ListEntity)
-        {
-            if (entity.second->IsDead == false)
-                continue;
-
-            entity.second->TimeBeforeRespawn += deltaTime;
-            if (entity.second->TimeBeforeRespawn >= entity.second->TimeToRespawn)
-            {
-                entity.second->TimeBeforeRespawn = 0;
-
-                entity.second->transform.pos.x = 0;
-                entity.second->transform.pos.y = 0;
-                entity.second->transform.pos.z = 0;
-
-                entity.second->IsDead = false;
-            }
+            entity.second->Update(deltaTime);
+            CollisionCheck(network);
         }
 
         // PARSE
@@ -133,7 +124,6 @@ int main()
 
         // SEND NUKE 
         SendAllPositions(network);
-        CollisionCheck(network);
 
         auto frameEnd = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> frameDuration = frameEnd - frameStart;
@@ -141,10 +131,8 @@ int main()
         if (frameDuration < TARGET_FRAME_DURATION)
         {
             auto sleepDuration = TARGET_FRAME_DURATION - frameDuration;
-            std::this_thread::sleep_for(sleepDuration);
+            Sleep(static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(sleepDuration).count()));
         }
-        
-        Sleep(32);
     }
 
     network->CloseSocket(*network->GetSocket());

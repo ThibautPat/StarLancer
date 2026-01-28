@@ -4,6 +4,7 @@
 #include "EntityBulletClient.h"
 #include "EntityClient.h"
 #include <queue>
+
 class App
 {
 	// --- UI callbacks -----------------------------------------------
@@ -25,8 +26,8 @@ class App
 	cpu_mesh m_meshSphere;
 
 	cpu_entity* m_pBall = nullptr;
-	std::vector<EntityClient*> m_entities;
-	std::vector<EntityBulletClient*> m_bullets;
+
+	std::map<uint32_t, EntityClient*> m_entities;
 
 	std::map<int, char[32]> m_pseudos;
 
@@ -54,13 +55,18 @@ public:
 
 	// --- Entity management ------------------------------------------
 	void CreateBullet(uint32_t IdEntity, uint32_t OwnerID);
-	void UpdateBullets(float deltaTime);
 	void UpdateEntityPosition(cpu_entity* entity, float x, float y, float z);
 	void UpdateEntityRotation(cpu_entity* entity, float rx, float ry, float rz);
 	void UpdateEntityScale(cpu_entity* entity, float scale);
 
-	std::vector<EntityClient*>& GetEntities() { return m_entities; }
-	std::vector<EntityBulletClient*>& GetBullets() { return m_bullets; }
+	std::map<uint32_t, EntityClient*>& GetEntitiesList() { return m_entities; }
+	EntityClient* GetEntitie(uint32_t index) 
+	{	
+		auto it = m_entities.find(index);
+		if (it == m_entities.end())
+			return nullptr;
+		return it->second;
+	}
 
 	// --- Rendering --------------------------------------------------
 	static void MyPixelShader(cpu_ps_io& io);

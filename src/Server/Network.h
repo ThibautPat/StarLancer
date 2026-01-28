@@ -6,8 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+
 #include "EntityServer.h"
-#include "EntityBulletServer.h"
 
 #ifdef _WIN32
 	#include <winsock2.h>
@@ -59,7 +59,6 @@ public:
 	socket_t* GetSocket() { return &m_NetworkSocket; };
 
 	void CloseSocket(socket_t& sock);
-
 };
 
 // SERVEUR LOGIQUE -----------------------------------------
@@ -89,11 +88,18 @@ public:
 	std::vector<User*> ListUser_MainTread;
 	std::vector<User*> ListUser_Tread;
 
-	std::map<uint32_t,EntityServer*> ListEntity;
-	std::map<uint32_t, EntityBulletServer*> ListBullet;
+	std::map<uint32_t, EntityServer*> ListEntity;
 
 	std::map< std::vector<char>, User*> MessageBufferRecev;
 
 	template<typename T>
-	void ReplicationMessage(char* test);
+	void ReplicationMessage(char* test)
+	{
+		T* msg = reinterpret_cast<T*>(test);
+		for (auto& u : ListUser_MainTread)
+		{
+			sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(T), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
+		}
+	};
+
 };
