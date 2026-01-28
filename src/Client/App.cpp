@@ -275,9 +275,10 @@ void App::OnRender(int pass)
         }
         case CPU_PASS_UI_END:
         {
-            cpu_stats& stats = *cpuEngine.GetStats();
-            std::string s = " x :" + std::to_string(CursorDir.x) + " y :" + std::to_string(CursorDir.y);
-            cpuDevice.DrawText(&m_font, s.c_str(), 0, 0);
+            //cpu_stats& stats = *cpuEngine.GetStats();
+
+            std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
+            cpuDevice.DrawText(&m_font, score.c_str(), 0, 0);
 
             menuManager->Draw(&cpuDevice);
             break;

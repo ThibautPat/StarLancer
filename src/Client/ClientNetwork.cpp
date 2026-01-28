@@ -107,6 +107,8 @@ void ClientNetwork::ParseurMessage()
                 instance.GetEntitie(ntohl(message->targetID))->life = ntohl(message->targetLife); // PLAYER MISE A JOUR VIE
                 
                 LeaveCriticalSection(&instance.m_cs);
+
+                break;
             }
 
             case MessageType::RESPAWN:
@@ -119,6 +121,8 @@ void ClientNetwork::ParseurMessage()
                 instance.GetEntitie(ntohl(message->targetID))->Respawn();
 
                 LeaveCriticalSection(&instance.m_cs);
+
+                break;
             }
 
             case MessageType::ENTITY:
@@ -142,7 +146,6 @@ void ClientNetwork::ParseurMessage()
 
                         //m_meshShip->CreateCube();
 
-              
                         m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
 
 						entityClient->pEntity->pMaterial = new cpu_material();
@@ -207,32 +210,9 @@ void ClientNetwork::ConnexionProtcol()
 
 void ClientNetwork::ChoseTarget(const char* ip)
 {
-    //if (inet_pton(AF_INET, "127.0.0.1", &ServeurAddr.sin_addr) <= 0) //LOCAL
-    //    return;
-
-    //if (inet_pton(AF_INET, "217.182.207.204", &ServeurAddr.sin_addr) <= 0) //VPS
-    //    return;
-
-    //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI192.168.1.159
-    //    return;
-
-    if (inet_pton(AF_INET,ip, &ServeurAddr.sin_addr) <= 0) //MOI
+    if (inet_pton(AF_INET, ip, &ServeurAddr.sin_addr) <= 0) //MOI
         return;
-	App::GetInstance().connected = true;
-    //if (inet_pton(AF_INET, "10.10.137.20", &ServeurAddr.sin_addr) <= 0) //MOI
-    //        return;
-    //if (inet_pton(AF_INET, "10.10.137.66", &ServeurAddr.sin_addr) <= 0) //THIB
-    //    return;
-
-    //if (inet_pton(AF_INET, "10.10.137.53", &ServeurAddr.sin_addr) <= 0) //ARNAUD
-    //    return;
-
-    //if (inet_pton(AF_INET, "10.10.137.52", &ServeurAddr.sin_addr) <= 0) //VALENTIN
-    //    return;
-
-    //if (inet_pton(AF_INET, "10.10.137.61", &ServeurAddr.sin_addr) <= 0) //AYMERIC
-    //    return;
-
-    //if (inet_pton(AF_INET, "10.10.137.12", &ServeurAddr.sin_addr) <= 0) //ALYSSA
-    //    return;
+    App::GetInstance().connected = true;
 }
+
+// 169.254.158.79
