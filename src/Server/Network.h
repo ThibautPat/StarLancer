@@ -75,6 +75,8 @@ class ServerNetwork : public Network
 
 public:
 
+	void ClearDeadEntity();
+
 	void ParseurMessage(const char* buffer, User* user);
 
 	CRITICAL_SECTION csNewUser;

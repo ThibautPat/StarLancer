@@ -11,5 +11,6 @@ public:
 
 	virtual void Update_EntityClient(float dt);
 	void Respawn();
+	void clearEntity();
 };
 

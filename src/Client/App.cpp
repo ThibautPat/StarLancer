@@ -227,6 +227,14 @@ void App::UpdateParticul()
     }
     LeaveCriticalSection(&m_cs);
 }
+void App::ClearDeadEntity()
+{
+    for (auto& entity: m_entities)
+    {
+        entity.second->clearEntity();
+    }
+
+}
 
 void App::OnUpdate()
 {

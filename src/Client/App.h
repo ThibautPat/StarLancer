@@ -53,6 +53,8 @@ public:
 	void OnRender(int pass);
 	void OnExit();
 
+	void ClearDeadEntity();
+
 	// --- Entity management ------------------------------------------
 	void CreateBullet(uint32_t IdEntity, uint32_t OwnerID);
 	void UpdateEntityPosition(cpu_entity* entity, float x, float y, float z);

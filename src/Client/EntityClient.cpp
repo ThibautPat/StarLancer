@@ -15,6 +15,23 @@ void EntityClient::Respawn()
 {
 	if (IsDead == true)
 	{
+		if (pEntity->pMaterial == nullptr)
+		{
+			pEntity->pMaterial = new cpu_material();
+		}
 		pEntity->pMaterial->color = { 1, 1, 1 };
 	}
+}
+
+void EntityClient::clearEntity()
+{
+	if (!IsDead)
+	{
+		return;
+	}
+
+	App::GetInstance().GetEntitiesList().erase(entityID);
+	
+	delete pEntity;
+
 }

@@ -137,6 +137,7 @@ int main()
 
     while (true)
     {
+
         auto frameStart = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<float> elapsed = frameStart - lastFrameTime;
@@ -161,6 +162,7 @@ int main()
         EnterCriticalSection(&network->csMovedUsers);
         network->ListUser_MainTread = network->ListUser_Tread;
         LeaveCriticalSection(&network->csMovedUsers);
+        network->ClearDeadEntity();
 
         // SEND NUKE 
         SendAllPositions(network);

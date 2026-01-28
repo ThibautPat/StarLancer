@@ -26,6 +26,33 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
 	return newUser;
 }
 
+void ServerNetwork::ClearDeadEntity()
+{
+
+    // Collecter les IDs à supprimer (évite la modification pendant l'itération)
+    std::vector<uint32_t> toDelete;
+
+    for (auto& entity : ListEntity)
+    {
+        if (entity.second->IsDead)
+        {
+            toDelete.push_back(entity.first);
+        }
+    }
+
+    // Supprimer les entités collectées
+    for (uint32_t id : toDelete)
+    {
+
+        if(ListEntity[id]->entityType == EntityType::BULLET)
+        {
+            delete ListEntity[id];
+            ListEntity.erase(id);
+        }
+    }
+
+}
+
 void ServerNetwork::ParseurMessage(const char* buffer, User* user)
 {
     const Header* head = reinterpret_cast<const Header*>(buffer);

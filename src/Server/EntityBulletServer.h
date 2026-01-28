@@ -9,6 +9,7 @@ public:
 
 	EntityServer* Owner;
 	XMFLOAT3 ownerBULLET_FORWARD = { 0.5f, 0.0f, 0.0f };
+	float LifeTime = 5;
 
 	EntityBulletServer()
 	{
@@ -35,6 +36,11 @@ public:
 		transform.pos.x += ownerBULLET_FORWARD.x * BULLET_SPEED * dt;
 		transform.pos.y += ownerBULLET_FORWARD.y * BULLET_SPEED * dt;
 		transform.pos.z += ownerBULLET_FORWARD.z * BULLET_SPEED * dt;
+		LifeTime -= dt;
+		if (LifeTime <= 0)
+		{
+			IsDead = true;
+		}
 	} 
 };
 
