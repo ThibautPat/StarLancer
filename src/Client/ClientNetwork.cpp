@@ -146,7 +146,9 @@ void ClientNetwork::ParseurMessage()
 
                         m_meshShip->FlipWinding();
                         m_meshShip->Optimize();
-                        
+
+                        entityClient->pEntity->pMaterial = new cpu_material();
+                        entityClient->pEntity->pMaterial->color = { 1.0f, 1.0f, 1.0f };
 
                         entityClient->pEntity->pMesh = m_meshShip;
 						entityClient->entityID = entityID;
