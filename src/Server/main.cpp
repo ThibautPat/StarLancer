@@ -153,7 +153,9 @@ int main()
 
         for (const auto& message : network->MessageBufferRecev)
             network->ParseurMessage(message.first.data(), message.second);
+        EnterCriticalSection(&network->csNewUser);
         network->MessageBufferRecev.clear();
+        LeaveCriticalSection(&network->csNewUser);
 
         // MERGE USER
         EnterCriticalSection(&network->csMovedUsers);
