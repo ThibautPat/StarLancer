@@ -90,13 +90,11 @@ int main()
     {
         auto frameStart = std::chrono::high_resolution_clock::now();
 
-        // Calcul du deltaTime
         std::chrono::duration<float> elapsed = frameStart - lastFrameTime;
         deltaTime = elapsed.count();
         lastFrameTime = frameStart;
 
-        // Mise à jour des bullets avec deltaTime
-        const float BULLET_SPEED = 0.5f; // unités par seconde
+        const float BULLET_SPEED = 0.5f;
         for (auto& entity : network->ListBullet)
         {
             entity.second->PosZ -= BULLET_SPEED * deltaTime;
@@ -104,8 +102,11 @@ int main()
 
         for (auto& entity : network->ListEntity)
         {
-            entity.second->TimeBeforeRespawn += deltatime;
-            if(entity.second->TimeBeforeRespawn >= TimeToRespawn)
+            if (entity.second->IsDead == false)
+                continue;
+
+            entity.second->TimeBeforeRespawn += deltaTime;
+            if (entity.second->TimeBeforeRespawn >= entity.second->TimeToRespawn)
             {
                 entity.second->TimeBeforeRespawn = 0;
 
@@ -131,7 +132,6 @@ int main()
         SendAllPositions(network);
         CollisionCheck(network);
 
-        // Limitation à 60 FPS
         auto frameEnd = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> frameDuration = frameEnd - frameStart;
 
