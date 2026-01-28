@@ -25,6 +25,7 @@ enum class MessageType : uint8_t
 
     MOUSE,
 
+    PSEUDO,
 
     COUNT,
 };

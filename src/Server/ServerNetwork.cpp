@@ -162,31 +162,27 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             float dirX = message->X;
             float dirY = message->Y;
 
-            float maxRollAngle = XM_PIDIV4;
-            float maxPitchAngle = XM_PIDIV4;
+            // Paramètres
+            float maxPitchAngle = XM_PIDIV4;     // 45° max pour pitch (inclinaison visuelle)
+            float yawSpeed = 0.05f;              // Vitesse de rotation horizontale
+            float pitchSmoothFactor = 0.10f;     // Lissage pour pitch
 
+            // ✅ YAW : Rotation continue (accumulation)
+            entity->currentYaw += dirX * yawSpeed;
+
+            // ✅ PITCH : Inclinaison temporaire (interpolation vers cible)
             float targetPitch = -dirY * maxPitchAngle;
-            float targetRoll = -dirX * maxRollAngle;
+            entity->currentPitch += (targetPitch - entity->currentPitch) * pitchSmoothFactor;
 
-            //Interpolation adaptative
-            float smoothFactor;
-            if (dirX == 0.0f && dirY == 0.0f)
-            {
-                smoothFactor = 0.25f; 
-            }
-            else
-            {
-                smoothFactor = 0.12f; 
-            }
+            // ROLL : On peut le laisser à 0 ou l'utiliser pour l'effet d'inclinaison dans les virages
+            entity->currentRoll = 0.0f;
 
-            entity->currentPitch += (targetPitch - entity->currentPitch) * smoothFactor;
-            entity->currentRoll += (targetRoll - entity->currentRoll) * smoothFactor;
-
+            // Envoyer la rotation
             UpdateRot rotMsg{};
             rotMsg.head.type = MessageType::UPDATE_ROT;
             rotMsg.entityID = htonl(MyID);
-            rotMsg.Yaw = 0;
-            rotMsg.Pitch = entity->currentPitch;
+            rotMsg.Yaw = entity->currentYaw;      // ✅ Yaw qui s'accumule
+            rotMsg.Pitch = entity->currentPitch;  // Pitch limité
             rotMsg.Roll = entity->currentRoll;
 
             entity->transform.SetYPR(entity->currentYaw, entity->currentPitch, entity->currentRoll);
