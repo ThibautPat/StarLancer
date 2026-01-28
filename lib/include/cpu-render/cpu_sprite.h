@@ -1,4 +1,5 @@
 #pragma once
+
 struct cpu_sprite : public cpu_object
 {
 public:
@@ -12,9 +13,7 @@ public:
 
 public:
 	cpu_sprite();
-	virtual ~cpu_sprite() {} 
+	virtual ~cpu_sprite() {};
 
 	void CenterAnchor();
-
-	friend class UiImage;
 };
