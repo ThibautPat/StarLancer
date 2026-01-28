@@ -26,7 +26,9 @@ DWORD WINAPI ClientNetwork::ThreadFonction(LPVOID lpParam)
 
         if (received > 0)
         {
+            EnterCriticalSection(&network->csMessageBuffer);
             network->MessageBuffer.emplace_back(buffer, buffer + received);
+            LeaveCriticalSection(&network->csMessageBuffer);
         }
     }
     return 0;
@@ -36,6 +38,7 @@ void ClientNetwork::ParseurMessage()
 {
     const size_t MAX_MESSAGES = 512;
     const size_t MAX_PER_FRAME = 50;
+
     if (MessageBuffer.size() > MAX_MESSAGES)
     {
         MessageBuffer.erase(MessageBuffer.begin(), MessageBuffer.begin() + (MessageBuffer.size() - MAX_MESSAGES));
@@ -61,7 +64,7 @@ void ClientNetwork::ParseurMessage()
             {
                 const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(buffer);
                 MyIDClient = ntohl(message->ClientID);
-				Connected = true; // Successfully connected to the server
+				Connected = true;
                 break;
             }
 

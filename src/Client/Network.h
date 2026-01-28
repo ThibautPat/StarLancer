@@ -46,10 +46,13 @@ public:
 
 class ClientNetwork : public Network
 {
+	CRITICAL_SECTION csMessageBuffer;
 public:
 	SOCKET UserSock;
 	HANDLE thread1;
 	sockaddr_in ServeurAddr;
+
+	ClientNetwork() { InitializeCriticalSection(&csMessageBuffer); };
 
 	bool Connected = false;
 
