@@ -113,7 +113,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             EntityBulletServer* bullet = new EntityBulletServer();
             bullet->entityType = EntityType::BULLET;
 			bullet->ownerBULLET_FORWARD = ListEntity[user->s_userID]->transform.dir;
-            ListBullet[ListBullet.size()] = bullet;
+            ListEntity[ListEntity.size()] = bullet;
 
             bullet->transform.pos = ListEntity[user->s_userID]->transform.pos;
             

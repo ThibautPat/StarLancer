@@ -65,9 +65,9 @@ void EntityServer::Update(float dt)
     {
         TimeBeforeRespawn = 0;
 
-        PosX = 0;
-        PosY = 0;
-        PosZ = 0;
+        transform.pos.x = 0;
+        transform.pos.y = 0;
+        transform.pos.z = 0;
 
         IsDead = false;
     }

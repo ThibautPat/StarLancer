@@ -28,8 +28,11 @@ public:
 
 	void Update(float dt) override
 	{
-		const float BULLET_SPEED = 0.5f;
-		PosZ -= BULLET_SPEED * dt;
+		const float BULLET_SPEED = 20.f;
+
+		transform.pos.x += ownerBULLET_FORWARD.x * BULLET_SPEED * dt;
+		transform.pos.y += ownerBULLET_FORWARD.y * BULLET_SPEED * dt;
+		transform.pos.z += ownerBULLET_FORWARD.z * BULLET_SPEED * dt;
 	} 
 };
 
