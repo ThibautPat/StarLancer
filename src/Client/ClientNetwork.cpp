@@ -138,8 +138,12 @@ void ClientNetwork::ParseurMessage()
 
                         //m_meshShip->CreateCube();
 
-                        
+              
                         m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj",{1,1,1},false);
+
+						entityClient->pEntity->pMaterial = new cpu_material();
+						entityClient->pEntity->pMaterial->color = { 1.0f, 1.0f, 1.0f };
+
                         m_meshShip->FlipWinding();
                         m_meshShip->Optimize();
                         
