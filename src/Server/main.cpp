@@ -48,6 +48,7 @@ void CollisionCheck(ServerNetwork* network)
 
             if (entity == entity1)
                 continue;
+
             cpu_aabb aabb1;
             aabb1.min.x = entity.second->minAABB.x + entity.second->PosX;
             aabb1.min.y = entity.second->minAABB.y + entity.second->PosY;
@@ -62,10 +63,10 @@ void CollisionCheck(ServerNetwork* network)
             aabb2.max.x = entity1.second->maxAABB.x + entity1.second->PosX;
             aabb2.max.y = entity1.second->maxAABB.y + entity1.second->PosY;
             aabb2.max.z = entity1.second->maxAABB.z + entity1.second->PosZ;
+
             if (cpu::AabbAabb(aabb1, aabb2))
             {
                 entity.second->OnCollide(entity1.second);
-                entity1.second->OnCollide(entity.second);
             }
         }
     }
@@ -94,28 +95,10 @@ int main()
         deltaTime = elapsed.count();
         lastFrameTime = frameStart;
 
-        const float BULLET_SPEED = 0.5f;
-        for (auto& entity : network->ListBullet)
+        for (auto entity : network->ListEntity)
         {
-            entity.second->PosZ -= BULLET_SPEED * deltaTime;
-        }
-
-        for (auto& entity : network->ListEntity)
-        {
-            if (entity.second->IsDead == false)
-                continue;
-
-            entity.second->TimeBeforeRespawn += deltaTime;
-            if (entity.second->TimeBeforeRespawn >= entity.second->TimeToRespawn)
-            {
-                entity.second->TimeBeforeRespawn = 0;
-
-                entity.second->PosX = 0;
-                entity.second->PosY = 0;
-                entity.second->PosZ = 0;
-
-                entity.second->IsDead = false;
-            }
+            entity.second->Update(deltaTime);
+            CollisionCheck(network);
         }
 
         // PARSE
@@ -130,7 +113,6 @@ int main()
 
         // SEND NUKE 
         SendAllPositions(network);
-        CollisionCheck(network);
 
         auto frameEnd = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> frameDuration = frameEnd - frameStart;
@@ -138,10 +120,8 @@ int main()
         if (frameDuration < TARGET_FRAME_DURATION)
         {
             auto sleepDuration = TARGET_FRAME_DURATION - frameDuration;
-            std::this_thread::sleep_for(sleepDuration);
+            Sleep(static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(sleepDuration).count()));
         }
-        
-        Sleep(32);
     }
 
     network->CloseSocket(*network->GetSocket());

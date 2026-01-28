@@ -52,40 +52,35 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
 
             break;
         }
+
         case MessageType::FORWARD:
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
-
             SpaceShipMove_Calculator::Calcul_Forward(user,this);
-            
             break;
         }
+
         case MessageType::BACKWARD:
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
-
             SpaceShipMove_Calculator::Calcul_Backward(user, this);
-            
             break;
         }
+
         case MessageType::LEFT:
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
-
-           
             SpaceShipMove_Calculator::Calcul_Left(user, this);
-            
             break;
         }
+
         case MessageType::RIGHT:
         {
             const InputMessage* message = reinterpret_cast<const InputMessage*>(buffer);
-
-           
             SpaceShipMove_Calculator::Calcul_Right(user, this);
-            
             break;
         }
+
         case MessageType::ENTITY:
         {
             const AABBUpdateMessage* message = reinterpret_cast<const AABBUpdateMessage*>(buffer);
@@ -96,57 +91,27 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             ListEntity[user->s_userID]->minAABB.x = message->minX;
             ListEntity[user->s_userID]->minAABB.y = message->minY;
             ListEntity[user->s_userID]->minAABB.z = message->minZ;
-
 			break;
         }
+
         case MessageType::FIRE_BULLET:
         {
             SpawnEntity replicationMessage{};
             replicationMessage.head.type = MessageType::ENTITY;
             replicationMessage.entity = EntityType::BULLET;
-            replicationMessage.IDEntity = htonl(ListBullet.size()); // HOST ORDER
-            replicationMessage.IDUser = htonl(user->s_userID);      // HOST ORDER
+            replicationMessage.IDEntity = htonl(ListEntity.size()); 
+            replicationMessage.IDUser = htonl(user->s_userID);      
 
             ReplicationMessage<SpawnEntity>(reinterpret_cast<char*>(&replicationMessage));
 
             //CREATION STRUCT DONNEE
             EntityBulletServer* bullet = new EntityBulletServer();
             bullet->entityType = EntityType::BULLET;
-            ListBullet[ListBullet.size()] = bullet;
+            ListEntity[ListEntity.size()] = bullet;
 
             bullet->PosX = ListEntity[user->s_userID]->PosX;
             bullet->PosY = ListEntity[user->s_userID]->PosY;
             bullet->PosZ = ListEntity[user->s_userID]->PosZ;
-            break;
-        }
-        case MessageType::HIT:
-        {
-            const BulletHitMessage* message = reinterpret_cast<const BulletHitMessage*>(buffer);
-            uint32_t MyID = ntohl(message->bulletID);
-            uint32_t TargetID = ntohl(message->targetID);
-
-            cpu_aabb aabb1;
-            aabb1.min.x = ListBullet[MyID]->minAABB.x + ListBullet[MyID]->PosX;
-            aabb1.min.y = ListBullet[MyID]->minAABB.y + ListBullet[MyID]->PosY;
-            aabb1.min.z = ListBullet[MyID]->minAABB.z + ListBullet[MyID]->PosZ;
-
-            aabb1.max.x = ListBullet[MyID]->maxAABB.x + ListBullet[MyID]->PosX;
-            aabb1.max.y = ListBullet[MyID]->maxAABB.y + ListBullet[MyID]->PosY;
-            aabb1.max.z = ListBullet[MyID]->maxAABB.z + ListBullet[MyID]->PosZ;
-
-            cpu_aabb aabb2;
-            aabb2.min.x = ListEntity[TargetID]->minAABB.x + ListEntity[TargetID]->PosX;
-            aabb2.min.y = ListEntity[TargetID]->minAABB.y + ListEntity[TargetID]->PosY;
-            aabb2.min.z = ListEntity[TargetID]->minAABB.z + ListEntity[TargetID]->PosZ;
-
-            aabb2.max.x = ListEntity[TargetID]->maxAABB.x + ListEntity[TargetID]->PosX;
-            aabb2.max.y = ListEntity[TargetID]->maxAABB.y + ListEntity[TargetID]->PosY;
-            aabb2.max.z = ListEntity[TargetID]->maxAABB.z + ListEntity[TargetID]->PosZ;
-
-            if (cpu::AabbAabb(aabb1, aabb2))
-            {
-                ListBullet[MyID]->OnCollide(ListEntity[TargetID]);
-            }
             break;
         }
     }
@@ -231,13 +196,13 @@ void ServerNetwork::BacklogSend(User* Recever)
         SpawnPlayer oldMsg{};
         oldMsg.head.type = MessageType::ENTITY;
         oldMsg.entity = EntityType::SPACESHIP;
-        oldMsg.IDEntity = htonl(u->s_userID); //  ID de l'ancien joueur
+        oldMsg.IDEntity = htonl(u->s_userID);
         sendto(*GetSocket(), reinterpret_cast<const char*>(&oldMsg), sizeof(oldMsg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
         SpawnPlayer newMsg{};
         newMsg.head.type = MessageType::ENTITY;
         newMsg.entity = EntityType::SPACESHIP;
-        newMsg.IDEntity = htonl(Recever->s_userID); //  ID du nouveau joueur
+        newMsg.IDEntity = htonl(Recever->s_userID);
         sendto(*GetSocket(), reinterpret_cast<const char*>(&newMsg), sizeof(newMsg), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
     }
 }

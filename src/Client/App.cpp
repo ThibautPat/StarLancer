@@ -19,7 +19,6 @@ DWORD WINAPI App::ConsoleThreadProc(LPVOID param)
     return 0;
 }
 
-
 App::App()
 {
 	s_pApp = this;
@@ -148,7 +147,6 @@ void App::InputManager()
         }
        
     }
-
     if (m_LockCursor)
     {
         POINT pt;
@@ -248,8 +246,9 @@ void App::OnUpdate()
 
         InputManager();
 
-        UpdateBullets(cpuTime.delta);
-
+        for (auto entitie : m_entities) 
+            entitie.second->Update_EntityClient(cpuTime.delta);
+        
         UpdateParticul();
 
         CameraUpdate();
@@ -284,43 +283,6 @@ void App::OnRender(int pass)
     }
 }
 
-void App::UpdateBullets(float deltaTime)
-{
-	std::vector<BulletHitMessage*> HitDetection;
-
-    EnterCriticalSection(&m_cs);
-
-    for (auto& bullet : m_bullets)
-    {
-		bullet->pEntity->transform.pos.z -= 0.5f * deltaTime; // Move bullet forward
-       for (auto Entity : m_entities)
-        {
-           if (Entity->entityID == network->MyIDClient || bullet->OwnerID == Entity->entityID)
-           {
-               continue;
-           }
-
-            if (cpu::AabbAabb(bullet->pEntity->aabb, Entity->pEntity->aabb))
-            {
-				BulletHitMessage* msg = new BulletHitMessage();
-				msg->head.type = MessageType::HIT;
-				msg->bulletID = htonl(bullet->entityID);
-				msg->targetID = htonl(Entity->entityID);
-				HitDetection.push_back(msg);
-            }
-        }
-
-    }
-    LeaveCriticalSection(&m_cs);
-
-
-    for (BulletHitMessage* msg: HitDetection)
-    {
-		network->SendMessageToServer(reinterpret_cast<const char*>(msg), sizeof(BulletHitMessage));
-    }
-
-}
-
 void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
 {
     EnterCriticalSection(&m_cs);
@@ -333,11 +295,11 @@ void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
     m_meshBullet->CreateSphere(m_meshBullet->radius);
 
     bullet->pEntity->pMesh = m_meshBullet;
-    bullet->pEntity->transform.pos = GetEntities()[OwnerID]->pEntity->transform.pos;
+    bullet->pEntity->transform.pos = GetEntitie(OwnerID)->pEntity->transform.pos;
     bullet->OwnerID = OwnerID;
 	bullet->entityID = IdEntity;
 
-    GetBullets().push_back(bullet);
+    GetEntitiesList()[GetEntitiesList().size()] = bullet;
 
     LeaveCriticalSection(&m_cs);
 }

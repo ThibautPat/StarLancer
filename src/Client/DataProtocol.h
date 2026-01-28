@@ -74,6 +74,14 @@ struct SpawnEntity
     EntityType entity;
 };
 
+struct BulletHitMessage
+{
+    Header head;
+    uint32_t bulletID;
+    uint32_t targetID;
+    int targetLife;
+};
+
 //STRUCT MESSAGE FROM CLIENT ---------------------------
 
 struct AABBUpdateMessage
@@ -108,13 +116,6 @@ struct ConnexionMessage
 {
     Header head;
     uint32_t magicnumber;
-};
-
-struct BulletHitMessage
-{
-    Header head;
-    uint32_t bulletID;
-    uint32_t targetID;
 };
 
 #pragma pack(pop) //Sert a éviter le padding binaire

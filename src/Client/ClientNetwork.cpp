@@ -61,7 +61,7 @@ void ClientNetwork::ParseurMessage()
 
                 EnterCriticalSection(&instance.m_cs);
 
-                EntityClient* Entity = instance.GetEntities()[entityID];
+                EntityClient* Entity = instance.GetEntitie(entityID);
                 if (Entity != nullptr)
                 {
                     cpu_entity* entity = Entity->pEntity;
@@ -72,6 +72,19 @@ void ClientNetwork::ParseurMessage()
 
                 LeaveCriticalSection(&instance.m_cs);
                 break;
+            }
+
+            case MessageType::HIT:
+            {
+                const BulletHitMessage* message = reinterpret_cast<const BulletHitMessage*>(buffer);
+                App& instance = App::GetInstance();
+
+                EnterCriticalSection(&instance.m_cs);
+
+                instance.GetEntitie(ntohl(message->bulletID)); // BALLE A DESTROY
+                instance.GetEntitie(ntohl(message->targetID))->life = ntohl(message->targetLife); // PLAYER MISE A JOUR VIE
+                
+                LeaveCriticalSection(&instance.m_cs);
             }
 
             case MessageType::ENTITY:
@@ -104,11 +117,12 @@ void ClientNetwork::ParseurMessage()
                         entityClient->pEntity->pMesh = m_meshShip;
 						entityClient->entityID = entityID;
 
-                        instance.GetEntities().push_back(entityClient);
+                        instance.GetEntitiesList()[instance.GetEntitiesList().size()] = entityClient;
 
                         AABBUpdateMessage AabbMessage;
                         AabbMessage.head.type = MessageType::ENTITY;
                         AabbMessage.IDEntity = htonl(entityID);
+
                         AabbMessage.minX = m_meshShip->aabb.min.x;
                         AabbMessage.minY = m_meshShip->aabb.min.y;
                         AabbMessage.minZ = m_meshShip->aabb.min.z;
@@ -118,6 +132,7 @@ void ClientNetwork::ParseurMessage()
                         AabbMessage.maxZ = m_meshShip->aabb.max.z;
 
                         SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
+
                         LeaveCriticalSection(&instance.m_cs);
                         break;
                     }
@@ -160,6 +175,7 @@ void ClientNetwork::ChoseTarget(const char* ip)
 
     //if (inet_pton(AF_INET, "10.10.137.11", &ServeurAddr.sin_addr) <= 0) //MOI192.168.1.159
     //    return;
+
     if (inet_pton(AF_INET,ip, &ServeurAddr.sin_addr) <= 0) //MOI
         return;
     

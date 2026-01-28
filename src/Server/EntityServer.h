@@ -28,5 +28,6 @@ public:
 	int Score = 0;
 
 	virtual void OnCollide(EntityServer* entity);
+	virtual void Update(float dt);
 };
 

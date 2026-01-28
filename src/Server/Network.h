@@ -59,7 +59,6 @@ public:
 	socket_t* GetSocket() { return &m_NetworkSocket; };
 
 	void CloseSocket(socket_t& sock);
-
 };
 
 // SERVEUR LOGIQUE -----------------------------------------
@@ -74,14 +73,18 @@ class ServerNetwork : public Network
 
 	std::atomic<bool> IsRunning = true;
 
+	static ServerNetwork* instance;
+
 public:
+
+	static ServerNetwork* GetNetwork() { return instance; };
 
 	void ParseurMessage(const char* buffer, User* user);
 
 	CRITICAL_SECTION csNewUser;
 	CRITICAL_SECTION csMovedUsers;
 
-	ServerNetwork() { InitializeCriticalSection(&csMovedUsers); InitializeCriticalSection(&csNewUser); };
+	ServerNetwork() { instance = this; InitializeCriticalSection(&csMovedUsers); InitializeCriticalSection(&csNewUser); };
 
 	void Thread_StartListening();
 	void BacklogSend(User* Recever);
@@ -89,8 +92,7 @@ public:
 	std::vector<User*> ListUser_MainTread;
 	std::vector<User*> ListUser_Tread;
 
-	std::map<uint32_t,EntityServer*> ListEntity;
-	std::map<uint32_t, EntityBulletServer*> ListBullet;
+	std::map<uint32_t, EntityServer*> ListEntity;
 
 	std::map< std::vector<char>, User*> MessageBufferRecev;
 
