@@ -146,11 +146,7 @@ void App::InputManager()
 
             m_LockCursor = !m_LockCursor;
         }
-        MouseMessage msg;
-        msg.head.type = MessageType::MOUSE;
-        msg.ClientID = network->MyIDClient;
-
-        network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
+       
     }
 
     if (m_LockCursor)
@@ -186,6 +182,17 @@ void App::InputManager()
         POINT centerPoint = { centerX, centerY };
         ClientToScreen(cpuEngine.GetWindow()->GetHWND(), &centerPoint);
         SetCursorPos(centerPoint.x, centerPoint.y);
+
+        if(CursorDir.x != 0.0f || CursorDir.y != 0.0f)
+        {
+            MouseMessage msg;
+            msg.head.type = MessageType::MOUSE;
+            msg.ClientID = network->MyIDClient;
+            msg.X = CursorDir.x;
+            msg.Y = CursorDir.y;
+            network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(MouseMessage));
+		}
+       
     }
 }
 
