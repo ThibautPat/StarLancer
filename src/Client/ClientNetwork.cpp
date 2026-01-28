@@ -82,7 +82,7 @@ void ClientNetwork::ParseurMessage()
 
                 EnterCriticalSection(&instance.m_cs);
 
-                EntityClient* Entity = instance.GetEntities()[entityID];
+                EntityClient* Entity = instance.GetEntitie(entityID);
                 if (Entity != nullptr)
                 {
                     cpu_entity* entity = Entity->pEntity;
