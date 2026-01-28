@@ -14,7 +14,7 @@ void SendAllPositions(ServerNetwork* network)
     {
         for (auto& entity : network->ListEntity)
         {
-            if (entity.second->IsDead == true)
+            if (entity.second->IsDead == true|| entity.second->entityType == EntityType::BULLET)
                 continue;
 
             UpdatePos msg;
@@ -37,50 +37,82 @@ void SendAllPositions(ServerNetwork* network)
 
 void CollisionCheck(ServerNetwork* network)
 {
+    static std::vector<std::pair<uint32_t, EntityServer*>> aliveEntities;
+    aliveEntities.clear();
+    aliveEntities.reserve(network->ListEntity.size());
+    
     for (auto& entity : network->ListEntity)
     {
-        if (entity.second->IsDead == true)
-            continue;
+        if (!entity.second->IsDead)
+            aliveEntities.push_back({entity.first, entity.second});
+    }
 
-        for (auto& entity1 : network->ListEntity)
+    size_t count = aliveEntities.size();
+    
+    for (size_t i = 0; i < count; ++i)
+    {
+        EntityServer* e1 = aliveEntities[i].second;
+        uint32_t id1 = aliveEntities[i].first;
+
+        cpu_aabb aabb1;
+        aabb1.min.x = e1->minAABB.x + e1->transform.pos.x;
+        aabb1.min.y = e1->minAABB.y + e1->transform.pos.y;
+        aabb1.min.z = e1->minAABB.z + e1->transform.pos.z;
+        aabb1.max.x = e1->maxAABB.x + e1->transform.pos.x;
+        aabb1.max.y = e1->maxAABB.y + e1->transform.pos.y;
+        aabb1.max.z = e1->maxAABB.z + e1->transform.pos.z;
+
+        for (size_t j = i + 1; j < count; ++j)
         {
-            if (entity1.second->IsDead == true)
+            EntityServer* e2 = aliveEntities[j].second;
+            uint32_t id2 = aliveEntities[j].first;
+
+            bool skipCollision = false;
+            if (e1->entityType == EntityType::BULLET)
+            {
+                EntityBulletServer* bullet = static_cast<EntityBulletServer*>(e1);
+                if (bullet->Owner && bullet->Owner->entityID == id2)
+                    skipCollision = true;
+            }
+            if (e2->entityType == EntityType::BULLET)
+            {
+                EntityBulletServer* bullet = static_cast<EntityBulletServer*>(e2);
+                if (bullet->Owner && bullet->Owner->entityID == id1)
+                    skipCollision = true;
+            }
+            
+            if (skipCollision)
                 continue;
 
-            if (entity == entity1)
-                continue;
-
-            if (entity.second->entityType == EntityType::BULLET)
-                if (dynamic_cast<EntityBulletServer*>(entity.second)->Owner->entityID == entity1.second->entityID)
-                    continue;
-
-            cpu_aabb aabb1;
-            aabb1.min.x = entity.second->minAABB.x + entity.second->transform.pos.x;
-            aabb1.min.y = entity.second->minAABB.y + entity.second->transform.pos.y;
-            aabb1.min.z = entity.second->minAABB.z + entity.second->transform.pos.z;
-            aabb1.max.x = entity.second->maxAABB.x + entity.second->transform.pos.x;
-            aabb1.max.y = entity.second->maxAABB.y + entity.second->transform.pos.y;
-            aabb1.max.z = entity.second->maxAABB.z + entity.second->transform.pos.z;
             cpu_aabb aabb2;
-            aabb2.min.x = entity1.second->minAABB.x + entity1.second->transform.pos.x;
-            aabb2.min.y = entity1.second->minAABB.y + entity1.second->transform.pos.y;
-            aabb2.min.z = entity1.second->minAABB.z + entity1.second->transform.pos.z;
-            aabb2.max.x = entity1.second->maxAABB.x + entity1.second->transform.pos.x;
-            aabb2.max.y = entity1.second->maxAABB.y + entity1.second->transform.pos.y;
-            aabb2.max.z = entity1.second->maxAABB.z + entity1.second->transform.pos.z;
+            aabb2.min.x = e2->minAABB.x + e2->transform.pos.x;
+            aabb2.min.y = e2->minAABB.y + e2->transform.pos.y;
+            aabb2.min.z = e2->minAABB.z + e2->transform.pos.z;
+            aabb2.max.x = e2->maxAABB.x + e2->transform.pos.x;
+            aabb2.max.y = e2->maxAABB.y + e2->transform.pos.y;
+            aabb2.max.z = e2->maxAABB.z + e2->transform.pos.z;
             
             if (cpu::AabbAabb(aabb1, aabb2))
             {
-                entity.second->OnCollide(entity1.second);
+                e1->OnCollide(e2);
+                e2->OnCollide(e1);
 
-                if (entity.second->entityType == EntityType::BULLET)
+                if (e1->entityType == EntityType::BULLET)
                 {
                     BulletHitMessage msg{};
                     msg.head.type = MessageType::HIT;
-                    msg.bulletID = htonl(entity1.second->entityID);
-                    msg.targetID = htonl(entity.second->entityID);
-                    msg.targetLife = entity1.second->life;
-
+                    msg.bulletID = htonl(id1);
+                    msg.targetID = htonl(id2);
+                    msg.targetLife = e2->life;
+                    network->ReplicationMessage<BulletHitMessage>(reinterpret_cast<char*>(&msg));
+                }
+                if (e2->entityType == EntityType::BULLET)
+                {
+                    BulletHitMessage msg{};
+                    msg.head.type = MessageType::HIT;
+                    msg.bulletID = htonl(id2);
+                    msg.targetID = htonl(id1);
+                    msg.targetLife = e1->life;
                     network->ReplicationMessage<BulletHitMessage>(reinterpret_cast<char*>(&msg));
                 }
             }
@@ -118,6 +150,7 @@ int main()
         }
 
         // PARSE
+
         for (const auto& message : network->MessageBufferRecev)
             network->ParseurMessage(message.first.data(), message.second);
         network->MessageBufferRecev.clear();

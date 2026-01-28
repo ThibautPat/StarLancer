@@ -296,6 +296,7 @@ void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
     m_meshBullet->radius = 0.1f;
     m_meshBullet->CreateSphere(m_meshBullet->radius);
 
+	bullet->ownerBULLET_FORWARD = GetEntitie(OwnerID)->pEntity->transform.dir;
     bullet->pEntity->pMesh = m_meshBullet;
     bullet->pEntity->transform.pos = GetEntitie(OwnerID)->pEntity->transform.pos;
     bullet->OwnerID = OwnerID;

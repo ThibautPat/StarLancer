@@ -41,7 +41,11 @@ void ClientNetwork::ParseurMessage()
         const Header* head = reinterpret_cast<const Header*>(buffer);
         if (!head || head == nullptr)
             return;
-
+        if (message.size() < sizeof(Header))
+        {
+            std::cerr << "[Warning] Message trop petit pour Header\n";
+            continue;
+        }
         switch (head->type)
         {
             case MessageType::CONNECTION:
