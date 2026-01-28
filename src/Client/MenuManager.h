@@ -20,7 +20,7 @@ public:
 
 	void loadAllMenu();
 	void switchMenu(std::string name);
-	void Draw(cpu_device* pDevice);
+	void Draw( );
 
 
 };

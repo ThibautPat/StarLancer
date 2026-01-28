@@ -24,15 +24,24 @@ void MenuManager::Update(float deltatime)
     case App::State::PLAY:
     {
         switchMenu("PLAY");
-        //ShowMouseCursor();
+        while (ShowCursor(TRUE) <=0 ); // Boucler jusqu'à ce que le compteur soit négatif
+        if(!App::GetInstance().network->Connected)
+        {
+            getCurrentMenu()->getElement("Play")->visible = false;
+        }
+        else {
+            getCurrentMenu()->getElement("Play")->visible = true;
+
+        }
+        App::GetInstance().m_LockCursor =false;
         App::GetInstance().Pause();
         break;
     }
     case App::State::GAME:
     {
         switchMenu("HUD");
-        App::GetInstance().Pause();
-        //gce::HideMouseCursor();
+        
+
         break;
     }
     //case App::State::LOOSE:
@@ -74,10 +83,10 @@ void MenuManager::Update(float deltatime)
     }
 }
 
-void MenuManager::Draw(cpu_device* pDevice)
+void MenuManager::Draw( )
 {
     if (m_currentMenu && m_currentMenu->active)
-        m_currentMenu->Draw(pDevice);
+        m_currentMenu->Draw();
 }
 
 Menu* MenuManager::getMenu(std::string name)
@@ -120,6 +129,9 @@ void MenuManager::switchMenu(std::string name)
     {
         if (object->name == name && object == m_currentMenu)
             return;
+
+        while (ShowCursor(FALSE) >= 0); // Boucler jusqu'à ce que le compteur soit négatif
+        App::GetInstance().m_LockCursor = true; // ? AJOUTER CETTE LIGNE !
 
         object->SetActive(false);
         if (object->name == name)

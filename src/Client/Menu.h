@@ -9,7 +9,9 @@ public:
     
     bool active = true;
     void Start() {};
-    void SetActive(bool _active) { active = _active; };
+    void SetActive(bool _active) { active = _active;
+    Draw();
+    };
 
 
     void addButton(
@@ -54,6 +56,6 @@ public:
     UiBase* getElement(std::string _name);
 
     void Update(float deltaTime);
-    void Draw(cpu_device* pDevice);
+    void Draw( );
     void Clear();
 };

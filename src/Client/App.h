@@ -21,7 +21,6 @@ class App
 
 	// --- Internal data ----------------------------------------------
 	bool m_pause = false;
-	bool m_LockCursor = true;
 
 	cpu_font m_font;
 	cpu_mesh m_meshSphere;
@@ -35,8 +34,6 @@ class App
 	inline static App* s_pApp = nullptr;
 
 	
-	// --- Console thread (WinAPI) ----------------------------
-	bool m_consoleRunning = false;
 
 
 public:
@@ -98,6 +95,7 @@ public:
 	// --- Public data  ------------------
 	float camDistance = 8.0f;
 	float camHeight = 2.0f;
+	bool m_LockCursor = true;
 
 	int nextEntityID = 0;
 
@@ -113,4 +111,6 @@ public:
 
 	CRITICAL_SECTION m_cs;
 	CRITICAL_SECTION m_cs2;
+
+
 };

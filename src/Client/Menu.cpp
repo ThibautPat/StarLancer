@@ -179,15 +179,27 @@ void Menu::Update(float deltaTime)
     }
 }
 
-void Menu::Draw(cpu_device* pDevice)
+void Menu::Draw()
 {
-    if (!active) return;
-
-    for (UiBase* element : uiList)
+    if (!active)
     {
-        if (element->visible) 
-            element->Draw(pDevice);
+        for (UiBase* element : uiList)
+        {
+            element->visible = false;
+            element->dead = true;
+
+        }
     }
+    else {
+        for (UiBase* element : uiList)
+        {
+            element->visible = true;
+            element->dead = false;
+
+        }
+    }
+
+  
 }
 
 void Menu::Clear()

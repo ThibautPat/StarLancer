@@ -45,23 +45,7 @@ void App::OnStart()
     network->InitNetwork();
     network->Thread_StartListening();
     ShowCursor(FALSE);
-    while(!connected)
-    {
-		std::cout << "Enter server IP (or 'local' for localhost): ";
-        std::string ip;
-        std::cin >> ip;
-
-        if (ip == "local")
-        {
-            std::cout << "Ip : 127.0.0.1"<< std::endl;
-            network->ChoseTarget("127.0.0.1");
-
-        }
-        else {
-            std::cout << "Ip : " << ip << std::endl;
-            network->ChoseTarget(ip.c_str());
-        }
-    }
+   
 
 
     network->ServeurAddr.sin_family = AF_INET;
@@ -132,12 +116,12 @@ void App::InputManager()
     {
         if (m_LockCursor)
         {
-            ShowCursor(TRUE);
+            while (ShowCursor(TRUE) <= 0); // Boucler jusqu'à ce que le compteur soit négatif
 
             m_LockCursor = !m_LockCursor;
         }
         else {
-            ShowCursor(FALSE);
+            while (ShowCursor(FALSE) >= 0); // Boucler jusqu'à ce que le compteur soit négatif
 
             m_LockCursor = !m_LockCursor;
         }
@@ -240,7 +224,11 @@ void App::ClearDeadEntity()
 void App::OnUpdate()
 {
     network->ParseurMessage();
-
+    menuManager->Update(cpuTime.delta);
+    if (ButtonListenerManager::s_inputActive)
+    {
+        ButtonListenerManager::UpdateInput();
+    }
     if (network->Connected == false)
     {   
 		coldownNetwork += cpuTime.delta;
@@ -253,7 +241,6 @@ void App::OnUpdate()
 
     if(network->Connected == true)
     {
-        menuManager->Update(cpuTime.delta);
 
         InputManager();
 
@@ -287,8 +274,7 @@ void App::OnRender(int pass)
             cpu_stats& stats = *cpuEngine.GetStats();
             std::string s = " x :" + std::to_string(CursorDir.x) + " y :" + std::to_string(CursorDir.y);
             cpuDevice.DrawText(&m_font, s.c_str(), 0, 0);
-
-            menuManager->Draw(&cpuDevice);
+              
             break;
         }
     }
