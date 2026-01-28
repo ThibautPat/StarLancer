@@ -73,7 +73,6 @@ void ButtonListenerManager::UpdateInput()
         s_keyWasPressed[VK_BACK] = false;
     }
 
-    // Vérifier les chiffres du clavier principal (pas numpad)
     for (int vk = 0x30; vk <= 0x39; vk++) // VK_0 à VK_9
     {
         if (GetAsyncKeyState(vk) & 0x8000)
@@ -110,7 +109,6 @@ void ButtonListenerManager::UpdateInput()
         }
     }
 
-    // Vérifier les lettres A-Z
     for (int vk = 0x41; vk <= 0x5A; vk++) // VK_A à VK_Z
     {
         if (GetAsyncKeyState(vk) & 0x8000)
@@ -118,7 +116,6 @@ void ButtonListenerManager::UpdateInput()
             if (!s_keyWasPressed[vk])
             {
                 s_keyWasPressed[vk] = true;
-                // Shift pressé = majuscule, sinon minuscule
                 char c = (GetAsyncKeyState(VK_SHIFT) & 0x8000) ? (char)vk : (char)(vk + 32);
                 s_currentInput += c;
                 dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
@@ -130,7 +127,6 @@ void ButtonListenerManager::UpdateInput()
         }
     }
 
-    // Vérifier le point '.'
     if (GetAsyncKeyState(VK_OEM_PERIOD) & 0x8000)
     {
         if (!s_keyWasPressed[VK_OEM_PERIOD])
@@ -145,7 +141,6 @@ void ButtonListenerManager::UpdateInput()
         s_keyWasPressed[VK_OEM_PERIOD] = false;
     }
 
-    // Vérifier le point du numpad
     if (GetAsyncKeyState(VK_DECIMAL) & 0x8000)
     {
         if (!s_keyWasPressed[VK_DECIMAL])
