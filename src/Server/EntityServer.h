@@ -8,9 +8,12 @@ public:
 	uint32_t entityID;
 	EntityType entityType;
 	//POS
-	float PosX = 0;
-	float PosY = 0;
-	float PosZ = 0;
+
+	cpu_transform transform;
+
+	float currentYaw = 0.0f;
+	float currentPitch = 0.0f;
+	float currentRoll = 0.0f;
 
 	//SIZE COLLIDER AABB
 

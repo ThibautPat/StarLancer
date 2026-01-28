@@ -7,9 +7,9 @@ void EntityServer::OnCollide(EntityServer* entity)
     if (!entity) return;
 
     // Direction de répulsion : de l'autre vers cette entité
-    float dirX = PosX - entity->PosX;
-    float dirY = PosY - entity->PosY;
-    float dirZ = PosZ - entity->PosZ;
+    float dirX = transform.pos.x - entity->transform.pos.x;
+    float dirY = transform.pos.y - entity->transform.pos.y;
+    float dirZ = transform.pos.z - entity->transform.pos.z;
 
     // Normaliser
     float length = sqrtf(dirX * dirX + dirY * dirY + dirZ * dirZ);
@@ -40,18 +40,18 @@ void EntityServer::OnCollide(EntityServer* entity)
     float minDistZ = thisHalfZ + otherHalfZ;
 
     // Chevauchement actuel
-    float overlapX = minDistX - fabsf(PosX - entity->PosX);
-    float overlapY = minDistY - fabsf(PosY - entity->PosY);
-    float overlapZ = minDistZ - fabsf(PosZ - entity->PosZ);
+    float overlapX = minDistX - fabsf(transform.pos.x - entity->transform.pos.x);
+    float overlapY = minDistY - fabsf(transform.pos.y - entity->transform.pos.y);
+    float overlapZ = minDistZ - fabsf(transform.pos.z - entity->transform.pos.z);
 
     // Repousser sur l'axe avec le plus petit chevauchement
     if (overlapX > 0 && overlapX < overlapY && overlapX < overlapZ) {
-        PosX += dirX * overlapX;
+        transform.pos.x += dirX * overlapX;
     }
     else if (overlapY > 0 && overlapY < overlapZ) {
-        PosY += dirY * overlapY;
+        transform.pos.y += dirY * overlapY;
     }
     else if (overlapZ > 0) {
-        PosZ += dirZ * overlapZ;
+        transform.pos.z += dirZ * overlapZ;
     }
 }

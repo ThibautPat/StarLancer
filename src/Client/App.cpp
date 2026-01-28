@@ -190,6 +190,8 @@ void App::InputManager()
             msg.ClientID = network->MyIDClient;
             msg.X = CursorDir.x;
             msg.Y = CursorDir.y;
+
+
             network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(MouseMessage));
 		}
        
@@ -205,7 +207,11 @@ void App::CameraUpdate()
     if (player != nullptr)
     {
         cpu_transform t = player->pEntity->transform;
-        cam.SetPosition(t.pos.x, t.pos.y + camHeight, t.pos.z + camDistance);
+
+        XMFLOAT3 pos = { t.pos.x - (t.dir.x * camDistance) ,t.pos.y - (t.dir.y * camDistance)+ 2  ,t.pos.z - (t.dir.z * camDistance)};
+
+
+        cam.SetPosition(pos.x, pos.y,pos.z);
         cam.ResetFlags();
         cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
     }
@@ -219,6 +225,7 @@ void App::UpdateParticul()
     if (player != nullptr)
     {
         cpu_transform t = player->pEntity->transform;
+
         m_pEmitter->pos = { t.pos.x , t.pos.y , t.pos.z };
         m_pEmitter->dir = t.dir;
         m_pEmitter->dir.x = -m_pEmitter->dir.x;

@@ -73,7 +73,25 @@ void ClientNetwork::ParseurMessage()
                 LeaveCriticalSection(&instance.m_cs);
                 break;
             }
+            case MessageType::UPDATE_ROT:
+            {
+                const UpdateRot* message = reinterpret_cast<const UpdateRot*>(buffer);
+                App& instance = App::GetInstance();
 
+                uint32_t entityID = ntohl(message->entityID);
+
+                EnterCriticalSection(&instance.m_cs);
+
+                EntityClient* Entity = instance.GetEntities()[entityID];
+                if (Entity != nullptr)
+                {
+                    cpu_entity* entity = Entity->pEntity;
+                    instance.UpdateEntityRotation(entity, message->Yaw, message->Pitch, message->Roll);
+                }
+
+                LeaveCriticalSection(&instance.m_cs);
+                break;
+            }
             case MessageType::ENTITY:
             {
                 const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(buffer);

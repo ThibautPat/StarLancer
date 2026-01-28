@@ -41,6 +41,17 @@ struct Header
 };
 
 //STRUCT MESSAGE FROM SERVER ---------------------------
+
+struct UpdateRot
+{
+    Header head;
+    uint32_t entityID;
+
+    float Pitch = 0.0f;
+    float Yaw = 0.0f;
+    float Roll = 0.0f;
+};
+
 struct UpdatePos
 {
     Header head;

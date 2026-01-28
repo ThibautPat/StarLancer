@@ -11,6 +11,11 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     newUser->s_userID = ListEntity.size();
 
     ListEntity[newUser->s_userID] = new EntityServer();
+    ListEntity[newUser->s_userID]->transform.Identity();
+
+    ListEntity[newUser->s_userID]->currentPitch = 0.f;
+    ListEntity[newUser->s_userID]->currentYaw = 0.f;
+    ListEntity[newUser->s_userID]->currentRoll= 0.f;
 
     ListUser_Tread.push_back(newUser);
 
@@ -114,9 +119,8 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             bullet->entityType = EntityType::BULLET;
             ListBullet[ListBullet.size()] = bullet;
 
-            bullet->PosX = ListEntity[user->s_userID]->PosX;
-            bullet->PosY = ListEntity[user->s_userID]->PosY;
-            bullet->PosZ = ListEntity[user->s_userID]->PosZ;
+            bullet->transform.pos = ListEntity[user->s_userID]->transform.pos;
+            
             break;
         }
         case MessageType::HIT:
@@ -126,27 +130,64 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             uint32_t TargetID = ntohl(message->targetID);
 
             cpu_aabb aabb1;
-            aabb1.min.x = ListBullet[MyID]->minAABB.x + ListBullet[MyID]->PosX;
-            aabb1.min.y = ListBullet[MyID]->minAABB.y + ListBullet[MyID]->PosY;
-            aabb1.min.z = ListBullet[MyID]->minAABB.z + ListBullet[MyID]->PosZ;
+            aabb1.min.x = ListBullet[MyID]->minAABB.x + ListBullet[MyID]->transform.pos.x;
+            aabb1.min.y = ListBullet[MyID]->minAABB.y + ListBullet[MyID]->transform.pos.y;
+            aabb1.min.z = ListBullet[MyID]->minAABB.z + ListBullet[MyID]->transform.pos.z;
 
-            aabb1.max.x = ListBullet[MyID]->maxAABB.x + ListBullet[MyID]->PosX;
-            aabb1.max.y = ListBullet[MyID]->maxAABB.y + ListBullet[MyID]->PosY;
-            aabb1.max.z = ListBullet[MyID]->maxAABB.z + ListBullet[MyID]->PosZ;
+            aabb1.max.x = ListBullet[MyID]->maxAABB.x + ListBullet[MyID]->transform.pos.x;
+            aabb1.max.y = ListBullet[MyID]->maxAABB.y + ListBullet[MyID]->transform.pos.y;
+            aabb1.max.z = ListBullet[MyID]->maxAABB.z + ListBullet[MyID]->transform.pos.z;
 
             cpu_aabb aabb2;
-            aabb2.min.x = ListEntity[TargetID]->minAABB.x + ListEntity[TargetID]->PosX;
-            aabb2.min.y = ListEntity[TargetID]->minAABB.y + ListEntity[TargetID]->PosY;
-            aabb2.min.z = ListEntity[TargetID]->minAABB.z + ListEntity[TargetID]->PosZ;
+            aabb2.min.x = ListEntity[TargetID]->minAABB.x + ListEntity[TargetID]->transform.pos.x;
+            aabb2.min.y = ListEntity[TargetID]->minAABB.y + ListEntity[TargetID]->transform.pos.y;
+            aabb2.min.z = ListEntity[TargetID]->minAABB.z + ListEntity[TargetID]->transform.pos.y;
 
-            aabb2.max.x = ListEntity[TargetID]->maxAABB.x + ListEntity[TargetID]->PosX;
-            aabb2.max.y = ListEntity[TargetID]->maxAABB.y + ListEntity[TargetID]->PosY;
-            aabb2.max.z = ListEntity[TargetID]->maxAABB.z + ListEntity[TargetID]->PosZ;
+            aabb2.max.x = ListEntity[TargetID]->maxAABB.x + ListEntity[TargetID]->transform.pos.x;
+            aabb2.max.y = ListEntity[TargetID]->maxAABB.y + ListEntity[TargetID]->transform.pos.y;
+            aabb2.max.z = ListEntity[TargetID]->maxAABB.z + ListEntity[TargetID]->transform.pos.z;
 
             if (cpu::AabbAabb(aabb1, aabb2))
             {
                 ListBullet[MyID]->OnCollide(ListEntity[TargetID]);
             }
+            break;
+        }
+        case MessageType::MOUSE:
+        {
+
+            const MouseMessage* message = reinterpret_cast<const MouseMessage*>(buffer);
+            uint32_t MyID = ntohl(message->ClientID);
+
+            EntityServer* entity = ListEntity[MyID];
+
+            float dirX = message->X;
+            float dirY = message->Y;
+
+            float maxRollAngle = XM_PIDIV4;   
+            float maxPitchAngle = XM_PIDIV4;  
+            float smoothFactor = 0.08f;       
+
+            float targetPitch = -dirY * maxPitchAngle;
+            float targetRoll = -dirX * maxRollAngle;
+
+            entity->currentPitch += (targetPitch - entity->currentPitch) * smoothFactor;
+            entity->currentRoll += (targetRoll - entity->currentRoll) * smoothFactor;
+
+            UpdateRot rotMsg{};
+            rotMsg.head.type = MessageType::UPDATE_ROT;
+            rotMsg.entityID = htonl(MyID);
+            rotMsg.Yaw = entity->currentYaw;
+            rotMsg.Pitch = entity->currentPitch;
+            rotMsg.Roll =0;
+
+            entity->transform.SetYPR(entity->currentYaw, entity->currentPitch, entity->currentRoll);
+            entity->transform.UpdateWorld();
+
+
+            ReplicationMessage<UpdateRot>(reinterpret_cast<char*>(&rotMsg));
+
+
             break;
         }
     }
