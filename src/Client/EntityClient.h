@@ -2,7 +2,6 @@
 
 class EntityClient
 {
-
 public:
 	uint32_t entityID;
 	cpu_entity* pEntity;
@@ -11,5 +10,6 @@ public:
 	bool IsDead = false;
 
 	virtual void Update_EntityClient(float dt);
+	void Respawn();
 };
 

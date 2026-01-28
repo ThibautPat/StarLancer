@@ -6,8 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+
 #include "EntityServer.h"
-#include "EntityBulletServer.h"
 
 #ifdef _WIN32
 	#include <winsock2.h>
@@ -73,18 +73,14 @@ class ServerNetwork : public Network
 
 	std::atomic<bool> IsRunning = true;
 
-	static ServerNetwork* instance;
-
 public:
-
-	static ServerNetwork* GetNetwork() { return instance; };
 
 	void ParseurMessage(const char* buffer, User* user);
 
 	CRITICAL_SECTION csNewUser;
 	CRITICAL_SECTION csMovedUsers;
 
-	ServerNetwork() { instance = this; InitializeCriticalSection(&csMovedUsers); InitializeCriticalSection(&csNewUser); };
+	ServerNetwork() { InitializeCriticalSection(&csMovedUsers); InitializeCriticalSection(&csNewUser); };
 
 	void Thread_StartListening();
 	void BacklogSend(User* Recever);
@@ -97,5 +93,13 @@ public:
 	std::map< std::vector<char>, User*> MessageBufferRecev;
 
 	template<typename T>
-	void ReplicationMessage(char* test);
+	void ReplicationMessage(char* test)
+	{
+		T* msg = reinterpret_cast<T*>(test);
+		for (auto& u : ListUser_MainTread)
+		{
+			sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(T), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
+		}
+	};
+
 };

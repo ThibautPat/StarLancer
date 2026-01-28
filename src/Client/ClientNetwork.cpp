@@ -87,6 +87,18 @@ void ClientNetwork::ParseurMessage()
                 LeaveCriticalSection(&instance.m_cs);
             }
 
+            case MessageType::RESPAWN:
+            {
+                const RespawnEntity* message = reinterpret_cast<const RespawnEntity*>(buffer);
+                App& instance = App::GetInstance();
+
+                EnterCriticalSection(&instance.m_cs);
+
+                instance.GetEntitie(ntohl(message->targetID))->Respawn();
+
+                LeaveCriticalSection(&instance.m_cs);
+            }
+
             case MessageType::ENTITY:
             {
                 const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(buffer);

@@ -7,6 +7,7 @@ enum class MessageType : uint8_t
 
     CONNECTION,
     ENTITY,
+    RESPAWN,
 
     UPDATE_POS,
     UPDATE_ROT,
@@ -78,6 +79,13 @@ struct BulletHitMessage
 {
     Header head;
     uint32_t bulletID;
+    uint32_t targetID;
+    int targetLife;
+};
+
+struct RespawnEntity
+{
+    Header head;
     uint32_t targetID;
     int targetLife;
 };

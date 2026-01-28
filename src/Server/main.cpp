@@ -67,6 +67,17 @@ void CollisionCheck(ServerNetwork* network)
             if (cpu::AabbAabb(aabb1, aabb2))
             {
                 entity.second->OnCollide(entity1.second);
+
+                if (entity.second->entityType == EntityType::BULLET)
+                {
+                    BulletHitMessage msg{};
+                    msg.head.type = MessageType::HIT;
+                    msg.bulletID = entity1.second->entityID;
+                    msg.targetID = entity.second->entityID;
+                    msg.targetLife = entity1.second->life;
+
+                    network->ReplicationMessage<BulletHitMessage>(reinterpret_cast<char*>(&msg));
+                }
             }
         }
     }

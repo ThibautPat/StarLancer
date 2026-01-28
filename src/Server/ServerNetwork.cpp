@@ -206,13 +206,3 @@ void ServerNetwork::BacklogSend(User* Recever)
         sendto(*GetSocket(), reinterpret_cast<const char*>(&newMsg), sizeof(newMsg), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
     }
 }
-
-template<typename T>
-void ServerNetwork::ReplicationMessage(char * test)
-{
-    T* msg = reinterpret_cast< T*>(test);
-    for (auto& u : ListUser_MainTread)
-    {
-        sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(T), 0,(sockaddr*)&u->s_networkInfo->Addr_User,sizeof(u->s_networkInfo->Addr_User));
-    }
-}
