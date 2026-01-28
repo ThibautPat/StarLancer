@@ -169,48 +169,52 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
 
     while (network->IsRunning)
     {
+        senderAddrSize = sizeof(senderAddr);
         int received = recvfrom(*network->GetSocket(), buffer, sizeof(buffer) - 1, 0, (sockaddr*)&senderAddr, &senderAddrSize);
 
         if (received == SOCKET_ERROR)
         {
             int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK)
+            if (err == WSAEWOULDBLOCK || err == WSAETIMEDOUT)
                 continue;
-            break;
+
+            std::cerr << "recvfrom error: " << err << std::endl;
+            continue;
         }
 
         if (received <= 0)
-        {
             continue;
-        }
 
         char ip_current[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &senderAddr.sin_addr, ip_current, INET_ADDRSTRLEN);
 
         User* user = nullptr;
 
-
         for (auto c : network->ListUser_Tread)
         {
             if (strcmp(ip_current, c->s_networkInfo->IP) == 0)
             {
                 user = c;
-                user->s_networkInfo->Addr_User = senderAddr;
-                user->s_networkInfo->port = senderAddr.sin_port;
+                c->s_networkInfo->Addr_User = senderAddr;
+                c->s_networkInfo->port = senderAddr.sin_port;
                 break;
             }
         }
+
         if (!user)
         {
             user = network->NewUser(senderAddr);
+
+            network->ListUser_Tread.push_back(user);
         }
 
         EnterCriticalSection(&network->csNewUser);
-        network->MessageBufferRecev.emplace( std::vector<char>(buffer, buffer + received), user); // ADD MESSAGE TO BUFFER
+        network->MessageBufferRecev.emplace(std::vector<char>(buffer, buffer + received), user);
         LeaveCriticalSection(&network->csNewUser);
     }
     return 0;
 }
+
 
 void ServerNetwork::Thread_StartListening()
 {

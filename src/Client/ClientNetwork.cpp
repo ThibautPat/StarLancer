@@ -34,18 +34,27 @@ DWORD WINAPI ClientNetwork::ThreadFonction(LPVOID lpParam)
 
 void ClientNetwork::ParseurMessage()
 {
-    for (const auto& message : MessageBuffer)
+    const size_t MAX_MESSAGES = 512;
+    const size_t MAX_PER_FRAME = 50;
+    if (MessageBuffer.size() > MAX_MESSAGES)
     {
-        const char* buffer = message.data();
+        MessageBuffer.erase(MessageBuffer.begin(), MessageBuffer.begin() + (MessageBuffer.size() - MAX_MESSAGES));
+    }
+
+    size_t count = 0;
+    auto it = MessageBuffer.begin();
+    while (it != MessageBuffer.end() && count < MAX_PER_FRAME)
+    {
+        const char* buffer = it->data();
 
         const Header* head = reinterpret_cast<const Header*>(buffer);
-        if (!head || head == nullptr)
-            return;
-        if (message.size() < sizeof(Header))
+        if (!head || it->size() < sizeof(Header))
         {
-            std::cerr << "[Warning] Message trop petit pour Header\n";
+            std::cerr << "[Warning] Message invalide\n";
+            ++it;
             continue;
         }
+
         switch (head->type)
         {
             case MessageType::CONNECTION:
@@ -189,8 +198,10 @@ void ClientNetwork::ParseurMessage()
                 break;
             }
         }
+        ++it;
+        ++count;
     }
-    MessageBuffer.clear();
+    MessageBuffer.erase(MessageBuffer.begin(), it);
 }
 
 void ClientNetwork::SendMessageToServer(const char* message, size_t size)
