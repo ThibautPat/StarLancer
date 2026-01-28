@@ -6,6 +6,8 @@ class EntityBulletServer : public EntityServer
 {
 	int damage = 10;
 public:
+
+	EntityServer* Owner;
 	XMFLOAT3 ownerBULLET_FORWARD = { 0.5f, 0.0f, 0.0f };
 
 	EntityBulletServer()

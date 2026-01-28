@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <chrono>
 #include "Network.h"
+#include "EntityBulletServer.h"
 
 void SendAllPositions(ServerNetwork* network)
 {
@@ -49,6 +50,10 @@ void CollisionCheck(ServerNetwork* network)
             if (entity == entity1)
                 continue;
 
+            if (entity.second->entityType == EntityType::BULLET)
+                if (dynamic_cast<EntityBulletServer*>(entity.second)->Owner->entityID == entity1.second->entityID)
+                    continue;
+
             cpu_aabb aabb1;
             aabb1.min.x = entity.second->minAABB.x + entity.second->transform.pos.x;
             aabb1.min.y = entity.second->minAABB.y + entity.second->transform.pos.y;
@@ -72,8 +77,8 @@ void CollisionCheck(ServerNetwork* network)
                 {
                     BulletHitMessage msg{};
                     msg.head.type = MessageType::HIT;
-                    msg.bulletID = entity1.second->entityID;
-                    msg.targetID = entity.second->entityID;
+                    msg.bulletID = htonl(entity1.second->entityID);
+                    msg.targetID = htonl(entity.second->entityID);
                     msg.targetLife = entity1.second->life;
 
                     network->ReplicationMessage<BulletHitMessage>(reinterpret_cast<char*>(&msg));

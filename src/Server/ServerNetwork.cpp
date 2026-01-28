@@ -112,6 +112,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             //CREATION STRUCT DONNEE
             EntityBulletServer* bullet = new EntityBulletServer();
             bullet->entityType = EntityType::BULLET;
+            bullet->Owner = ListEntity[user->s_userID];
 			bullet->ownerBULLET_FORWARD = ListEntity[user->s_userID]->transform.dir;
             ListEntity[ListEntity.size()] = bullet;
 
