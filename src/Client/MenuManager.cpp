@@ -28,13 +28,13 @@ void MenuManager::Update(float deltatime)
         App::GetInstance().Pause();
         break;
     }
-    //case App::State::GAME:
-    //{
-    //    switchMenu("HUD");
-    //    App::GetInstance().Pause();
-    //    //gce::HideMouseCursor();
-    //    break;
-    //}
+    case App::State::GAME:
+    {
+        switchMenu("HUD");
+        App::GetInstance().Pause();
+        //gce::HideMouseCursor();
+        break;
+    }
     //case App::State::LOOSE:
     //{
     //    switchMenu("LOOSE");

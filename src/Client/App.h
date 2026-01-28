@@ -4,7 +4,7 @@
 #include "EntityBulletClient.h"
 #include "EntityClient.h"
 #include <queue>
-
+#include "ButtonListenerManager.h"
 class App
 {
 	// --- UI callbacks -----------------------------------------------
@@ -17,6 +17,7 @@ class App
 	{
 		printf("Hovering play button\n");
 	}
+
 
 	// --- Internal data ----------------------------------------------
 	bool m_pause = false;
@@ -77,6 +78,7 @@ public:
 	enum class State
 	{
 		PLAY,
+		GAME
 	};
 
 	void Pause() { m_pause = true; }

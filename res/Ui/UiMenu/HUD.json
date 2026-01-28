@@ -1,0 +1,13 @@
+{
+  "buttons": [],
+  "images": [],
+  "texts": [],
+  "layers": [
+    {
+      "id": "default",
+      "name": "Calque par défaut",
+      "visible": true,
+      "elementIds": []
+    }
+  ]
+}

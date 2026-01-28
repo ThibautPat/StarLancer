@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Menu.h"
-
+#include "ButtonListenerManager.h"
 void Menu::addButton(
     std::string _Id,
     XMFLOAT3 _pos,
@@ -57,6 +57,8 @@ void Menu::addButton(
     if (_animated && _looping) {
         button->Play();
     }
+
+    button->SetOnClickCallback(ButtonListenerManager::GetButtonListener(_ListenerList[0]));
 
     button->name = _Id;
     uiList.push_back(button);

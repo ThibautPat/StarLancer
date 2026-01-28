@@ -12,6 +12,7 @@ App::App()
 
     InitializeCriticalSection(&m_cs);
     InitializeCriticalSection(&m_cs2);
+    ButtonListenerManager::Init();
 }
 
 App::~App()

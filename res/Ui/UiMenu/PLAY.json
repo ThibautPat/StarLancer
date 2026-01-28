@@ -1,10 +1,10 @@
 {
   "buttons": [
     {
-      "id": "button_2",
+      "id": "Play",
       "pos": {
-        "x": 0.7107371794871795,
-        "y": 0.3669950738916256,
+        "x": 0.500801282051282,
+        "y": 0.9014778325123152,
         "z": 0
       },
       "size": {
@@ -13,8 +13,33 @@
         "z": 0
       },
       "name": "res/Ui/UiTextures/PasPresser.PNG",
-      "listenerList": [],
+      "listenerList": ["onClickPlay"],
       "hover": "res/Ui/UiTextures/Presser.PNG",
+      "animated": false,
+      "frameCount": 1,
+      "currentFrame": 0,
+      "frameSize": {
+        "x": 110,
+        "y": 100
+      },
+      "looping": false,
+      "frameRate": 0
+    },
+    {
+      "id": "button_4",
+      "pos": {
+        "x": 0.5080128205128205,
+        "y": 0.7007389162561577,
+        "z": -1
+      },
+      "size": {
+        "x": 256,
+        "y": 41,
+        "z": 0
+      },
+      "name": "res/Ui/UiTextures/ButtonPanel.png",
+      "listenerList": ["EnterIp"],
+      "hover": "",
       "animated": false,
       "frameCount": 1,
       "currentFrame": 0,
@@ -28,26 +53,26 @@
   ],
   "images": [
     {
-      "id": "image_1",
+      "id": "image_2",
       "pos": {
-        "x": 0.1554487179487179,
-        "y": 0.1391625615763547,
-        "z": 0
+        "x": 0.5,
+        "y": 0.5,
+        "z": -2
       },
       "size": {
-        "x": 110,
-        "y": 100,
+        "x": 1920,
+        "y": 1080,
         "z": 0
       },
-      "name": "res/Ui/UiTextures/spritesheet.png",
-      "animated": true,
+      "name": "res/Ui/UiTextures/Blue_Nebula_08-1024x1024.png",
+      "animated": false,
       "frameCount": 8,
-      "currentFrame": 6,
+      "currentFrame": 5,
       "frameSize": {
-        "x": 110,
-        "y": 100
+        "x": 128,
+        "y": 128
       },
-      "looping": true,
+      "looping": false,
       "frameRate": 8
     }
   ],
@@ -55,23 +80,23 @@
     {
       "id": "text_3",
       "pos": {
-        "x": 0.7131410256410257,
-        "y": 0.44704433497536955,
+        "x": 0.5064102564102565,
+        "y": 0.7019704433497537,
         "z": 0
       },
       "size": {
-        "x": 384,
-        "y": 162,
+        "x": 259,
+        "y": 41,
         "z": 0
       },
-      "text": "HELLO WORLD",
+      "text": "IP:",
       "fontPath": "font",
       "color": {
         "r": 255,
         "g": 255,
         "b": 255
       },
-      "fontSize": 24,
+      "fontSize": 10,
       "animated": false,
       "frameCount": 1,
       "currentFrame": 0,
@@ -89,9 +114,10 @@
       "name": "Calque par défaut",
       "visible": true,
       "elementIds": [
-        "image_1",
-        "button_2",
-        "text_3"
+        "Play",
+        "image_2",
+        "text_3",
+        "button_4"
       ]
     }
   ]
