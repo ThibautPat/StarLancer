@@ -21,11 +21,8 @@ public:
 	void OnCollide(EntityServer* entity) override
 	{
 		entity->life -= damage;
-		if (entity->life <= 0)
-		{
-			entity->IsDead = true;
-			entity->DeathCount++;
-		}
+		if (entity->life < 0)
+			entity->life = 0;
 	}
 
 	void Update(float dt) override

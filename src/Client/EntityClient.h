@@ -10,6 +10,6 @@ public:
 	bool IsDead = false;
 
 	virtual void Update_EntityClient(float dt);
-	void Respawn();
+	void Respawn(int _life);
 };
 

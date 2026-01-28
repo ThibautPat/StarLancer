@@ -57,12 +57,20 @@ void EntityServer::OnCollide(EntityServer* entity)
 
 void EntityServer::Update(float dt)
 {
+    if (life <= 0)
+    {
+        IsDead = true;
+        DeathCount++;
+    }
+
     if (IsDead == false)
         return;
 
     TimeBeforeRespawn += dt;
     if (TimeBeforeRespawn >= TimeToRespawn)
     {
+        NeedToRespawn = true;
+
         TimeBeforeRespawn = 0;
 
         transform.pos.x = 0;

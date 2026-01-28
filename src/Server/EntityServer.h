@@ -23,6 +23,7 @@ public:
 	//DATA
 	int life = 50;
 	bool IsDead = false;
+	bool NeedToRespawn = false;
 	float TimeToRespawn = 5;
 	float TimeBeforeRespawn = 0;
 	

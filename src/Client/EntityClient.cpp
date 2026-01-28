@@ -11,12 +11,12 @@ void EntityClient::Update_EntityClient(float dt)
 	pEntity->pMaterial->color = { ratio, 0, 0 };
 }
 
-void EntityClient::Respawn()
+void EntityClient::Respawn(int _life)
 {
 	if (IsDead == true)
 	{
 		IsDead = false;
-		life = 50;
+		life = _life;
 		pEntity->pMaterial->color = { 1, 1, 1 };
 	}
 }

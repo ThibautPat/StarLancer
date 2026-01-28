@@ -136,7 +136,8 @@ void ClientNetwork::ParseurMessage()
             EnterCriticalSection(&instance.m_cs);
 
             EntityClient* target = instance.GetEntitie(ntohl(message->targetID));
-            if (target) target->Respawn();
+            if (target) 
+                target->Respawn(ntohl(message->targetLife));
 
             LeaveCriticalSection(&instance.m_cs);
             break;
@@ -144,7 +145,8 @@ void ClientNetwork::ParseurMessage()
 
         case MessageType::ENTITY:
         {
-            if (msg.size() < sizeof(SpawnEntity)) break;
+            if (msg.size() < sizeof(SpawnEntity)) 
+                break;
             const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(msg.data());
 
             App& instance = App::GetInstance();
@@ -172,7 +174,6 @@ void ClientNetwork::ParseurMessage()
 
                 instance.GetEntitiesList()[instance.GetEntitiesList().size()] = entityClient;
 
-                // Envoi AABB au serveur
                 AABBUpdateMessage AabbMessage{};
                 AabbMessage.head.type = MessageType::ENTITY;
                 AabbMessage.IDEntity = htonl(entityID);
