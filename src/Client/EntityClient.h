@@ -8,6 +8,7 @@ public:
 
 	int life = 50;
 	bool IsDead = false;
+	bool ToDestroy = false;
 
 	virtual void Update_EntityClient(float dt);
 	void clearEntity();

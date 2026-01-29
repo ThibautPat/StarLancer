@@ -121,7 +121,7 @@ void ClientNetwork::ParseurMessage()
 
             EntityClient* bullet = instance.GetEntitie(ntohl(message->bulletID));
             if(bullet)
-                bullet->IsDead = true;
+                bullet->ToDestroy = true;
 
             EntityClient* target = instance.GetEntitie(ntohl(message->targetID));
             if (target) 

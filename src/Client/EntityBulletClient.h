@@ -18,7 +18,9 @@ public:
 
 		LifeTime -= dt;
 		if (LifeTime <= 0)
-			IsDead = true;
+		{
+			ToDestroy = true;
+		}
 	}
 };
 

@@ -221,7 +221,7 @@ void App::ClearDeadEntity()
     {
         EntityClient* entity = it->second;
 
-        if (entity->IsDead)
+        if (entity->ToDestroy)
         {
             entity->clearEntity();
             delete entity;
