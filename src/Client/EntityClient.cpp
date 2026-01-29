@@ -22,5 +22,5 @@ void EntityClient::Respawn(int _life)
 
 void EntityClient::clearEntity()
 {
-
+	cpuEngine.Release(pEntity);
 }

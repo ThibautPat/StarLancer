@@ -120,7 +120,8 @@ void ClientNetwork::ParseurMessage()
             EnterCriticalSection(&instance.m_cs);
 
             EntityClient* bullet = instance.GetEntitie(ntohl(message->bulletID));
-            bullet->IsDead = true;
+            if(bullet)
+                bullet->IsDead = true;
 
             EntityClient* target = instance.GetEntitie(ntohl(message->targetID));
             if (target) 
@@ -175,7 +176,7 @@ void ClientNetwork::ParseurMessage()
                 m_meshShip->FlipWinding();
                 m_meshShip->Optimize();
 
-                instance.GetEntitiesList()[instance.GetEntitiesList().size()] = entityClient;
+                instance.GetEntitiesList()[entityClient->entityID] = entityClient;
 
                 AABBUpdateMessage AabbMessage{};
                 AabbMessage.head.type = MessageType::ENTITY;

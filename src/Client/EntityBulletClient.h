@@ -15,11 +15,10 @@ public:
 		pEntity->transform.pos.x += ownerBULLET_FORWARD.x * BULLET_SPEED * dt;
 		pEntity->transform.pos.y += ownerBULLET_FORWARD.y * BULLET_SPEED * dt;
 		pEntity->transform.pos.z += ownerBULLET_FORWARD.z * BULLET_SPEED * dt;
+
 		LifeTime -= dt;
 		if (LifeTime <= 0)
-		{
 			IsDead = true;
-		}
 	}
 };
 

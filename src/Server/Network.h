@@ -75,6 +75,8 @@ class ServerNetwork : public Network
 
 public:
 
+	int IdIndex = 0;
+
 	void ClearDeadEntity();
 
 	void ParseurMessage(const char* buffer, User* user);

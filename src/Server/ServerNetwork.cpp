@@ -8,7 +8,8 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
 	User* newUser = new User();
     newUser->s_networkInfo = new ServerNetworkInfo();
 
-    newUser->s_userID = ListEntity.size();
+    newUser->s_userID = IdIndex;
+    IdIndex++;
 
     ListEntity[newUser->s_userID] = new EntityServer();
     ListEntity[newUser->s_userID]->transform.Identity();
@@ -124,23 +125,27 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
 
         case MessageType::FIRE_BULLET:
         {
-            SpawnEntity replicationMessage{};
-            replicationMessage.head.type = MessageType::ENTITY;
-            replicationMessage.entity = EntityType::BULLET;
-            replicationMessage.IDEntity = htonl(ListEntity.size()); 
-            replicationMessage.IDUser = htonl(user->s_userID);      
-
-            ReplicationMessage<SpawnEntity>(reinterpret_cast<char*>(&replicationMessage));
-
             //CREATION STRUCT DONNEE
             EntityBulletServer* bullet = new EntityBulletServer();
             bullet->entityType = EntityType::BULLET;
+
             bullet->Owner = ListEntity[user->s_userID];
 			bullet->ownerBULLET_FORWARD = ListEntity[user->s_userID]->transform.dir;
-            ListEntity[ListEntity.size()] = bullet;
+
+            bullet->entityID = IdIndex;
+            ListEntity[IdIndex] = bullet;
+            IdIndex++;
 
             bullet->transform.pos = ListEntity[user->s_userID]->transform.pos;
-            
+
+            //SEND DONNEE
+            SpawnEntity replicationMessage{};
+            replicationMessage.head.type = MessageType::ENTITY;
+            replicationMessage.entity = EntityType::BULLET;
+            replicationMessage.IDEntity = htonl(bullet->entityID);
+            replicationMessage.IDUser = htonl(user->s_userID);
+
+            ReplicationMessage<SpawnEntity>(reinterpret_cast<char*>(&replicationMessage));
             break;
         }
         case MessageType::MOUSE:

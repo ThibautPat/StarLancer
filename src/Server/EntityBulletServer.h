@@ -25,7 +25,7 @@ public:
 		if (entity->life < 0)
 			entity->life = 0;
 
-		IsDead = true;
+		//IsDead = true;
 	}
 
 	void Update(float dt) override
@@ -35,11 +35,10 @@ public:
 		transform.pos.x += ownerBULLET_FORWARD.x * BULLET_SPEED * dt;
 		transform.pos.y += ownerBULLET_FORWARD.y * BULLET_SPEED * dt;
 		transform.pos.z += ownerBULLET_FORWARD.z * BULLET_SPEED * dt;
+
 		LifeTime -= dt;
 		if (LifeTime <= 0)
-		{
-			IsDead = true;
-		}
+ 			IsDead = true;
 	} 
 };
 

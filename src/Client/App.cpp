@@ -236,7 +236,6 @@ void App::ClearDeadEntity()
     LeaveCriticalSection(&m_cs);
 }
 
-
 void App::OnUpdate()
 {
     network->ParseurMessage();
@@ -297,6 +296,9 @@ void App::OnRender(int pass)
 
                 std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
                 cpuDevice.DrawText(&m_font, score.c_str(), 10, 10);
+
+                std::string enti = " Entity : " + std::to_string(GetEntitiesList().size());
+                cpuDevice.DrawText(&m_font, enti.c_str(), 20, 20);
             }
             menuManager->Draw();
             break;
@@ -306,8 +308,6 @@ void App::OnRender(int pass)
 
 void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
 {
-    EnterCriticalSection(&m_cs);
-
     EntityBulletClient* bullet = new EntityBulletClient();
 	bullet->pEntity = cpuEngine.CreateEntity();
     
@@ -315,13 +315,12 @@ void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
     m_meshBullet->radius = 0.1f;
     m_meshBullet->CreateSphere(m_meshBullet->radius);
 
+    EnterCriticalSection(&m_cs);
 	bullet->ownerBULLET_FORWARD = GetEntitie(OwnerID)->pEntity->transform.dir;
     bullet->pEntity->pMesh = m_meshBullet;
     bullet->pEntity->transform.pos = GetEntitie(OwnerID)->pEntity->transform.pos;
     bullet->OwnerID = OwnerID;
 	bullet->entityID = IdEntity;
-
-    GetEntitiesList()[GetEntitiesList().size()] = bullet;
-
+    GetEntitiesList()[IdEntity] = bullet;
     LeaveCriticalSection(&m_cs);
 }

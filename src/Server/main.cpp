@@ -80,7 +80,10 @@ void CollisionCheck(ServerNetwork* network)
                 if (bullet->Owner && bullet->Owner->entityID == id1)
                     skipCollision = true;
             }
-            
+
+            if(e1->entityType == EntityType::BULLET && e2->entityType == EntityType::BULLET)
+                skipCollision = true;
+
             if (skipCollision)
                 continue;
 
@@ -145,6 +148,7 @@ int main()
         
         for (auto entity : network->ListEntity)
         {
+            std::cout << network->ListEntity.size() << std::endl;
             entity.second->Update(deltaTime);
             CollisionCheck(network);
 
