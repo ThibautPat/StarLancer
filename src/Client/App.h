@@ -49,6 +49,8 @@ public:
 	void OnStart();
 	void OnUpdate();
 	void OnRender(int pass);
+	void RenderEntityLabels( cpu_camera* camera, float screenWidth, float screenHeight);
+
 	void OnExit();
 
 	void ClearDeadEntity();
