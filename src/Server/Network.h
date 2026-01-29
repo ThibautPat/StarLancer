@@ -97,6 +97,15 @@ public:
 	std::vector<User*> ListUser_MainTread;
 	std::vector<User*> ListUser_Tread;
 
+	User* GetUserMain(uint32_t ID)
+	{
+		for (auto& us : ListUser_MainTread)
+		{
+			if (us->s_userID == ID)
+				return us;
+		}
+	}
+
 	std::map<uint32_t, EntityServer*> ListEntity;
 
 	std::map< std::vector<char>, User*> MessageBufferRecev;

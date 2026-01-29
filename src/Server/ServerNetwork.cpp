@@ -13,6 +13,8 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     IdIndex++;
 
     ListEntity[newUser->s_userID] = new EntityShipServer();
+    ListEntity[newUser->s_userID]->entityType = EntityType::SPACESHIP;
+
     ListEntity[newUser->s_userID]->transform.Identity();
     ListEntity[newUser->s_userID]->entityID = newUser->s_userID;
 

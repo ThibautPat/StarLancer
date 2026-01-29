@@ -20,7 +20,7 @@ void EntityBulletServer::OnCollide(EntityServer* entity)
 	EntityShipServer* ship = dynamic_cast<EntityShipServer*>(entity);
 
 	ship->life -= damage;
-	if (ship->life < 0)
+	if (ship->life <= 0)
 	{
 		ship->life = 0;
 		ship->LastKiller = Owner;

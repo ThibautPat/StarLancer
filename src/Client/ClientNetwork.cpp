@@ -134,7 +134,9 @@ void ClientNetwork::ParseurMessage()
 
         case MessageType::RESPAWN:
         {
-            if (msg.size() < sizeof(RespawnEntity)) break;
+            if (msg.size() < sizeof(RespawnEntity)) 
+                break;
+
             const RespawnEntity* message = reinterpret_cast<const RespawnEntity*>(msg.data());
             App& instance = App::GetInstance();
 
@@ -150,7 +152,9 @@ void ClientNetwork::ParseurMessage()
         
         case MessageType::DATA:
         {
-            if (msg.size() < sizeof(MessageScore)) break;
+            if (msg.size() < sizeof(MessageScore))
+                break;
+
             const MessageScore* message = reinterpret_cast<const MessageScore*>(msg.data());
 
             GetData(message->targetID)->DeathCount = message->Death;

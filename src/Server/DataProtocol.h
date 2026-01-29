@@ -105,10 +105,10 @@ struct MessageScore
 {
     Header head;
     uint32_t targetID;
-
     uint32_t Kill;
     uint32_t Death;
 };
+
 //STRUCT MESSAGE FROM CLIENT ---------------------------
 
 struct AABBUpdateMessage
