@@ -105,7 +105,7 @@ void App::InputManager()
 
         network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
-    if (cpuInput.IsKey(VK_SPACE) && TimerShoot <=0) 
+    if (cpuInput.IsKey(VK_LBUTTON) && TimerShoot <=0) 
     {
         TimerShoot = coldownShoot;
         InputMessage msg;

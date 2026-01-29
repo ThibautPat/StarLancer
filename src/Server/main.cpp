@@ -124,6 +124,7 @@ void CollisionCheck(ServerNetwork* network)
 }
 
 /* ======================= MAIN ======================= */
+
 int main()
 {
     ServerNetwork* network = new ServerNetwork();
