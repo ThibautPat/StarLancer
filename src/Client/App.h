@@ -99,6 +99,10 @@ public:
 	float coldownNetwork = 0.f;
 	float TimerBeforeRetry = 5.f;
 
+	float coldownShoot = 0.3f;
+	float TimerShoot = 0.3f;
+
+
 	XMFLOAT2 CursorDir{ 0,0 };
 
 	cpu_particle_emitter* m_pEmitter = nullptr;
