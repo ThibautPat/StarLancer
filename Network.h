@@ -1,0 +1,128 @@
+#pragma once
+
+#include "DataProtocol.h"
+
+#include <cstring>
+#include <iostream>
+#include <vector>
+#include <map>
+#include <atomic>
+#include <thread>
+#include <mutex>
+
+#include "EntityServer.h"
+
+#ifdef _WIN32
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
+	#pragma comment(lib, "Ws2_32.lib")
+	typedef SOCKET socket_t;
+#else
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+	#include <unistd.h>
+	#include <cerrno>
+	typedef int socket_t;
+	#define INVALID_SOCKET (-1)
+	#define SOCKET_ERROR   (-1)
+#endif
+
+// SERVEUR DATA -----------------------------------------
+
+struct ServerNetworkInfo
+{
+	sockaddr_in Addr_User{};
+	char IP[INET_ADDRSTRLEN];
+	int port;
+};
+
+struct User
+{
+	uint32_t s_userID;
+	char Pseudo[32];
+
+	uint32_t Kill = 0;
+	uint32_t Death = 0; 
+
+	ServerNetworkInfo* s_networkInfo;
+};
+
+// NETWORK BASE -----------------------------------------
+
+class Network
+{
+	bool InitWindSock();
+
+	bool CreateSocket(socket_t& sock);
+
+	bool BindSocketToPort(socket_t& sock, int port);
+
+	socket_t m_NetworkSocket;
+
+public:
+
+	bool InitNetwork();
+
+	socket_t* GetSocket() { return &m_NetworkSocket; };
+
+	void CloseSocket(socket_t& sock);
+};
+
+// SERVEUR LOGIQUE -----------------------------------------
+
+class ServerNetwork : public Network
+{
+	void InitMap(User* user);
+	User* NewUser(sockaddr_in addr);
+
+	static void ThreadFonction(ServerNetwork* network);
+
+	void ClientAlreadyRegister();
+
+	std::atomic<bool> IsRunning = true;
+
+public:
+
+	int IdIndex = 0;
+
+	void ClearDeadEntity();
+
+	void ParseurMessage(const char* buffer, User* user);
+
+	std::mutex mtxNewUser;
+	std::mutex mtxMovedUsers;
+
+	ServerNetwork() = default;
+
+	void Thread_StartListening();
+	void BacklogSend(User* Recever, bool toOld);
+
+	std::vector<User*> ListUser_MainTread;
+	std::vector<User*> ListUser_Tread;
+
+	User* GetUserMain(uint32_t ID)
+	{
+		for (auto& us : ListUser_MainTread)
+		{
+			if (us->s_userID == ID)
+				return us;
+		}
+		return nullptr;
+	}
+
+	std::map<uint32_t, EntityServer*> ListEntity;
+
+	std::map<std::vector<char>, User*> MessageBufferRecev;
+
+	template<typename T>
+	void ReplicationMessage(char* test)
+	{
+		T* msg = reinterpret_cast<T*>(test);
+		for (auto& u : ListUser_MainTread)
+		{
+			sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(T), 0, 
+				   (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
+		}
+	}
+};
