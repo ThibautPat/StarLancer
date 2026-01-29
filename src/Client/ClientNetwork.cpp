@@ -62,6 +62,7 @@ void ClientNetwork::ParseurMessage()
             const ReturnConnexionMessage* message = reinterpret_cast<const ReturnConnexionMessage*>(msg.data());
             MyIDClient = ntohl(message->ClientID);
             Connected = true;
+
             break;
         }
 
@@ -189,6 +190,14 @@ void ClientNetwork::ParseurMessage()
                 AabbMessage.maxZ = m_meshShip->aabb.max.z;
 
                 SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
+
+                // A BOUGER 
+
+                DataPlayer* info = new DataPlayer();
+
+                PlayerInfoList.push_back(info);
+
+                // -----------------------------------
 
                 LeaveCriticalSection(&instance.m_cs);
                 break;

@@ -73,11 +73,5 @@ void EntityServer::Update(float dt)
         NeedToRespawn = true;
 
         TimeBeforeRespawn = 0;
-
-        transform.pos.x = 0;
-        transform.pos.y = 0;
-        transform.pos.z = 0;
-
-        IsDead = false;
     }
 }
