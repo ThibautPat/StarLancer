@@ -30,6 +30,7 @@ void MenuManager::Update(float deltatime)
         if (!App::GetInstance().network->PseudoSelected )
         {
             getCurrentMenu()->getElement("text_3")->visible = false;
+
             getCurrentMenu()->getElement("button_4")->visible = false;
 
         }

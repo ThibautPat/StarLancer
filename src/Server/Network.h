@@ -70,6 +70,7 @@ public:
 
 class ServerNetwork : public Network
 {
+	void InitMap(User* user);
 	User* NewUser(sockaddr_in addr);
 
 	static DWORD WINAPI ThreadFonction(LPVOID lpParam);

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Network.h"
+#include "EntityPlanetClient.h"
 
 void ClientNetwork::Thread_StartListening()
 {
@@ -173,6 +174,47 @@ void ClientNetwork::ParseurMessage()
 
             switch (message->entity)
             {
+            case EntityType::PLANET:
+            {
+                const SpawnPlanet* message = reinterpret_cast<const SpawnPlanet*>(msg.data());
+                uint32_t entityID = ntohl(message->IDEntity);
+                EnterCriticalSection(&instance.m_cs);
+                EntityPlanetClient* entityClient = new EntityPlanetClient();
+                entityClient->angle = message->angle;
+
+                entityClient->entityID = entityID;
+
+                entityClient->radius = message->radius;
+                entityClient->IDEntityTarget = ntohl(message->IDEntityTarget);
+
+                entityClient->pEntity = cpuEngine.CreateEntity();
+
+
+                entityClient->pEntity->transform.pos.x = message->PosX;
+                entityClient->pEntity->transform.pos.y = message->PosY;
+                entityClient->pEntity->transform.pos.z = message->PosZ;
+                entityClient->type = message->planetType;
+
+                switch (entityClient->type)
+                {
+                case PlanetType::SOLEIL:
+                {
+                    entityClient->pEntity->pMesh = new cpu_mesh();
+
+
+                    entityClient->pEntity->pMesh->CreateSphere(entityClient->radius, 12, 12);
+                    entityClient->pEntity->pMaterial = new cpu_material();
+                    entityClient->pEntity->pMaterial->pTexture = new cpu_texture();
+                    entityClient->pEntity->pMaterial->pTexture->Load("../../res/Texture/2k_sun.png");
+                    instance.GetEntitiesList()[entityClient->entityID] = entityClient;
+
+                    break;
+                }
+
+                }
+                LeaveCriticalSection(&instance.m_cs);
+                break;
+            }
             case EntityType::SPACESHIP:
             {
                 const SpawnPlayer* PlayerMessage = reinterpret_cast<const SpawnPlayer*>(msg.data());

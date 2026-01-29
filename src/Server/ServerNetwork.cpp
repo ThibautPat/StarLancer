@@ -1,8 +1,41 @@
 ﻿#include "pch.h"
 #include "Network.h"
 #include "EntityBulletServer.h"
+#include "EntityPlanetServer.h"
 #include "SpaceShipMove_Calculator.h"
 #include "EntityShipServer.h"
+
+void ServerNetwork::InitMap(User* user)
+{
+  
+
+    sockaddr_in addr = user->s_networkInfo->Addr_User;
+    int sizeAddr = sizeof(addr);
+
+   EntityPlanetServer* soleil = new EntityPlanetServer();
+
+  soleil->entityID = IdIndex;
+  soleil->entityType = EntityType::PLANET;
+  soleil->angle = 2.0f;
+  soleil->radius = 9;
+  soleil->transform.pos = { 10,10,10 };
+   ListEntity[IdIndex] = soleil;
+   soleil->Target = ListEntity[IdIndex];
+    IdIndex++;
+
+    SpawnPlanet replicationMessage{};
+    replicationMessage.head.type = MessageType::ENTITY;
+    replicationMessage.entity = EntityType::PLANET;
+    replicationMessage.planetType = PlanetType::SOLEIL;
+    replicationMessage.IDEntity = htonl(soleil->entityID);
+    replicationMessage.IDEntityTarget = htonl(soleil->entityID);
+    replicationMessage.PosX = 10;
+    replicationMessage.PosY = 10;
+    replicationMessage.PosZ = 10;
+    replicationMessage.radius = soleil->radius;
+    int result = sendto(*GetSocket(), reinterpret_cast<const char*>(&replicationMessage), sizeof(SpawnPlanet), 0.01, (sockaddr*)&addr, sizeAddr);
+
+}
 
 User* ServerNetwork::NewUser(sockaddr_in addr)
 {
@@ -77,6 +110,8 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             int sizeAddr = sizeof(addr);
 
             int result = sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(ReturnConnexionMessage), 0, (sockaddr*)&addr, sizeAddr);
+            InitMap(user);
+
 
             BacklogSend(user);
 
