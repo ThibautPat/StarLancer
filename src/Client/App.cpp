@@ -212,15 +212,30 @@ void App::UpdateParticul()
     }
     LeaveCriticalSection(&m_cs);
 }
+
 void App::ClearDeadEntity()
 {
     EnterCriticalSection(&m_cs);
-    for (auto& entity : m_entities)
+
+    for (auto it = m_entities.begin(); it != m_entities.end(); )
     {
-        entity.second->clearEntity();
+        EntityClient* entity = it->second;
+
+        if (entity->IsDead)
+        {
+            entity->clearEntity();
+            delete entity;
+            it = m_entities.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
+
     LeaveCriticalSection(&m_cs);
 }
+
 
 void App::OnUpdate()
 {

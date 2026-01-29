@@ -22,13 +22,5 @@ void EntityClient::Respawn(int _life)
 
 void EntityClient::clearEntity()
 {
-	if (!IsDead)
-	{
-		return;
-	}
-
-	App::GetInstance().GetEntitiesList().erase(entityID);
-	
-	delete pEntity;
 
 }
