@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "EntityBulletServer.h"
+#include "EntityShipServer.h"
 
 EntityBulletServer::EntityBulletServer()
 {
@@ -12,11 +13,17 @@ EntityBulletServer::EntityBulletServer()
 void EntityBulletServer::OnCollide(EntityServer* entity)
 {
 	IsDead = true;
-	entity->life -= damage;
-	if (entity->life < 0)
+
+	if (entity->entityType != EntityType::SPACESHIP)
+		return;
+
+	EntityShipServer* ship = dynamic_cast<EntityShipServer*>(entity);
+
+	ship->life -= damage;
+	if (ship->life < 0)
 	{
-		entity->life = 0;
-		entity->LastKiller = Owner;
+		ship->life = 0;
+		ship->LastKiller = Owner;
 	}
 }
 

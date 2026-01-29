@@ -2,6 +2,7 @@
 #include "Network.h"
 #include "EntityBulletServer.h"
 #include "SpaceShipMove_Calculator.h"
+#include "EntityShipServer.h"
 
 User* ServerNetwork::NewUser(sockaddr_in addr)
 {
@@ -11,7 +12,7 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     newUser->s_userID = IdIndex;
     IdIndex++;
 
-    ListEntity[newUser->s_userID] = new EntityServer();
+    ListEntity[newUser->s_userID] = new EntityShipServer();
     ListEntity[newUser->s_userID]->transform.Identity();
     ListEntity[newUser->s_userID]->entityID = newUser->s_userID;
 

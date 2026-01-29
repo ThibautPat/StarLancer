@@ -10,6 +10,7 @@
 
 #include "Network.h"
 #include "EntityBulletServer.h"
+#include "EntityShipServer.h"
 
 void SendAllPositions(ServerNetwork* network)
 {
@@ -103,22 +104,22 @@ void CollisionCheck(ServerNetwork* network)
                 e1->OnCollide(e2);
                 e2->OnCollide(e1);
 
-                if (e1->entityType == EntityType::BULLET)
+                if (e1->entityType == EntityType::BULLET && e2->entityType == EntityType::SPACESHIP)
                 {
                     BulletHitMessage msg{};
                     msg.head.type = MessageType::HIT;
                     msg.bulletID = htonl(id1);
                     msg.targetID = htonl(id2);
-                    msg.targetLife = e2->life;
+                    msg.targetLife = dynamic_cast<EntityShipServer*>(e2)->life;
                     network->ReplicationMessage<BulletHitMessage>(reinterpret_cast<char*>(&msg));
                 }
-                if (e2->entityType == EntityType::BULLET)
+                if (e2->entityType == EntityType::BULLET && e1->entityType == EntityType::SPACESHIP)
                 {
                     BulletHitMessage msg{};
                     msg.head.type = MessageType::HIT;
                     msg.bulletID = htonl(id2);
                     msg.targetID = htonl(id1);
-                    msg.targetLife = e1->life;
+                    msg.targetLife = dynamic_cast<EntityShipServer*>(e1)->life;
                     network->ReplicationMessage<BulletHitMessage>(reinterpret_cast<char*>(&msg));
                 }
             }
@@ -163,32 +164,37 @@ int main()
             entity.second->Update(deltaTime);
             CollisionCheck(network);
 
-            if (entity.second->NeedToRespawn == true)
-            {
-                entity.second->NeedToRespawn = false;
-                entity.second->IsDead = false;
-                entity.second->life = 50;
+            if (entity.second->entityType != EntityType::SPACESHIP)
+                continue;
 
-                entity.second->transform.pos.x = randomBetweenMinus25And25();
-                entity.second->transform.pos.y = randomBetweenMinus25And25();
-                entity.second->transform.pos.z = randomBetweenMinus25And25();
+            EntityShipServer* ship = dynamic_cast<EntityShipServer*>(entity.second);
+
+            if (ship->NeedToRespawn == true)
+            {
+                ship->NeedToRespawn = false;
+                ship->IsDead = false;
+                ship->life = 50;
+
+                ship->transform.pos.x = randomBetweenMinus25And25();
+                ship->transform.pos.y = randomBetweenMinus25And25();
+                ship->transform.pos.z = randomBetweenMinus25And25();
 
                 RespawnEntity msg{};
                 msg.head.type = MessageType::RESPAWN;
-                msg.targetID = entity.second->entityID;
+                msg.targetID = ship->entityID;
                 msg.targetLife = 50;
                 
                 MessageScore Score1{}; //LOSER
                 Score1.head.type = MessageType::DATA;
-                Score1.targetID = entity.second->entityID;
-                Score1.Death = network->ListUser_MainTread[entity.second->entityID]->Death++;
-                Score1.Kill = network->ListUser_MainTread[entity.second->entityID]->Kill;
+                Score1.targetID = ship->entityID;
+                Score1.Death = network->ListUser_MainTread[ship->entityID]->Death++;
+                Score1.Kill = network->ListUser_MainTread[ship->entityID]->Kill;
                 
                 MessageScore Score2{}; //WINNER
                 Score2.head.type = MessageType::DATA;
-                Score2.targetID = entity.second->LastKiller->entityID;
-                Score2.Death = network->ListUser_MainTread[entity.second->LastKiller->entityID]->Death;
-                Score2.Kill = network->ListUser_MainTread[entity.second->LastKiller->entityID]->Kill++;
+                Score2.targetID = ship->LastKiller->entityID;
+                Score2.Death = network->ListUser_MainTread[ship->LastKiller->entityID]->Death;
+                Score2.Kill = network->ListUser_MainTread[ship->LastKiller->entityID]->Kill++;
 
                 network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&msg));
                 network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&Score1));
