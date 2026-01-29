@@ -34,7 +34,21 @@ enum class EntityType : uint8_t
 {
     SPACESHIP,
     BULLET,
+    PLANET,
 };
+
+enum class PlanetType : uint8_t
+{
+    SOLEIL,
+    TERRE,
+    VENUS,
+    MARS,
+    JUPITER,
+    SATURN,
+    URANUS,
+    LUNE,
+};
+
 
 #pragma pack(push,1)  //Sert a éviter le padding binaire
 struct Header 
@@ -84,6 +98,23 @@ struct SpawnEntity
     uint32_t IDEntity;
     EntityType entity;
     uint32_t IDUser;
+};
+struct SpawnPlanet
+{
+    Header head;
+    uint32_t IDEntity;
+    EntityType entity;
+    uint32_t IDEntityTarget;
+    PlanetType planetType;
+
+    float PosX = 0.0f;
+    float PosY = 0.0f;
+    float PosZ = 0.0f;
+
+
+    float radius;
+    float angle;
+
 };
 
 struct BulletHitMessage
