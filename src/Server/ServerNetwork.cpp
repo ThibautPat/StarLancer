@@ -67,6 +67,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             message.magicnumber = ntohl(message.magicnumber);
             if (message.magicnumber != 8542)
                 return;
+
             strncpy_s(user->Pseudo, 32, message.pseudo, _TRUNCATE);
 
             ReturnConnexionMessage msg;
@@ -78,7 +79,7 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
 
             int result = sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(ReturnConnexionMessage), 0, (sockaddr*)&addr, sizeAddr);
 
-            BacklogSend(user);
+            BacklogSend(user, true);
 
             if (result == SOCKET_ERROR)
                 int err = WSAGetLastError();
@@ -253,7 +254,7 @@ void ServerNetwork::Thread_StartListening()
 	CloseHandle(thread1);
 }
 
-void ServerNetwork::BacklogSend(User* Recever)
+void ServerNetwork::BacklogSend(User* Recever, bool toOld)
 {
     // NEW PLAYER SHIP
     SpawnPlayer msg{};
@@ -278,6 +279,9 @@ void ServerNetwork::BacklogSend(User* Recever)
 
         sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
     }
+
+    if (toOld == false)
+        return;
 
     // NOUVEAU JOUEURS VERS LES ANCIENS
     for (auto& u : ListUser_MainTread)

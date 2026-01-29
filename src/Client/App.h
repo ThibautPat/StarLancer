@@ -33,6 +33,10 @@ class App
 	inline static App* s_pApp = nullptr;
 
 public:
+
+	cpu_mesh* m_meshShip;
+	cpu_mesh* m_meshBullet;
+
 	// --- Lifecycle --------------------------------------------------
 	App();
 	virtual ~App();
@@ -81,6 +85,8 @@ public:
 
 	// --- Input -------------------------
 	void InputManager();
+	bool LookStat = false;
+	bool tabPreviouslyPressed = false;
 
 	// --- Camera -------------------------
 	void CameraUpdate();
@@ -92,6 +98,7 @@ public:
 	float camDistance = 8.0f;
 	float camHeight = 2.0f;
 	bool m_LockCursor = true;
+
 
 	int nextEntityID = 0;
 

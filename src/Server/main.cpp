@@ -187,14 +187,17 @@ int main()
                 MessageScore Score1{}; //LOSER
                 Score1.head.type = MessageType::DATA;
                 Score1.targetID = ship->entityID;
-                Score1.Death = network->GetUserMain(ship->entityID)->Death++;
+                network->GetUserMain(ship->entityID)->Death++;
+                Score1.Death = network->GetUserMain(ship->entityID)->Death;
                 Score1.Kill = network->GetUserMain(ship->entityID)->Kill;
                 
                 MessageScore Score2{}; //WINNER
                 Score2.head.type = MessageType::DATA;
                 Score2.targetID = ship->LastKiller->entityID;
                 Score2.Death = network->GetUserMain(ship->LastKiller->entityID)->Death;
-                Score2.Kill = network->GetUserMain(ship->LastKiller->entityID)->Kill++;
+
+                network->GetUserMain(ship->LastKiller->entityID)->Kill++;
+                Score2.Kill = network->GetUserMain(ship->LastKiller->entityID)->Kill;
 
                 network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&msg));
 

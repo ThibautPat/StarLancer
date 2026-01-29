@@ -92,7 +92,7 @@ public:
 	ServerNetwork() { InitializeCriticalSection(&csMovedUsers); InitializeCriticalSection(&csNewUser); };
 
 	void Thread_StartListening();
-	void BacklogSend(User* Recever);
+	void BacklogSend(User* Recever, bool toOld);
 
 	std::vector<User*> ListUser_MainTread;
 	std::vector<User*> ListUser_Tread;

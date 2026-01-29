@@ -59,6 +59,15 @@ void App::OnStart()
     // ------------- MESH ------------------
     m_meshSphere.CreateSphere(2.0f, 12, 12, cpu::ToColor(224, 224, 224));
 
+    m_meshShip = new cpu_mesh();
+    m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj", { 1,1,1 }, false);
+    m_meshShip->FlipWinding();
+    m_meshShip->Optimize();
+
+    m_meshBullet = new cpu_mesh();
+    m_meshBullet->radius = 0.1f;
+    m_meshBullet->CreateSphere(m_meshBullet->radius);
+
     // ------------- PARTICUL ------------------
     cpuEngine.GetParticleData()->Create(1000000);
     cpuEngine.GetParticlePhysics()->gy = -0.5f;
@@ -70,6 +79,13 @@ void App::OnStart()
 
 void App::InputManager()
 {
+    bool tabPressedNow = cpuInput.IsKey(VK_TAB);
+    if (tabPressedNow && !tabPreviouslyPressed)
+    {
+        LookStat = !LookStat;
+    }
+    tabPreviouslyPressed = tabPressedNow;
+
     if (GetEntitie(network->MyIDClient)->IsDead == true)
         return;
 
@@ -118,12 +134,12 @@ void App::InputManager()
     {
         if (m_LockCursor)
         {
-            while (ShowCursor(TRUE) <= 0); // Boucler jusqu'à ce que le compteur soit négatif
+            while (ShowCursor(TRUE) <= 0);
 
             m_LockCursor = !m_LockCursor;
         }
         else {
-            while (ShowCursor(FALSE) >= 0); // Boucler jusqu'à ce que le compteur soit négatif
+            while (ShowCursor(FALSE) >= 0);
 
             m_LockCursor = !m_LockCursor;
         }
@@ -137,28 +153,23 @@ void App::InputManager()
         int centerX = cpuEngine.GetWindow()->GetWidth() / 2;
         int centerY = cpuEngine.GetWindow()->GetHeight() / 2;
 
-        // Delta
         float deltaX = pt.x - centerX;
         float deltaY = pt.y - centerY;
 
-        // Seuil de d�tection (la souris n'est jamais EXACTEMENT au centre)
-        const float DEADZONE = 2.0f; // pixels
+        const float DEADZONE = 2.0f;
 
         if (fabs(deltaX) < DEADZONE && fabs(deltaY) < DEADZONE)
         {
-            // Pas de mouvement
             CursorDir = { 0.0f, 0.0f };
         }
         else
         {
-            // Il y a du mouvement, normaliser
             CursorDir = { deltaX, deltaY };
             XMVECTOR vec = XMLoadFloat2(&CursorDir);
             vec = XMVector2Normalize(vec);
             XMStoreFloat2(&CursorDir, vec);
         }
 
-        // Recentrer
         POINT centerPoint = { centerX, centerY };
         ClientToScreen(cpuEngine.GetWindow()->GetHWND(), &centerPoint);
         SetCursorPos(centerPoint.x, centerPoint.y);
@@ -290,17 +301,38 @@ void App::OnRender(int pass)
         {
             if (network->Connected == true)
             {
-                cpu_stats& stats = *cpuEngine.GetStats();
+                if (LookStat)
+                {
+                    float startX = cpuWindow.GetWidth() * 0.25f;
+                    float startY = cpuWindow.GetHeight() * 0.25f;
+                    float lineHeight = 20.f;
 
-                std::string enti = " nmb Entity : " + std::to_string(GetEntitiesList().size());
-                cpuDevice.DrawText(&m_font, enti.c_str(), 0, 10);
+                    for (int i = 0; i < network->PlayerInfoList.size(); ++i)
+                    {
+                        DataPlayer* player = network->PlayerInfoList[i];
 
-                std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
-                cpuDevice.DrawText(&m_font, score.c_str(), 0, 50);
+                        float kd = (player->DeathCount == 0) ? static_cast<float>(player->KillCount)
+                                    : static_cast<float>(player->KillCount) / player->DeathCount;
 
-                DataPlayer* info = network->GetData(network->MyIDClient);
-                std::string KD = " K/D : " + std::to_string(info->KillCount) + "/" + std::to_string(info->DeathCount);
-                cpuDevice.DrawText(&m_font, KD.c_str(), 0, 100);
+                        std::string enti = "Player: " + std::string(player->pseudo)
+                                        + " | Kill: " + std::to_string(player->KillCount)
+                                        + " | Death: " + std::to_string(player->DeathCount)
+                                        + " | K/D: " + std::to_string(kd);
+
+                        cpuDevice.DrawText(&m_font, enti.c_str(), startX, startY + i * lineHeight);
+                    }
+                }
+                else
+                {
+                    cpu_stats& stats = *cpuEngine.GetStats();
+
+                    std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
+                    cpuDevice.DrawText(&m_font, score.c_str(), 0, 50);
+
+                    DataPlayer* info = network->GetData(network->MyIDClient);
+                    std::string KD = " K/D : " + std::to_string(info->KillCount) + "/" + std::to_string(info->DeathCount);
+                    cpuDevice.DrawText(&m_font, KD.c_str(), 0, 100);
+                }
             }
             menuManager->Draw();
             break;
@@ -313,10 +345,6 @@ void App::CreateBullet(uint32_t IdEntity , uint32_t OwnerID)
     EntityBulletClient* bullet = new EntityBulletClient();
 	bullet->pEntity = cpuEngine.CreateEntity();
     
-    cpu_mesh* m_meshBullet = new cpu_mesh();
-    m_meshBullet->radius = 0.1f;
-    m_meshBullet->CreateSphere(m_meshBullet->radius);
-
     EnterCriticalSection(&m_cs);
 	bullet->ownerBULLET_FORWARD = GetEntitie(OwnerID)->pEntity->transform.dir;
     bullet->pEntity->pMesh = m_meshBullet;

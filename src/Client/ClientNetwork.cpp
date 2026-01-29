@@ -38,12 +38,10 @@ void ClientNetwork::ParseurMessage()
 {
     std::vector<std::vector<char>> messagesToProcess;
 
-    // swap thread-safe avec le buffer principal
     EnterCriticalSection(&csMessageBuffer);
     messagesToProcess.swap(MessageBuffer);
     LeaveCriticalSection(&csMessageBuffer);
 
-    // traitement sans verrou
     for (auto& msg : messagesToProcess)
     {
         if (msg.size() < sizeof(Header))
@@ -165,11 +163,16 @@ void ClientNetwork::ParseurMessage()
 
         case MessageType::ENTITY:
         {
-            if (msg.size() < sizeof(SpawnEntity)) 
+            if (msg.size() < sizeof(SpawnEntity))
                 break;
-            const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(msg.data());
 
+            const SpawnEntity* message = reinterpret_cast<const SpawnEntity*>(msg.data());
             App& instance = App::GetInstance();
+
+            uint32_t entityID = ntohl(message->IDEntity);
+
+            if (instance.GetEntitiesList()[entityID])
+                return;
 
             switch (message->entity)
             {
@@ -177,49 +180,42 @@ void ClientNetwork::ParseurMessage()
             {
                 const SpawnPlayer* PlayerMessage = reinterpret_cast<const SpawnPlayer*>(msg.data());
 
-                uint32_t entityID = ntohl(message->IDEntity);
                 EnterCriticalSection(&instance.m_cs);
 
-                DataPlayer* data = new DataPlayer();
-                data->ID = entityID;
-                strncpy_s(data->pseudo, 32, PlayerMessage->pseudo, _TRUNCATE);
+                auto it = std::find_if(PlayerInfoList.begin(), PlayerInfoList.end(),
+                    [entityID](DataPlayer* p) { return p->ID == entityID; });
 
-                PlayerInfoList.push_back(data);
+                if (it == PlayerInfoList.end())
+                {
+                    DataPlayer* data = new DataPlayer();
+                    data->ID = entityID;
+                    strncpy_s(data->pseudo, 32, PlayerMessage->pseudo, _TRUNCATE);
+                    PlayerInfoList.push_back(data);
+                }
+                else
+                {
+                    strncpy_s((*it)->pseudo, 32, PlayerMessage->pseudo, _TRUNCATE);
+                }
 
                 EntityClient* entityClient = new EntityClient();
                 entityClient->pEntity = cpuEngine.CreateEntity();
-                cpu_mesh* m_meshShip = new cpu_mesh();
-                m_meshShip->LoadOBJ("../../res/3D_model/SpaceShip.obj", { 1,1,1 }, false);
-
                 entityClient->pEntity->pMaterial = new cpu_material();
                 entityClient->pEntity->pMaterial->color = { 1.0f,1.0f,1.0f };
-                entityClient->pEntity->pMesh = m_meshShip;
+                entityClient->pEntity->pMesh = instance.m_meshShip;
                 entityClient->entityID = entityID;
-
-                m_meshShip->FlipWinding();
-                m_meshShip->Optimize();
-
-                instance.GetEntitiesList()[entityClient->entityID] = entityClient;
+                instance.GetEntitiesList()[entityID] = entityClient;
 
                 AABBUpdateMessage AabbMessage{};
                 AabbMessage.head.type = MessageType::ENTITY;
                 AabbMessage.IDEntity = htonl(entityID);
-                AabbMessage.minX = m_meshShip->aabb.min.x;
-                AabbMessage.minY = m_meshShip->aabb.min.y;
-                AabbMessage.minZ = m_meshShip->aabb.min.z;
-                AabbMessage.maxX = m_meshShip->aabb.max.x;
-                AabbMessage.maxY = m_meshShip->aabb.max.y;
-                AabbMessage.maxZ = m_meshShip->aabb.max.z;
+                AabbMessage.minX = instance.m_meshShip->aabb.min.x;
+                AabbMessage.minY = instance.m_meshShip->aabb.min.y;
+                AabbMessage.minZ = instance.m_meshShip->aabb.min.z;
+                AabbMessage.maxX = instance.m_meshShip->aabb.max.x;
+                AabbMessage.maxY = instance.m_meshShip->aabb.max.y;
+                AabbMessage.maxZ = instance.m_meshShip->aabb.max.z;
 
                 SendMessageToServer(reinterpret_cast<const char*>(&AabbMessage), sizeof(AABBUpdateMessage));
-
-                // A BOUGER 
-
-                DataPlayer* info = new DataPlayer();
-
-                PlayerInfoList.push_back(info);
-
-                // -----------------------------------
 
                 LeaveCriticalSection(&instance.m_cs);
                 break;
