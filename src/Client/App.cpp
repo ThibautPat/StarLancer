@@ -384,14 +384,15 @@ void App::OnRender(int pass)
             {
                 cpu_stats& stats = *cpuEngine.GetStats();
 
-                std::string s = " x :" + std::to_string(CursorDir.x) + " y :" + std::to_string(CursorDir.y);
-                cpuDevice.DrawText(&m_font, s.c_str(), 0, 0);
+                std::string enti = " nmb Entity : " + std::to_string(GetEntitiesList().size());
+                cpuDevice.DrawText(&m_font, enti.c_str(), 0, 10);
 
                 std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
-                cpuDevice.DrawText(&m_font, score.c_str(), 10, 10);
+                cpuDevice.DrawText(&m_font, score.c_str(), 0, 50);
 
-                std::string enti = " Entity : " + std::to_string(GetEntitiesList().size());
-                cpuDevice.DrawText(&m_font, enti.c_str(), 20, 20);
+                DataPlayer* info = network->GetData(network->MyIDClient);
+                std::string KD = " K/D : " + std::to_string(info->KillCount) + "/" + std::to_string(info->DeathCount);
+                cpuDevice.DrawText(&m_font, KD.c_str(), 0, 100);
             }
 
             RenderEntityLabels(network->m_pseudos, cpuEngine.GetCamera(), cpuDevice.GetWidth(), cpuDevice.GetHeight());

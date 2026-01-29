@@ -44,6 +44,15 @@ public:
 
 };
 
+struct DataPlayer {
+
+	uint32_t ID;
+	char pseudo[32];
+
+	uint32_t DeathCount;
+	uint32_t KillCount;
+};
+
 class ClientNetwork : public Network
 {
 	CRITICAL_SECTION csMessageBuffer;
@@ -71,9 +80,16 @@ public:
 
 	std::vector<std::vector<char>> MessageBuffer;
 
-	uint32_t MyIDClient;
-	std::map<uint32_t, char[32]> m_pseudos;
-
+	uint32_t MyIDClient;	
 	char MyPseudo[32];
 
+	std::vector<DataPlayer*> PlayerInfoList;
+
+	DataPlayer* GetData(uint32_t ID)
+	{
+		for (auto& data : PlayerInfoList)
+		{ if (data->ID == ID)
+				return data;
+		}
+	}
 };            
