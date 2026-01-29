@@ -105,8 +105,9 @@ void App::InputManager()
 
         network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(InputMessage));
     }
-    if (cpuInput.IsKey(VK_SPACE)) 
+    if (cpuInput.IsKey(VK_SPACE) && TimerShoot <=0) 
     {
+        TimerShoot = coldownShoot;
         InputMessage msg;
         msg.head.type = MessageType::FIRE_BULLET;
         msg.ClientID = network->MyIDClient;
@@ -237,6 +238,7 @@ void App::ClearDeadEntity()
 
 void App::OnUpdate()
 {
+    TimerShoot -= cpuTime.delta;
     network->ParseurMessage();
     menuManager->Update(cpuTime.delta);
     if (ButtonListenerManager::s_inputActive)
