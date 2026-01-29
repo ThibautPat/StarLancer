@@ -137,7 +137,6 @@ int main()
 
     while (true)
     {
-
         auto frameStart = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<float> elapsed = frameStart - lastFrameTime;
@@ -152,6 +151,7 @@ int main()
             if (entity.second->NeedToRespawn == true)
             {
                 entity.second->NeedToRespawn = false;
+                entity.second->IsDead = false;
 
                 RespawnEntity msg{};
                 msg.head.type = MessageType::RESPAWN;
@@ -174,6 +174,7 @@ int main()
         EnterCriticalSection(&network->csMovedUsers);
         network->ListUser_MainTread = network->ListUser_Tread;
         LeaveCriticalSection(&network->csMovedUsers);
+
         network->ClearDeadEntity();
 
         // SEND NUKE 

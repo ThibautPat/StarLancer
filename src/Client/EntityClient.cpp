@@ -15,12 +15,6 @@ void EntityClient::Respawn(int _life)
 {
 	if (IsDead == true)
 	{
-		// if (pEntity->pMaterial == nullptr)
-		// {
-		// 	pEntity->pMaterial = new cpu_material();
-		// }
-		// pEntity->pMaterial->color = { 1, 1, 1 };
-
 		IsDead = false;
 		life = _life;
 	}

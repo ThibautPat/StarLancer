@@ -29,8 +29,6 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
 
 void ServerNetwork::ClearDeadEntity()
 {
-
-    // Collecter les IDs à supprimer (évite la modification pendant l'itération)
     std::vector<uint32_t> toDelete;
 
     for (auto& entity : ListEntity)
@@ -41,17 +39,14 @@ void ServerNetwork::ClearDeadEntity()
         }
     }
 
-    // Supprimer les entités collectées
     for (uint32_t id : toDelete)
     {
-
         if(ListEntity[id]->entityType == EntityType::BULLET)
         {
             delete ListEntity[id];
             ListEntity.erase(id);
         }
     }
-
 }
 
 void ServerNetwork::ParseurMessage(const char* buffer, User* user)
@@ -232,8 +227,6 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
         if (!user)
         {
             user = network->NewUser(senderAddr);
-
-            network->ListUser_Tread.push_back(user);
         }
 
         EnterCriticalSection(&network->csNewUser);
@@ -242,7 +235,6 @@ DWORD WINAPI ServerNetwork::ThreadFonction(LPVOID lpParam)
     }
     return 0;
 }
-
 
 void ServerNetwork::Thread_StartListening()
 {
@@ -254,28 +246,36 @@ void ServerNetwork::Thread_StartListening()
 
 void ServerNetwork::BacklogSend(User* Recever)
 {
+    // NEW PLAYER SHIP
     SpawnPlayer msg{};
     msg.head.type = MessageType::ENTITY;
     msg.entity = EntityType::SPACESHIP;
     msg.IDEntity = htonl(Recever->s_userID);
-
     sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
+    // ANCIEN JOUEURS VERS LE NOUVEAU
     for (auto& u : ListUser_MainTread)
     {
-        if (u == Recever)
+        if (u->s_userID == Recever->s_userID)
             continue;
 
-        SpawnPlayer oldMsg{};
-        oldMsg.head.type = MessageType::ENTITY;
-        oldMsg.entity = EntityType::SPACESHIP;
-        oldMsg.IDEntity = htonl(u->s_userID);
-        sendto(*GetSocket(), reinterpret_cast<const char*>(&oldMsg), sizeof(oldMsg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+        SpawnPlayer msg{};
+        msg.head.type = MessageType::ENTITY;
+        msg.entity = EntityType::SPACESHIP;
+        msg.IDEntity = htonl(u->s_userID);
+        sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
+    }
 
-        SpawnPlayer newMsg{};
-        newMsg.head.type = MessageType::ENTITY;
-        newMsg.entity = EntityType::SPACESHIP;
-        newMsg.IDEntity = htonl(Recever->s_userID);
-        sendto(*GetSocket(), reinterpret_cast<const char*>(&newMsg), sizeof(newMsg), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
+    // NOUVEAU JOUEURS VERS LES ANCIENS
+    for (auto& u : ListUser_MainTread)
+    {
+        if (u->s_userID == Recever->s_userID) 
+            continue;
+
+        SpawnPlayer msg{};
+        msg.head.type = MessageType::ENTITY;
+        msg.entity = EntityType::SPACESHIP;
+        msg.IDEntity = htonl(Recever->s_userID);
+        sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
     }
 }

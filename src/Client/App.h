@@ -33,9 +33,6 @@ class App
 
 	inline static App* s_pApp = nullptr;
 
-	
-
-
 public:
 	// --- Lifecycle --------------------------------------------------
 	App();
@@ -111,6 +108,4 @@ public:
 
 	CRITICAL_SECTION m_cs;
 	CRITICAL_SECTION m_cs2;
-
-
 };

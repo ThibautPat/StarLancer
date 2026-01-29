@@ -46,8 +46,6 @@ void App::OnStart()
     network->Thread_StartListening();
     ShowCursor(FALSE);
    
-
-
     network->ServeurAddr.sin_family = AF_INET;
     network->ServeurAddr.sin_port = htons(1888);
 
@@ -72,6 +70,9 @@ void App::OnStart()
 
 void App::InputManager()
 {
+    if (GetEntitie(network->MyIDClient)->IsDead == true)
+        return;
+
     if (cpuInput.IsKey(VK_DOWN))
     {
         InputMessage msg;
@@ -271,14 +272,17 @@ void App::OnRender(int pass)
         }
         case CPU_PASS_UI_END:
         {
-            cpu_stats& stats = *cpuEngine.GetStats();
-            std::string s = " x :" + std::to_string(CursorDir.x) + " y :" + std::to_string(CursorDir.y);
-            cpuDevice.DrawText(&m_font, s.c_str(), 0, 0);
+            if (network->Connected == true)
+            {
+                cpu_stats& stats = *cpuEngine.GetStats();
 
-            std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
-            cpuDevice.DrawText(&m_font, score.c_str(), 10, 10);
+                std::string s = " x :" + std::to_string(CursorDir.x) + " y :" + std::to_string(CursorDir.y);
+                cpuDevice.DrawText(&m_font, s.c_str(), 0, 0);
 
-            menuManager->Draw(&cpuDevice);
+                std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
+                cpuDevice.DrawText(&m_font, score.c_str(), 10, 10);
+            }
+            menuManager->Draw();
             break;
         }
     }
