@@ -1,12 +1,12 @@
 ﻿#include "pch.h"
 #include "main.h"
+#include "Utils.h"
 
 #include <map>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <chrono>
-#include <random>
 
 #include "Network.h"
 #include "EntityBulletServer.h"
@@ -127,13 +127,6 @@ void CollisionCheck(ServerNetwork* network)
     }
 }
 
-int randomBetweenMinus25And25() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<int> dist(-25, 25);
-    return dist(gen);
-}
-
 /* ======================= MAIN ======================= */
 
 int main()
@@ -182,7 +175,7 @@ int main()
                 RespawnEntity msg{};
                 msg.head.type = MessageType::RESPAWN;
                 msg.targetID = ship->entityID;
-                msg.targetLife = 50;
+                msg.targetLife = 100;
                 
                 MessageScore Score1{}; //LOSER
                 Score1.head.type = MessageType::DATA;

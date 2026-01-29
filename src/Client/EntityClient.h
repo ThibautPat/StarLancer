@@ -6,7 +6,7 @@ public:
 	uint32_t entityID;
 	cpu_entity* pEntity;
 
-	int life = 50;
+	int life = 100;
 	bool IsDead = false;
 	bool ToDestroy = false;
 

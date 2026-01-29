@@ -3,6 +3,7 @@
 #include "EntityBulletServer.h"
 #include "SpaceShipMove_Calculator.h"
 #include "EntityShipServer.h"
+#include "Utils.h"
 
 User* ServerNetwork::NewUser(sockaddr_in addr)
 {
@@ -16,6 +17,12 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     ListEntity[newUser->s_userID]->entityType = EntityType::SPACESHIP;
 
     ListEntity[newUser->s_userID]->transform.Identity();
+
+    ListEntity[newUser->s_userID]->transform.pos.x = randomBetweenMinus25And25();
+    ListEntity[newUser->s_userID]->transform.pos.y = randomBetweenMinus25And25();
+    ListEntity[newUser->s_userID]->transform.pos.z = randomBetweenMinus25And25();
+
+
     ListEntity[newUser->s_userID]->entityID = newUser->s_userID;
 
     ListEntity[newUser->s_userID]->currentPitch = 0.f;

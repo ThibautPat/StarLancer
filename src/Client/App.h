@@ -98,9 +98,8 @@ public:
 
 	// --- Public data  ------------------
 	float camDistance = 8.0f;
-	float camHeight = 2.0f;
+	float camHeight = 1.0f;
 	bool m_LockCursor = true;
-
 
 	int nextEntityID = 0;
 

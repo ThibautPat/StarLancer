@@ -7,7 +7,7 @@ void EntityClient::Update_EntityClient(float dt)
 	{
 		IsDead = true;
 	}
-	float ratio = (life) / (50.0f);
+	float ratio = (life) / (100.0f);
 	pEntity->pMaterial->color = { ratio, 0, 0 };
 }
 

@@ -18,37 +18,29 @@ ProjectionResult ProjectWorldToScreen(
     result.isOnScreen = false;
     result.depth = 0.0f;
 
-    // Charger les matrices depuis XMFLOAT4X4 vers XMMATRIX
     XMMATRIX view = XMLoadFloat4x4(&viewMatrix);
     XMMATRIX proj = XMLoadFloat4x4(&projectionMatrix);
 
-    // Charger la position du monde en vecteur
     XMVECTOR worldPos = XMLoadFloat3(&worldPosition);
     worldPos = XMVectorSetW(worldPos, 1.0f);
 
-    // Transformation View
     XMVECTOR viewPos = XMVector4Transform(worldPos, view);
 
-    // Transformation Projection
     XMVECTOR projPos = XMVector4Transform(viewPos, proj);
 
-    // Récupérer W pour la division de perspective
     float w = XMVectorGetW(projPos);
 
-    // Vérifier si l'objet est derrière la caméra
     if (w <= 0.0f)
     {
         return result;
     }
 
-    // Division de perspective (NDC - Normalized Device Coordinates)
     XMFLOAT4 ndc;
     XMStoreFloat4(&ndc, projPos);
     ndc.x /= w;
     ndc.y /= w;
     ndc.z /= w;
 
-    // Vérifier si dans le frustum (-1 à 1 pour x et y)
     if (ndc.x < -1.0f || ndc.x > 1.0f ||
         ndc.y < -1.0f || ndc.y > 1.0f ||
         ndc.z < 0.0f || ndc.z > 1.0f)
@@ -56,7 +48,6 @@ ProjectionResult ProjectWorldToScreen(
         return result;
     }
 
-    // Conversion NDC vers coordonnées écran
     result.screenPosition.x = (ndc.x + 1.0f) * 0.5f * screenWidth;
     result.screenPosition.y = (1.0f - ndc.y) * 0.5f * screenHeight; // Inverser Y
     result.depth = ndc.z;
@@ -71,7 +62,6 @@ void App::RenderEntityLabels(
 {
     for (auto& entity : network->PlayerInfoList)
     {
-        // Version avec View et Projection séparées
         ProjectionResult result = ProjectWorldToScreen(
             GetEntitie(entity->ID)->pEntity->transform.pos,
             camera->matView,
@@ -84,11 +74,8 @@ void App::RenderEntityLabels(
         {
             if(entity->ID != network->MyIDClient)
             {
-
-
-                float offsetY = -30.0f; // Ajustez selon la taille de votre texte
+                float offsetY = -30.0f; 
                 cpuDevice.DrawText(&m_font, entity->pseudo, result.screenPosition.x, result.screenPosition.y + offsetY);
-
             }
         }
     }
@@ -247,7 +234,7 @@ void App::InputManager()
         float deltaX = pt.x - centerX;
         float deltaY = pt.y - centerY;
 
-        const float DEADZONE = 2.0f;
+        const float DEADZONE = 1.0f;
 
         if (fabs(deltaX) < DEADZONE && fabs(deltaY) < DEADZONE)
         {
