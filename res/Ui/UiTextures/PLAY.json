@@ -13,9 +13,7 @@
         "z": 0
       },
       "name": "res/Ui/UiTextures/PasPresser.PNG",
-      "listenerList": [
-        "onClickPlay"
-      ],
+      "listenerList": ["onClickPlay"],
       "hover": "res/Ui/UiTextures/Presser.PNG",
       "animated": false,
       "frameCount": 1,
@@ -30,8 +28,8 @@
     {
       "id": "button_4",
       "pos": {
-        "x": 0.5096153846153846,
-        "y": 0.6871921182266011,
+        "x": 0.5080128205128205,
+        "y": 0.7007389162561577,
         "z": -1
       },
       "size": {
@@ -40,36 +38,7 @@
         "z": 0
       },
       "name": "res/Ui/UiTextures/ButtonPanel.png",
-      "listenerList": [
-        "EnterIp"
-      ],
-      "hover": "",
-      "animated": false,
-      "frameCount": 1,
-      "currentFrame": 0,
-      "frameSize": {
-        "x": 110,
-        "y": 100
-      },
-      "looping": false,
-      "frameRate": 0
-    },
-    {
-      "id": "PseudoButton",
-      "pos": {
-        "x": 0.5075320512820513,
-        "y": 0.7864532019704435,
-        "z": -1
-      },
-      "size": {
-        "x": 256,
-        "y": 41,
-        "z": 0
-      },
-      "name": "res/Ui/UiTextures/ButtonPanel.png",
-      "listenerList": [
-        "EnterPseudo"
-      ],
+      "listenerList": ["EnterIp"],
       "hover": "",
       "animated": false,
       "frameCount": 1,
@@ -109,40 +78,10 @@
   ],
   "texts": [
     {
-      "id": "pseudo",
-      "pos": {
-        "x": 0.5064102564102566,
-        "y": 0.7869458128078816,
-        "z": 0
-      },
-      "size": {
-        "x": 259,
-        "y": 41,
-        "z": 0
-      },
-      "text": "Pseudo:",
-      "fontPath": "font",
-      "color": {
-        "r": 255,
-        "g": 255,
-        "b": 255
-      },
-      "fontSize": 10,
-      "animated": false,
-      "frameCount": 1,
-      "currentFrame": 0,
-      "frameSize": {
-        "x": 110,
-        "y": 100
-      },
-      "looping": false,
-      "frameRate": 0
-    },
-    {
       "id": "text_3",
       "pos": {
-        "x": 0.5083333333333336,
-        "y": 0.6891625615763547,
+        "x": 0.5064102564102565,
+        "y": 0.7019704433497537,
         "z": 0
       },
       "size": {
@@ -174,7 +113,12 @@
       "id": "default",
       "name": "Calque par défaut",
       "visible": true,
-      "elementIds": []
+      "elementIds": [
+        "Play",
+        "image_2",
+        "text_3",
+        "button_4"
+      ]
     }
   ]
 }

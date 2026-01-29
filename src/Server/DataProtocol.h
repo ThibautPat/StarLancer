@@ -82,10 +82,9 @@ struct SpawnEntity
 {
     Header head;
     uint32_t IDEntity;
-    uint32_t IDUser;
     EntityType entity;
+    uint32_t IDUser;
 };
-
 struct BulletHitMessage
 {
     Header head;
@@ -135,6 +134,8 @@ struct ConnexionMessage
 {
     Header head;
     uint32_t magicnumber;
+    char pseudo[32];
+
 };
 
 #pragma pack(pop) //Sert a �viter le padding binaire

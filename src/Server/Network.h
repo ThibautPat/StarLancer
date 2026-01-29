@@ -37,6 +37,7 @@ struct ServerNetworkInfo
 struct User
 {
 	uint32_t s_userID;
+	char Pseudo[32];
 	ServerNetworkInfo* s_networkInfo;
 };
 

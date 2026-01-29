@@ -245,7 +245,7 @@ void App::OnUpdate()
     {
         ButtonListenerManager::UpdateInput();
     }
-    if (network->Connected == false)
+    if (network->Connected == false && network->PseudoSelected)
     {   
 		coldownNetwork += cpuTime.delta;
         if (coldownNetwork > TimerBeforeRetry)

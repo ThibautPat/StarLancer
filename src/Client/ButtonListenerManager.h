@@ -35,6 +35,8 @@ public:
     // Démarre la saisie d'IP
     static void EnterIp();
 
+    static void EnterPseudo();
+
     // À appeler dans ta boucle principale pour capturer les touches
     static void UpdateInput();
 

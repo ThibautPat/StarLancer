@@ -55,6 +55,7 @@ public:
 	ClientNetwork() { InitializeCriticalSection(&csMessageBuffer); };
 
 	bool Connected = false;
+	bool PseudoSelected = false;
 
 	void SendMessageToServer(const char* message, size_t size);
 
@@ -71,4 +72,8 @@ public:
 	std::vector<std::vector<char>> MessageBuffer;
 
 	uint32_t MyIDClient;
+	std::map<uint32_t, char[32]> m_pseudos;
+
+	char MyPseudo[32];
+
 };            

@@ -77,13 +77,12 @@ struct SpawnPlayer
 
     char pseudo[32];
 };
-
 struct SpawnEntity
 {
     Header head;
     uint32_t IDEntity;
-    uint32_t IDUser;
     EntityType entity;
+    uint32_t IDUser;
 };
 
 struct BulletHitMessage
@@ -135,6 +134,8 @@ struct ConnexionMessage
 {
     Header head;
     uint32_t magicnumber;
+    char pseudo[32];
+
 };
 
 #pragma pack(pop) //Sert a éviter le padding binaire
