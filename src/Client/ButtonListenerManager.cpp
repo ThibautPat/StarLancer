@@ -20,7 +20,6 @@ void ButtonListenerManager::EnterIp()
     s_inputComplete = false;
     s_inputActive = true;
 
-    // Réinitialiser l'état des touches
     for (int i = 0; i < 256; i++)
     {
         s_keyWasPressed[i] = false;
@@ -33,7 +32,6 @@ void ButtonListenerManager::EnterPseudo()
     s_inputComplete = false;
     s_inputActive = true;
 
-    // Réinitialiser l'état des touches
     for (int i = 0; i < 256; i++)
     {
         s_keyWasPressed[i] = false;
@@ -45,7 +43,6 @@ void ButtonListenerManager::UpdateInput()
     if (!s_inputActive || s_inputComplete)
         return;
 
-    // Vérifier Enter
     if (GetAsyncKeyState(VK_RETURN) & 0x8000)
     {
         if (!s_keyWasPressed[VK_RETURN] && !App::GetInstance().network->Connected && App::GetInstance().network->PseudoSelected)
@@ -54,7 +51,6 @@ void ButtonListenerManager::UpdateInput()
             s_inputComplete = true;
             s_inputActive = false;
 
-            // Traiter l'input
             if (s_currentInput == "local")
             {
                 App::GetInstance().network->ChoseTarget("127.0.0.1");
@@ -81,7 +77,6 @@ void ButtonListenerManager::UpdateInput()
         s_keyWasPressed[VK_RETURN] = false;
     }
 
-    // Vérifier Backspace
     if (GetAsyncKeyState(VK_BACK) & 0x8000)
     {
         if (!s_keyWasPressed[VK_BACK])
@@ -107,7 +102,7 @@ void ButtonListenerManager::UpdateInput()
         s_keyWasPressed[VK_BACK] = false;
     }
 
-    for (int vk = 0x30; vk <= 0x39; vk++) // VK_0 à VK_9
+    for (int vk = 0x30; vk <= 0x39; vk++)
     {
         if (GetAsyncKeyState(vk) & 0x8000)
         {
@@ -132,7 +127,6 @@ void ButtonListenerManager::UpdateInput()
         }
     }
 
-    // Vérifier les chiffres du numpad
     for (int vk = VK_NUMPAD0; vk <= VK_NUMPAD9; vk++)
     {
         if (GetAsyncKeyState(vk) & 0x8000)
@@ -159,7 +153,7 @@ void ButtonListenerManager::UpdateInput()
         }
     }
 
-    for (int vk = 0x41; vk <= 0x5A; vk++) // VK_A à VK_Z
+    for (int vk = 0x41; vk <= 0x5A; vk++)
     {
         if (GetAsyncKeyState(vk) & 0x8000)
         {

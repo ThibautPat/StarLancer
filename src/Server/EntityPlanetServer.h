@@ -10,7 +10,6 @@ public:
 	float radius;
 	float angle;
 
-
 	void OnCollide(EntityServer* entity) override;
 
 	void Update(float dt) override;

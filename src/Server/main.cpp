@@ -18,7 +18,7 @@ void SendAllPositions(ServerNetwork* network)
     {
         for (auto& entity : network->ListEntity)
         {
-            if (entity.second->IsDead == true|| entity.second->entityType == EntityType::BULLET)
+            if (entity.second->IsDead == true || entity.second->entityType == EntityType::BULLET)
                 continue;
 
             UpdatePos msg;

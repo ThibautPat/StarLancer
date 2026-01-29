@@ -24,7 +24,7 @@ void MenuManager::Update(float deltatime)
     case App::State::PLAY:
     {
         switchMenu("PLAY");
-        while (ShowCursor(TRUE) <=0 ); // Boucler jusqu'à ce que le compteur soit négatif
+        while (ShowCursor(TRUE) <=0 );
 
 
         if (!App::GetInstance().network->PseudoSelected )
@@ -58,27 +58,7 @@ void MenuManager::Update(float deltatime)
 
         break;
     }
-    //case App::State::LOOSE:
-    //{
-    //    switchMenu("LOOSE");
-    //    App::GetInstance().Pause();
-    //    //gce::ShowMouseCursor();
-    //    break;
-    //}
-    //case App::State::WIN:
-    //{
-    //    switchMenu("WIN");
-    //    App::GetInstance().Pause();
-    //    //gce::ShowMouseCursor();
-    //    break;
-    //}
-    //case App::State::PAUSE:
-    //{
-    //    switchMenu("PAUSE");
-    //    App::GetInstance().Pause();
-    //    //gce::ShowMouseCursor();
-    //    break;
-    //}
+    
 
     default:
         break;
@@ -87,13 +67,6 @@ void MenuManager::Update(float deltatime)
     Menu* Hud = getMenu("HUD");
     if (Hud) {
         UiText* ScoreText = dynamic_cast<UiText*>(Hud->getElement("Score"));
-        if (ScoreText)
-        {
-            ////int score = GameManager::getInstance()->getScore();
-            //static std::wstring scoreText;
-            //scoreText = std::to_wstring(score);
-            //ScoreText->GetComponent<gce::TextRenderer>()->text = scoreText;
-        }
     }
 }
 
@@ -144,8 +117,8 @@ void MenuManager::switchMenu(std::string name)
         if (object->name == name && object == m_currentMenu)
             return;
 
-        while (ShowCursor(FALSE) >= 0); // Boucler jusqu'à ce que le compteur soit négatif
-        App::GetInstance().m_LockCursor = true; // ? AJOUTER CETTE LIGNE !
+        while (ShowCursor(FALSE) >= 0);
+        App::GetInstance().m_LockCursor = true;
 
         object->SetActive(false);
         if (object->name == name)

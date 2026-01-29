@@ -4,15 +4,13 @@
 
 void EntityPlanetServer::OnCollide(EntityServer* entity)
 {
+	// NO ENOUGH TIME
+	//if (entity->entityType != EntityType::SPACESHIP)
+	//	return;
 
-	if (entity->entityType != EntityType::SPACESHIP)
-		return;
+	//EntityShipServer* ship = dynamic_cast<EntityShipServer*>(entity);
 
-	EntityShipServer* ship = dynamic_cast<EntityShipServer*>(entity);
-
-	
-	ship->life = 0;
-	
+	//ship->life = 0;
 }
 
 void EntityPlanetServer::Update(float dt)

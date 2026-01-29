@@ -8,20 +8,18 @@
 
 void ServerNetwork::InitMap(User* user)
 {
-  
-
     sockaddr_in addr = user->s_networkInfo->Addr_User;
     int sizeAddr = sizeof(addr);
 
    EntityPlanetServer* soleil = new EntityPlanetServer();
 
-  soleil->entityID = IdIndex;
-  soleil->entityType = EntityType::PLANET;
-  soleil->angle = 2.0f;
-  soleil->radius = 9;
-  soleil->transform.pos = { 10,10,10 };
-   ListEntity[IdIndex] = soleil;
-   soleil->Target = ListEntity[IdIndex];
+    soleil->entityID = IdIndex;
+    soleil->entityType = EntityType::PLANET;
+    soleil->angle = 2.0f;
+    soleil->radius = 9;
+    soleil->transform.pos = { 10,10,10 };
+    ListEntity[IdIndex] = soleil;
+    soleil->Target = ListEntity[IdIndex];
     IdIndex++;
 
     SpawnPlanet replicationMessage{};
@@ -35,7 +33,6 @@ void ServerNetwork::InitMap(User* user)
     replicationMessage.PosZ = 10;
     replicationMessage.radius = soleil->radius;
     int result = sendto(*GetSocket(), reinterpret_cast<const char*>(&replicationMessage), sizeof(SpawnPlanet), 0.01, (sockaddr*)&addr, sizeAddr);
-
 }
 
 User* ServerNetwork::NewUser(sockaddr_in addr)
@@ -54,7 +51,6 @@ User* ServerNetwork::NewUser(sockaddr_in addr)
     ListEntity[newUser->s_userID]->transform.pos.x = randomBetweenMinus25And25();
     ListEntity[newUser->s_userID]->transform.pos.y = randomBetweenMinus25And25();
     ListEntity[newUser->s_userID]->transform.pos.z = randomBetweenMinus25And25();
-
 
     ListEntity[newUser->s_userID]->entityID = newUser->s_userID;
 
@@ -227,7 +223,6 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             entity->transform.UpdateWorld();
 
             ReplicationMessage<UpdateRot>(reinterpret_cast<char*>(&rotMsg));
-
             break;
         }
     }

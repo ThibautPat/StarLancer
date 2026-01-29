@@ -187,7 +187,6 @@ void Menu::Draw()
         {
             element->visible = false;
             element->dead = true;
-
         }
     }
     else {
@@ -195,11 +194,8 @@ void Menu::Draw()
         {
             element->visible = true;
             element->dead = false;
-
         }
-    }
-
-  
+    } 
 }
 
 void Menu::Clear()

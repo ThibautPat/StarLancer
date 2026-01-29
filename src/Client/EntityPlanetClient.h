@@ -11,7 +11,6 @@ public:
 	void Update_EntityClient(float dt) override
 	{
 		pEntity->transform.OrbitAroundAxis(App::GetInstance().GetEntitie(IDEntityTarget)->pEntity->transform.pos, CPU_UP, 0.01, angle);
-		
 	}
 };
 

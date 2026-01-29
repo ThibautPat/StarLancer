@@ -1,10 +1,11 @@
 #include "pch.h"
 #include <iostream>
+
 struct ProjectionResult
 {
     XMFLOAT2 screenPosition;
     bool isOnScreen;
-    float depth; // Pour le tri si nécessaire
+    float depth;
 };
 
 ProjectionResult ProjectWorldToScreen(
@@ -49,7 +50,7 @@ ProjectionResult ProjectWorldToScreen(
     }
 
     result.screenPosition.x = (ndc.x + 1.0f) * 0.5f * screenWidth;
-    result.screenPosition.y = (1.0f - ndc.y) * 0.5f * screenHeight; // Inverser Y
+    result.screenPosition.y = (1.0f - ndc.y) * 0.5f * screenHeight;
     result.depth = ndc.z;
     result.isOnScreen = true;
 

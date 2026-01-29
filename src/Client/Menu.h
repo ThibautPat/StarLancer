@@ -13,7 +13,6 @@ public:
     Draw();
     };
 
-
     void addButton(
         std::string _Id,
         XMFLOAT3 _pos,
