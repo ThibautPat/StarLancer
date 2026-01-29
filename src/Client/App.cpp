@@ -1,7 +1,99 @@
 #include "pch.h"
 #include <iostream>
+struct ProjectionResult
+{
+    XMFLOAT2 screenPosition;
+    bool isOnScreen;
+    float depth; // Pour le tri si nécessaire
+};
+
+ProjectionResult ProjectWorldToScreen(
+    const XMFLOAT3& worldPosition,
+    const XMFLOAT4X4& viewMatrix,
+    const XMFLOAT4X4& projectionMatrix,
+    float screenWidth,
+    float screenHeight)
+{
+    ProjectionResult result;
+    result.isOnScreen = false;
+    result.depth = 0.0f;
+
+    // Charger les matrices depuis XMFLOAT4X4 vers XMMATRIX
+    XMMATRIX view = XMLoadFloat4x4(&viewMatrix);
+    XMMATRIX proj = XMLoadFloat4x4(&projectionMatrix);
+
+    // Charger la position du monde en vecteur
+    XMVECTOR worldPos = XMLoadFloat3(&worldPosition);
+    worldPos = XMVectorSetW(worldPos, 1.0f);
+
+    // Transformation View
+    XMVECTOR viewPos = XMVector4Transform(worldPos, view);
+
+    // Transformation Projection
+    XMVECTOR projPos = XMVector4Transform(viewPos, proj);
+
+    // Récupérer W pour la division de perspective
+    float w = XMVectorGetW(projPos);
+
+    // Vérifier si l'objet est derrière la caméra
+    if (w <= 0.0f)
+    {
+        return result;
+    }
+
+    // Division de perspective (NDC - Normalized Device Coordinates)
+    XMFLOAT4 ndc;
+    XMStoreFloat4(&ndc, projPos);
+    ndc.x /= w;
+    ndc.y /= w;
+    ndc.z /= w;
+
+    // Vérifier si dans le frustum (-1 à 1 pour x et y)
+    if (ndc.x < -1.0f || ndc.x > 1.0f ||
+        ndc.y < -1.0f || ndc.y > 1.0f ||
+        ndc.z < 0.0f || ndc.z > 1.0f)
+    {
+        return result;
+    }
+
+    // Conversion NDC vers coordonnées écran
+    result.screenPosition.x = (ndc.x + 1.0f) * 0.5f * screenWidth;
+    result.screenPosition.y = (1.0f - ndc.y) * 0.5f * screenHeight; // Inverser Y
+    result.depth = ndc.z;
+    result.isOnScreen = true;
+
+    return result;
+}
+void App::RenderEntityLabels(
+    std::map<uint32_t, char[32]>& entities,
+    cpu_camera* camera,
+    float screenWidth,
+    float screenHeight)
+{
+    for (auto& entity : entities)
+    {
+        // Version avec View et Projection séparées
+        ProjectionResult result = ProjectWorldToScreen(
+            GetEntitie(entity.first)->pEntity->transform.pos,
+            camera->matView,
+            camera->matProj,
+            screenWidth,
+            screenHeight
+        );
+
+        if (result.isOnScreen)
+        {
+            if(entity.first != network->MyIDClient)
+            {
 
 
+                float offsetY = -30.0f; // Ajustez selon la taille de votre texte
+                cpuDevice.DrawText(&m_font, entity.second, result.screenPosition.x, result.screenPosition.y + offsetY);
+
+            }
+        }
+    }
+}
 App::App()
 {
 	s_pApp = this;
@@ -301,6 +393,8 @@ void App::OnRender(int pass)
                 std::string enti = " Entity : " + std::to_string(GetEntitiesList().size());
                 cpuDevice.DrawText(&m_font, enti.c_str(), 20, 20);
             }
+
+            RenderEntityLabels(network->m_pseudos, cpuEngine.GetCamera(), cpuDevice.GetWidth(), cpuDevice.GetHeight());
             menuManager->Draw();
             break;
         }
