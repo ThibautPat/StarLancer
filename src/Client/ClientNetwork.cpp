@@ -214,6 +214,33 @@ void ClientNetwork::ParseurMessage()
                     break;
                 }
 
+                case PlanetType::TERRE:
+                {
+                    entityClient->pEntity->pMesh = new cpu_mesh();
+
+
+                    entityClient->pEntity->pMesh->CreateSphere(entityClient->radius, 12, 12);
+                    entityClient->pEntity->pMaterial = new cpu_material();
+                    entityClient->pEntity->pMaterial->pTexture = new cpu_texture();
+                    entityClient->pEntity->pMaterial->pTexture->Load("../../res/Texture/earth.png");
+                    instance.GetEntitiesList()[entityClient->entityID] = entityClient;
+
+                    break;
+                }
+
+                case PlanetType::LUNE:
+                {
+                    entityClient->pEntity->pMesh = new cpu_mesh();
+
+
+                    entityClient->pEntity->pMesh->CreateSphere(entityClient->radius, 12, 12);
+                    entityClient->pEntity->pMaterial = new cpu_material();
+                    entityClient->pEntity->pMaterial->pTexture = new cpu_texture();
+                    entityClient->pEntity->pMaterial->pTexture->Load("../../res/Texture/2k_moon.png");
+                    instance.GetEntitiesList()[entityClient->entityID] = entityClient;
+
+                    break;
+                }
                 }
                 LeaveCriticalSection(&instance.m_cs);
                 break;
