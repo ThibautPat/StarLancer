@@ -1,42 +1,42 @@
-Projet de jeu multijoueur rétro
+# ⭐ StarLancer — Multiplayer Retro Arena
 
-Ce projet est un jeu multijoueur dérivé du module multijoueur dispensé au GC.
-Il a pour objectif d’explorer les bases du réseau, de la synchronisation et de l’architecture client/serveur dans un contexte ludique.
+StarLancer est un jeu multijoueur rétro issu de notre module multijoueur dispensé au GC.  
+Le projet sert de terrain d’expérimentation pour le réseau, le client/serveur et le gameplay temps réel.
 
-Une version Linux du serveur a été développée afin de permettre son déploiement sur un VPS.
-Des ajouts ou améliorations pourront être réalisés ultérieurement en fonction de l’évolution du projet.
+Une version Linux du serveur a été développée afin de permettre un déploiement sur VPS.
 
-🎮 Concept du jeu
+Le projet est pensé comme évolutif : des ajouts et améliorations pourront être apportés dans le futur.
 
-Le jeu adopte un style rétro et se joue en vue arcade.
+---
 
-Le joueur contrôle un vaisseau spatial
+## 🚀 Le jeu
 
-Il peut se déplacer, tirer et être détruit
+StarLancer propose une arène spatiale rétro orientée arcade.
 
-Le gameplay est orienté FFA (Free For All)
+- Contrôle d’un vaisseau spatial  
+- Possibilité de tirer et d’être détruit  
+- Mode de jeu Free For All (FFA)  
+- Gameplay rapide et nerveux  
 
-L’objectif principal est l’affrontement entre joueurs en temps réel
+---
 
-🛠️ Technologie
-Client
+## 🧠 Technologies
 
-Le client repose sur le CPUEngine, développé par Sylvain Seccia
+### Client
+- Moteur : CPUEngine  
+- Développé par Sylvain Seccia  
+- Gestion de l’affichage, des entrées et de la logique de jeu  
 
-Le moteur est utilisé pour l’affichage, la logique de jeu et les entrées joueur
+### Serveur
+- Architecture client / serveur  
+- Serveur compatible Linux  
+- Conçu pour une exécution sur VPS  
+- Synchronisation multijoueur en temps réel  
 
-Serveur
+---
 
-Architecture client / serveur
+## 🔧 État du projet
 
-Serveur compatible Linux, prévu pour une exécution sur VPS
-
-Gestion des connexions et de la synchronisation multijoueur
-
-📌 État du projet
-
-Projet fonctionnel dans le cadre du module
-
-Base multijoueur opérationnelle
-
-Le projet reste évolutif : de nouvelles fonctionnalités pourront être ajoutées ultérieurement
+- Base multijoueur fonctionnelle  
+- Projet réalisé dans le cadre du module GC  
+- Des fonctionnalités supplémentaires pourront être ajoutées ultérieurement  
