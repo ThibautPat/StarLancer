@@ -45,7 +45,7 @@ public:
 	void OnStart();
 	void OnUpdate();
 	void OnRender(int pass);
-	void RenderEntityLabels(std::map<uint32_t, char[32]>& entities, cpu_camera* camera, float screenWidth, float screenHeight);
+	void RenderEntityLabels( cpu_camera* camera, float screenWidth, float screenHeight);
 
 	void OnExit();
 

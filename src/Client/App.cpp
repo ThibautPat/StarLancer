@@ -65,16 +65,15 @@ ProjectionResult ProjectWorldToScreen(
     return result;
 }
 void App::RenderEntityLabels(
-    std::map<uint32_t, char[32]>& entities,
     cpu_camera* camera,
     float screenWidth,
     float screenHeight)
 {
-    for (auto& entity : entities)
+    for (auto& entity : network->PlayerInfoList)
     {
         // Version avec View et Projection séparées
         ProjectionResult result = ProjectWorldToScreen(
-            GetEntitie(entity.first)->pEntity->transform.pos,
+            GetEntitie(entity->ID)->pEntity->transform.pos,
             camera->matView,
             camera->matProj,
             screenWidth,
@@ -83,12 +82,12 @@ void App::RenderEntityLabels(
 
         if (result.isOnScreen)
         {
-            if(entity.first != network->MyIDClient)
+            if(entity->ID != network->MyIDClient)
             {
 
 
                 float offsetY = -30.0f; // Ajustez selon la taille de votre texte
-                cpuDevice.DrawText(&m_font, entity.second, result.screenPosition.x, result.screenPosition.y + offsetY);
+                cpuDevice.DrawText(&m_font, entity->pseudo, result.screenPosition.x, result.screenPosition.y + offsetY);
 
             }
         }
@@ -395,7 +394,7 @@ void App::OnRender(int pass)
                 cpuDevice.DrawText(&m_font, KD.c_str(), 0, 100);
             }
 
-            RenderEntityLabels(network->m_pseudos, cpuEngine.GetCamera(), cpuDevice.GetWidth(), cpuDevice.GetHeight());
+            RenderEntityLabels( cpuEngine.GetCamera(), cpuDevice.GetWidth(), cpuDevice.GetHeight());
             menuManager->Draw();
             break;
         }
