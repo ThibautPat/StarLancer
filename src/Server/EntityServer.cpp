@@ -61,7 +61,6 @@ void EntityServer::Update(float dt)
     if (life <= 0)
     {
         IsDead = true;
-        DeathCount++;
     }
 
     if (IsDead == false)

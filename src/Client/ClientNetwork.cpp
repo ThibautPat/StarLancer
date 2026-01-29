@@ -146,6 +146,17 @@ void ClientNetwork::ParseurMessage()
 
             LeaveCriticalSection(&instance.m_cs);
             break;
+        }        
+        
+        case MessageType::DATA:
+        {
+            if (msg.size() < sizeof(MessageScore)) break;
+            const MessageScore* message = reinterpret_cast<const MessageScore*>(msg.data());
+
+            GetData(message->targetID)->DeathCount = message->Death;
+            GetData(message->targetID)->KillCount = message->Kill;
+
+            break;
         }
 
         case MessageType::ENTITY:
@@ -160,15 +171,16 @@ void ClientNetwork::ParseurMessage()
             {
             case EntityType::SPACESHIP:
             {
-
                 const SpawnPlayer* PlayerMessage = reinterpret_cast<const SpawnPlayer*>(msg.data());
-
 
                 uint32_t entityID = ntohl(message->IDEntity);
                 EnterCriticalSection(&instance.m_cs);
 
-                strncpy_s(m_pseudos[entityID], 32, PlayerMessage->pseudo, _TRUNCATE);
+                DataPlayer* data = new DataPlayer();
+                data->ID = entityID;
+                strncpy_s(data->pseudo, 32, PlayerMessage->pseudo, _TRUNCATE);
 
+                PlayerInfoList.push_back(data);
 
                 EntityClient* entityClient = new EntityClient();
                 entityClient->pEntity = cpuEngine.CreateEntity();
@@ -219,10 +231,9 @@ void ClientNetwork::ParseurMessage()
             }
             break;
         }
-        } // switch
-    } // for
+        }
+    }
 }
-
 
 void ClientNetwork::SendMessageToServer(const char* message, size_t size)
 {
@@ -242,9 +253,7 @@ void ClientNetwork::ConnexionProtcol()
 
 void ClientNetwork::ChoseTarget(const char* ip)
 {
-    if (inet_pton(AF_INET, ip, &ServeurAddr.sin_addr) <= 0) //MOI
+    if (inet_pton(AF_INET, ip, &ServeurAddr.sin_addr) <= 0)
         return;
     App::GetInstance().connected = true;
 }
-
-// 169.254.158.79

@@ -298,9 +298,9 @@ void App::OnRender(int pass)
                 std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
                 cpuDevice.DrawText(&m_font, score.c_str(), 0, 50);
 
-                std::string Kill = " K/D : " + std::to_string(GetEntitie(network->));
-                cpuDevice.DrawText(&m_font, score.c_str(), 0, 100);
-
+                DataPlayer* info = network->GetData(network->MyIDClient);
+                std::string KD = " K/D : " + std::to_string(info->KillCount) + "/" + std::to_string(info->DeathCount);
+                cpuDevice.DrawText(&m_font, KD.c_str(), 0, 100);
             }
             menuManager->Draw();
             break;

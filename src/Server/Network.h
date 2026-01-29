@@ -38,6 +38,10 @@ struct User
 {
 	uint32_t s_userID;
 	char Pseudo[32];
+
+	uint32_t Kill = 0;
+	uint32_t Death = 0; 
+
 	ServerNetworkInfo* s_networkInfo;
 };
 
@@ -106,5 +110,4 @@ public:
 			sendto(*GetSocket(), reinterpret_cast<const char*>(msg), sizeof(T), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
 		}
 	};
-
 };

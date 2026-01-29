@@ -8,6 +8,7 @@ enum class MessageType : uint8_t
     CONNECTION,
     ENTITY,
     RESPAWN,
+    DATA,
 
     UPDATE_POS,
     UPDATE_ROT,
@@ -100,6 +101,14 @@ struct RespawnEntity
     int targetLife;
 };
 
+struct MessageScore
+{
+    Header head;
+    uint32_t targetID;
+
+    uint32_t Kill;
+    uint32_t Death;
+};
 //STRUCT MESSAGE FROM CLIENT ---------------------------
 
 struct AABBUpdateMessage

@@ -21,11 +21,13 @@ public:
 
 	void OnCollide(EntityServer* entity) override
 	{
+		IsDead = true;
 		entity->life -= damage;
 		if (entity->life < 0)
+		{
 			entity->life = 0;
-
-		IsDead = true;
+			entity->LastKiller = Owner;
+		}
 	}
 
 	void Update(float dt) override

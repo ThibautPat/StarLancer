@@ -178,7 +178,21 @@ int main()
                 msg.targetID = entity.second->entityID;
                 msg.targetLife = 50;
                 
+                MessageScore Score1{}; //LOSER
+                Score1.head.type = MessageType::DATA;
+                Score1.targetID = entity.second->entityID;
+                Score1.Death = network->ListUser_MainTread[entity.second->entityID]->Death++;
+                Score1.Kill = network->ListUser_MainTread[entity.second->entityID]->Kill;
+                
+                MessageScore Score2{}; //WINNER
+                Score2.head.type = MessageType::DATA;
+                Score2.targetID = entity.second->LastKiller->entityID;
+                Score2.Death = network->ListUser_MainTread[entity.second->LastKiller->entityID]->Death;
+                Score2.Kill = network->ListUser_MainTread[entity.second->LastKiller->entityID]->Kill++;
+
                 network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&msg));
+                network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&Score1));
+                network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&Score2));
             }
         }
 

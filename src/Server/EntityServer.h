@@ -7,8 +7,10 @@ class EntityServer
 public:
 	uint32_t entityID;
 	EntityType entityType;
-	//POS
 
+	EntityServer* LastKiller;
+
+	//POS
 	cpu_transform transform;
 
 	float currentYaw = 0.0f;
@@ -27,10 +29,6 @@ public:
 	float TimeToRespawn = 5;
 	float TimeBeforeRespawn = 0;
 	
-	int DeathCount = 0;
-	int KillCount = 0;
-	int Score = 0;
-
 	virtual void OnCollide(EntityServer* entity);
 	virtual void Update(float dt);
 };

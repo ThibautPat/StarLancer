@@ -84,4 +84,12 @@ public:
 	char MyPseudo[32];
 
 	std::vector<DataPlayer*> PlayerInfoList;
+
+	DataPlayer* GetData(uint32_t ID)
+	{
+		for (auto& data : PlayerInfoList)
+		{ if (data->ID == ID)
+				return data;
+		}
+	}
 };            
