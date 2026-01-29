@@ -274,7 +274,11 @@ void App::OnRender(int pass)
             cpu_stats& stats = *cpuEngine.GetStats();
             std::string s = " x :" + std::to_string(CursorDir.x) + " y :" + std::to_string(CursorDir.y);
             cpuDevice.DrawText(&m_font, s.c_str(), 0, 0);
-              
+
+            std::string score = " Life : " + std::to_string(GetEntitie(network->MyIDClient)->life);
+            cpuDevice.DrawText(&m_font, score.c_str(), 10, 10);
+
+            menuManager->Draw(&cpuDevice);
             break;
         }
     }

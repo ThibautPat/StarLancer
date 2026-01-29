@@ -148,12 +148,24 @@ int main()
         {
             entity.second->Update(deltaTime);
             CollisionCheck(network);
+
+            if (entity.second->NeedToRespawn == true)
+            {
+                entity.second->NeedToRespawn = false;
+
+                RespawnEntity msg{};
+                msg.head.type = MessageType::RESPAWN;
+                msg.targetID = entity.second->entityID;
+                msg.targetLife = 50;
+                
+                network->ReplicationMessage<RespawnEntity>(reinterpret_cast<char*>(&msg));
+            }
         }
 
         // PARSE
-
         for (const auto& message : network->MessageBufferRecev)
             network->ParseurMessage(message.first.data(), message.second);
+
         EnterCriticalSection(&network->csNewUser);
         network->MessageBufferRecev.clear();
         LeaveCriticalSection(&network->csNewUser);
