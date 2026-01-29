@@ -214,10 +214,12 @@ void App::UpdateParticul()
 }
 void App::ClearDeadEntity()
 {
-    for (auto& entity: m_entities)
+    EnterCriticalSection(&m_cs);
+    for (auto& entity : m_entities)
     {
         entity.second->clearEntity();
     }
+    LeaveCriticalSection(&m_cs);
 }
 
 void App::OnUpdate()
@@ -249,7 +251,7 @@ void App::OnUpdate()
 
         CameraUpdate();
 
-        ClearDeadEntity()
+        ClearDeadEntity();
     }
 }
 
