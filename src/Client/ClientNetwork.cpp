@@ -120,9 +120,12 @@ void ClientNetwork::ParseurMessage()
             EnterCriticalSection(&instance.m_cs);
 
             EntityClient* bullet = instance.GetEntitie(ntohl(message->bulletID));
-            EntityClient* target = instance.GetEntitie(ntohl(message->targetID));
-            if (target) target->life = ntohl(message->targetLife);
             bullet->IsDead = true;
+
+            EntityClient* target = instance.GetEntitie(ntohl(message->targetID));
+            if (target) 
+                target->life = message->targetLife;
+
             LeaveCriticalSection(&instance.m_cs);
             break;
         }

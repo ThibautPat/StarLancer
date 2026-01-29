@@ -248,6 +248,8 @@ void App::OnUpdate()
         UpdateParticul();
 
         CameraUpdate();
+
+        ClearDeadEntity()
     }
 }
 

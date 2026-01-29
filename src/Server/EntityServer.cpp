@@ -3,7 +3,8 @@
 
 void EntityServer::OnCollide(EntityServer* entity)
 {
-    if (!entity) return;
+    if (!entity) 
+        return;
 
     // Direction de répulsion : de l'autre vers cette entité
     float dirX = transform.pos.x - entity->transform.pos.x;
