@@ -148,7 +148,6 @@ int main()
         
         for (auto entity : network->ListEntity)
         {
-            std::cout << network->ListEntity.size() << std::endl;
             entity.second->Update(deltaTime);
             CollisionCheck(network);
 

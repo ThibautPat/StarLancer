@@ -170,7 +170,6 @@ void App::InputManager()
             msg.X = CursorDir.x;
             msg.Y = CursorDir.y;
 
-
             network->SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(MouseMessage));
 		}
        
