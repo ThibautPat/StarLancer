@@ -220,18 +220,16 @@ void App::ClearDeadEntity()
     for (auto it = m_entities.begin(); it != m_entities.end(); )
     {
         EntityClient* entity = it->second;
-        if (entity->bullet == true)
+
+        if (entity->IsDead)
         {
-            if (entity->IsDead)
-            {
-                entity->clearEntity();
-                delete entity;
-                it = m_entities.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
+            entity->clearEntity();
+            delete entity;
+            it = m_entities.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
 
