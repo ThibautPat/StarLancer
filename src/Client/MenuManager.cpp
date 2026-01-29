@@ -25,7 +25,20 @@ void MenuManager::Update(float deltatime)
     {
         switchMenu("PLAY");
         while (ShowCursor(TRUE) <=0 ); // Boucler jusqu'à ce que le compteur soit négatif
-        if(!App::GetInstance().network->Connected)
+
+
+        if (!App::GetInstance().network->PseudoSelected )
+        {
+            getCurrentMenu()->getElement("text_3")->visible = false;
+            getCurrentMenu()->getElement("button_4")->visible = false;
+
+        }
+        else {
+            getCurrentMenu()->getElement("text_3")->visible = true;
+            getCurrentMenu()->getElement("button_4")->visible = true;
+
+        }
+        if(!App::GetInstance().network->PseudoSelected || !App::GetInstance().network->Connected)
         {
             getCurrentMenu()->getElement("Play")->visible = false;
         }

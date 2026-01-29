@@ -64,7 +64,8 @@ void ServerNetwork::ParseurMessage(const char* buffer, User* user)
             message.magicnumber = ntohl(message.magicnumber);
             if (message.magicnumber != 8542)
                 return;
-            
+            strncpy_s(user->Pseudo, 32, message.pseudo, _TRUNCATE);
+
             ReturnConnexionMessage msg;
             msg.ClientID = htonl(user->s_userID);
             msg.head.type = MessageType::CONNECTION;
@@ -256,6 +257,8 @@ void ServerNetwork::BacklogSend(User* Recever)
     msg.head.type = MessageType::ENTITY;
     msg.entity = EntityType::SPACESHIP;
     msg.IDEntity = htonl(Recever->s_userID);
+    strncpy_s(msg.pseudo, 32, Recever->Pseudo, _TRUNCATE);
+
     sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
 
     // ANCIEN JOUEURS VERS LE NOUVEAU
@@ -268,6 +271,8 @@ void ServerNetwork::BacklogSend(User* Recever)
         msg.head.type = MessageType::ENTITY;
         msg.entity = EntityType::SPACESHIP;
         msg.IDEntity = htonl(u->s_userID);
+        strncpy_s(msg.pseudo, 32, u->Pseudo, _TRUNCATE);
+
         sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&Recever->s_networkInfo->Addr_User, sizeof(Recever->s_networkInfo->Addr_User));
     }
 
@@ -281,6 +286,8 @@ void ServerNetwork::BacklogSend(User* Recever)
         msg.head.type = MessageType::ENTITY;
         msg.entity = EntityType::SPACESHIP;
         msg.IDEntity = htonl(Recever->s_userID);
+        strncpy_s(msg.pseudo, 32, Recever->Pseudo, _TRUNCATE);
+
         sendto(*GetSocket(), reinterpret_cast<const char*>(&msg), sizeof(msg), 0, (sockaddr*)&u->s_networkInfo->Addr_User, sizeof(u->s_networkInfo->Addr_User));
     }
 }

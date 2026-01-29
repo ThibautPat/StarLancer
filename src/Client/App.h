@@ -29,7 +29,6 @@ class App
 
 	std::map<uint32_t, EntityClient*> m_entities;
 
-	std::map<int, char[32]> m_pseudos;
 
 	inline static App* s_pApp = nullptr;
 

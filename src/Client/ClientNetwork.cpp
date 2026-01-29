@@ -160,9 +160,15 @@ void ClientNetwork::ParseurMessage()
             {
             case EntityType::SPACESHIP:
             {
-                uint32_t entityID = ntohl(message->IDEntity);
 
+                const SpawnPlayer* PlayerMessage = reinterpret_cast<const SpawnPlayer*>(msg.data());
+
+
+                uint32_t entityID = ntohl(message->IDEntity);
                 EnterCriticalSection(&instance.m_cs);
+
+                strncpy_s(m_pseudos[entityID], 32, PlayerMessage->pseudo, _TRUNCATE);
+
 
                 EntityClient* entityClient = new EntityClient();
                 entityClient->pEntity = cpuEngine.CreateEntity();
@@ -229,6 +235,7 @@ void ClientNetwork::ConnexionProtcol()
     ConnexionMessage msg{};
     msg.head.type = MessageType::CONNECTION;
     msg.magicnumber = htonl(8542);
+    strncpy_s(msg.pseudo, 32, MyPseudo, _TRUNCATE);
 
     SendMessageToServer(reinterpret_cast<const char*>(&msg), sizeof(ConnexionMessage));
 }

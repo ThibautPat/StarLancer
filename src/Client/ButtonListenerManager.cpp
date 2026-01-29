@@ -5,6 +5,8 @@ void ButtonListenerManager::Init()
 {
     ButtonListenerManager::RegisterButtonListener("onClickPlay", onClickPlay);
     ButtonListenerManager::RegisterButtonListener("EnterIp", EnterIp);
+    ButtonListenerManager::RegisterButtonListener("EnterPseudo", EnterIp);
+
 }
 
 void ButtonListenerManager::onClickPlay()
@@ -25,6 +27,19 @@ void ButtonListenerManager::EnterIp()
     }
 }
 
+void ButtonListenerManager::EnterPseudo()
+{
+    s_currentInput = "";
+    s_inputComplete = false;
+    s_inputActive = true;
+
+    // Réinitialiser l'état des touches
+    for (int i = 0; i < 256; i++)
+    {
+        s_keyWasPressed[i] = false;
+    }
+}
+
 void ButtonListenerManager::UpdateInput()
 {
     if (!s_inputActive || s_inputComplete)
@@ -33,7 +48,7 @@ void ButtonListenerManager::UpdateInput()
     // Vérifier Enter
     if (GetAsyncKeyState(VK_RETURN) & 0x8000)
     {
-        if (!s_keyWasPressed[VK_RETURN])
+        if (!s_keyWasPressed[VK_RETURN] && !App::GetInstance().network->Connected && App::GetInstance().network->PseudoSelected)
         {
             s_keyWasPressed[VK_RETURN] = true;
             s_inputComplete = true;
@@ -48,6 +63,17 @@ void ButtonListenerManager::UpdateInput()
             {
                 App::GetInstance().network->ChoseTarget(s_currentInput.c_str());
             }
+        }
+        else if (!s_keyWasPressed[VK_RETURN]&& !App::GetInstance().network->PseudoSelected)
+        {
+            s_keyWasPressed[VK_RETURN] = true;
+            s_inputComplete = true;
+            s_inputActive = false;
+
+            strncpy_s(App::GetInstance().network->MyPseudo, 32, s_currentInput.c_str(), _TRUNCATE);
+            App::GetInstance().network->PseudoSelected = true;
+
+
         }
     }
     else
@@ -64,7 +90,15 @@ void ButtonListenerManager::UpdateInput()
             if (!s_currentInput.empty())
             {
                 s_currentInput.pop_back();
-                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+                if(!App::GetInstance().network->PseudoSelected)
+                {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("pseudo"))->SetText(s_currentInput);
+
+                }
+                else {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+
+                }
             }
         }
     }
@@ -81,7 +115,15 @@ void ButtonListenerManager::UpdateInput()
             {
                 s_keyWasPressed[vk] = true;
                 s_currentInput += (char)vk;
-                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+                if (!App::GetInstance().network->PseudoSelected)
+                {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("pseudo"))->SetText(s_currentInput);
+
+                }
+                else {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+
+                }
             }
         }
         else
@@ -100,7 +142,15 @@ void ButtonListenerManager::UpdateInput()
                 s_keyWasPressed[vk] = true;
                 char digit = '0' + (vk - VK_NUMPAD0);
                 s_currentInput += digit;
-                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+                if (!App::GetInstance().network->PseudoSelected)
+                {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("pseudo"))->SetText(s_currentInput);
+
+                }
+                else {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+
+                }
             }
         }
         else
@@ -118,7 +168,15 @@ void ButtonListenerManager::UpdateInput()
                 s_keyWasPressed[vk] = true;
                 char c = (GetAsyncKeyState(VK_SHIFT) & 0x8000) ? (char)vk : (char)(vk + 32);
                 s_currentInput += c;
-                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+                if (!App::GetInstance().network->PseudoSelected)
+                {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("pseudo"))->SetText(s_currentInput);
+
+                }
+                else {
+                    dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+
+                }
             }
         }
         else
@@ -133,7 +191,15 @@ void ButtonListenerManager::UpdateInput()
         {
             s_keyWasPressed[VK_OEM_PERIOD] = true;
             s_currentInput += '.';
-            dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+            if (!App::GetInstance().network->PseudoSelected)
+            {
+                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("pseudo"))->SetText(s_currentInput);
+
+            }
+            else {
+                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+
+            }
         }
     }
     else
@@ -147,7 +213,15 @@ void ButtonListenerManager::UpdateInput()
         {
             s_keyWasPressed[VK_DECIMAL] = true;
             s_currentInput += '.';
-            dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+            if (!App::GetInstance().network->PseudoSelected)
+            {
+                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("pseudo"))->SetText(s_currentInput);
+
+            }
+            else {
+                dynamic_cast<UiText*>(App::GetInstance().menuManager->getCurrentMenu()->getElement("text_3"))->SetText(s_currentInput);
+
+            }
         }
     }
     else
