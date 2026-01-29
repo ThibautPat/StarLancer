@@ -152,6 +152,7 @@ int main()
             {
                 entity.second->NeedToRespawn = false;
                 entity.second->IsDead = false;
+                entity.second->life = 50;
 
                 RespawnEntity msg{};
                 msg.head.type = MessageType::RESPAWN;

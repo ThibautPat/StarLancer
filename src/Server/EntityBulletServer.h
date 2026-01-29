@@ -24,6 +24,8 @@ public:
 		entity->life -= damage;
 		if (entity->life < 0)
 			entity->life = 0;
+
+		IsDead = true;
 	}
 
 	void Update(float dt) override

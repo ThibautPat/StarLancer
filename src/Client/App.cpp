@@ -189,7 +189,6 @@ void App::CameraUpdate()
 
         XMFLOAT3 pos = { t.pos.x - (t.dir.x * camDistance) ,t.pos.y - (t.dir.y * camDistance)+ 4  ,t.pos.z - (t.dir.z * camDistance)};
 
-
         cam.SetPosition(pos.x, pos.y,pos.z);
         cam.ResetFlags();
         cam.LookAt(t.pos.x, t.pos.y, t.pos.z);
@@ -219,7 +218,6 @@ void App::ClearDeadEntity()
     {
         entity.second->clearEntity();
     }
-
 }
 
 void App::OnUpdate()
@@ -242,7 +240,6 @@ void App::OnUpdate()
 
     if(network->Connected == true)
     {
-
         InputManager();
 
         for (auto entitie : m_entities) 
