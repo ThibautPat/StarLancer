@@ -3,6 +3,7 @@
 class EntityClient
 {
 public:
+	bool bullet = false;
 	uint32_t entityID;
 	cpu_entity* pEntity;
 
