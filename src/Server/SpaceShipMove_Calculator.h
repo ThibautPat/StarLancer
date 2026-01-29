@@ -3,6 +3,7 @@
 
 static class SpaceShipMove_Calculator
 {
+
 public:
 
 	static void Calcul_Forward(User* user, ServerNetwork* network);

@@ -235,7 +235,7 @@ void App::InputManager()
         float deltaX = pt.x - centerX;
         float deltaY = pt.y - centerY;
 
-        const float DEADZONE = 1.0f;
+        const float DEADZONE = 5.0f;
 
         if (fabs(deltaX) < DEADZONE && fabs(deltaY) < DEADZONE)
         {

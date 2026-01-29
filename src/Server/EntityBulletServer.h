@@ -11,7 +11,7 @@ public:
 	XMFLOAT3 ownerBULLET_FORWARD = { 0.5f, 0.0f, 0.0f };
 
 	float LifeTime = 5;
-	const float BULLET_SPEED = 20.f;
+	const float BULLET_SPEED = 30.f;
 
 	EntityBulletServer();
 
